@@ -8,19 +8,10 @@
     <title>@yield("title", $webInfoGlobal->title ?? config('app.name'))</title> {{-- Thêm title mặc định --}}
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     {{-- Favicon (Thêm link favicon của bạn) --}}
-    {{-- <link rel="icon" href="/favicon.ico" type="image/x-icon"> --}}
+    <link rel="icon" href="{{asset("/client/icons/logo.ico")}}" type="image/x-icon">
     @stack("styles")
     {{-- Alpine JS --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        /* Thêm style để đảm bảo body chiếm đủ chiều cao nếu footer cần sticky */
-        /* html, body { height: 100%; }
-        body { display: flex; flex-direction: column; }
-        .main-content { flex-grow: 1; } */
-        /* Tùy chọn: Thêm font chữ mặc định */
-        /* body { font-family: 'Inter', sans-serif; } */
-        /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
-    </style>
 </head>
 <body class="bg-gray-100 text-gray-800 antialiased"> {{-- Thêm màu nền và font smoothing --}}
 
