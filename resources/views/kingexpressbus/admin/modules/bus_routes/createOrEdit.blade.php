@@ -1,3 +1,4 @@
+{{-- resources\views\kingexpressbus\admin\modules\bus_routes\createOrEdit.blade.php --}}
 @php
     use Carbon\Carbon;
         $isEdit = !empty($busRoute?->id);
@@ -48,7 +49,7 @@
                             @endforeach
                         </ul>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true">×</span>
                         </button>
                     </div>
                 @endif
@@ -81,6 +82,10 @@
                                        required/>
                     </div>
                 </div>
+
+                {{-- Thêm input cho giá vé --}}
+                <x-inputs.number label="Giá vé (VNĐ)" name="price" type="number" min="0"
+                                 :value="old('price', $busRoute?->price ?? 0)" required/>
 
                 <x-inputs.editor label="Chi tiết lịch trình (Điểm đón/trả cụ thể,...)" name="detail"
                                  :value="old('detail', $busRoute?->detail)" required/>
@@ -144,7 +149,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1 pt-3">
-                                        {{-- <label>&nbsp;</label> --}}
+                                        {{-- <label> </label> --}}
                                         <button type="button" class="btn btn-danger btn-sm btn-remove-stop w-100 mt-1">
                                             Xoá
                                         </button>

@@ -151,7 +151,7 @@
                 cols: {{ $busRouteData->seat_column_number ?? 0 }},
                 floors: {{ $busRouteData->floors ?? 1 }},
                 bookedSeats: {{ json_encode($bookedSeats) }},
-                pricePerSeat: {{ $busRouteData->start_price ?? 0 }}
+                pricePerSeat: {{ $busRouteData->price ?? 0 }}
             })"
                  class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start"
             >

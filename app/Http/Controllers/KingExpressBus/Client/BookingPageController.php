@@ -45,6 +45,7 @@ class BookingPageController extends Controller
                     'bus_routes.id as bus_route_id',
                     'bus_routes.start_at',
                     'bus_routes.slug as bus_route_slug',
+                    'bus_routes.price', // <<<< Lấy giá từ bus_routes
                     'buses.id as bus_id',
                     'buses.name as bus_name',
                     'buses.type as bus_type',
@@ -52,7 +53,7 @@ class BookingPageController extends Controller
                     'buses.seat_column_number',
                     'buses.floors',
                     'buses.number_of_seats as total_seats',
-                    'routes.start_price',
+                    // 'routes.start_price', // Không cần giá từ routes nữa
                     'routes.title as route_title',
                     'p_start.name as start_province_name',
                     'p_end.name as end_province_name'
@@ -117,9 +118,10 @@ class BookingPageController extends Controller
             ->select(
                 'bus_routes.id as bus_route_id',
                 'bus_routes.start_at',
+                'bus_routes.price', // <<<< Lấy giá từ bus_routes
                 'buses.name as bus_name',
                 'buses.type as bus_type',
-                'routes.start_price',
+                // 'routes.start_price', // Không cần giá từ routes
                 'routes.title as route_title',
                 'p_start.name as start_province_name',
                 'p_end.name as end_province_name'
@@ -234,7 +236,7 @@ class BookingPageController extends Controller
 
 
                 // 3. Tạo Booking Mới
-                $totalPrice = count($selectedSeats) * ($busRouteInfo->start_price ?? 0);
+                $totalPrice = count($selectedSeats) * ($busRouteInfo->price ?? 0); // <<<< Sử dụng $busRouteInfo->price
                 $bookingData = [
                     'customer_id' => $customer_id,
                     'bus_route_id' => $bus_route_id,
@@ -245,7 +247,7 @@ class BookingPageController extends Controller
                     'payment_status' => 'unpaid',
                     'created_at' => now(),
                     'updated_at' => now(),
-                    // 'total_price' => $totalPrice, // Thêm nếu có cột này
+                    // 'total_price' => $totalPrice, // Thêm nếu có cột này (tạm thời tính trực tiếp)
                 ];
                 $bookingId = DB::table('bookings')->insertGetId($bookingData);
 

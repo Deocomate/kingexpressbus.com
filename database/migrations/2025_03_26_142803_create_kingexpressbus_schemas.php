@@ -1,3 +1,4 @@
+// database\migrations\2025_03_26_142803_create_kingexpressbus_schemas.php
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -36,7 +37,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('url');
             $table->integer('priority')->default(0);
-            $table->unsignedBigInteger('parent_id');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->timestamps();
 
             $table->foreign('parent_id')
@@ -139,6 +140,7 @@ return new class extends Migration {
             $table->string('description');
             $table->time('start_at');
             $table->time('end_at');
+            $table->unsignedBigInteger('price')->default(0); // Thêm cột price
             $table->text('detail');
             $table->integer('priority')->default(0);
             $table->string('slug');
@@ -210,11 +212,17 @@ return new class extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-
+        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('customers');
+        Schema::dropIfExists('stops');
+        Schema::dropIfExists('bus_routes');
+        Schema::dropIfExists('buses');
+        Schema::dropIfExists('routes');
+        Schema::dropIfExists('districts');
+        Schema::dropIfExists('provinces');
+        Schema::dropIfExists('menus');
+        Schema::dropIfExists('web_info');
     }
 };

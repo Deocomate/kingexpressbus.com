@@ -19,9 +19,9 @@ class UserSeeder extends Seeder
         $countUser = DB::table('users')->get()->count();
         if ($countUser < 1) {
             User::insert([
-                'name' => "Admin",
-                'email' => "admin@gmail.com",
-                'password' => bcrypt('admin')
+                'name' => "root",
+                'email' => "root@gmail.com",
+                'password' => bcrypt('password123')
             ]);
         }
 

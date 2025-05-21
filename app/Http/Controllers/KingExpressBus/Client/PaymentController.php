@@ -20,13 +20,12 @@ class PaymentController extends Controller
      */
     public function createPayment(Request $request, $bookingId)
     {
-        // ... (Phần lấy booking và tính amount giữ nguyên) ...
         // 1. Lấy thông tin đơn hàng
         $booking = DB::table('bookings')
             ->join('bus_routes', 'bookings.bus_route_id', '=', 'bus_routes.id')
-            ->join('routes', 'bus_routes.route_id', '=', 'routes.id')
+            // ->join('routes', 'bus_routes.route_id', '=', 'routes.id') // Không cần join routes để lấy giá nữa
             ->where('bookings.id', $bookingId)
-            ->select('bookings.*', 'routes.start_price')
+            ->select('bookings.*', 'bus_routes.price as bus_route_price') // <<<< Lấy giá từ bus_routes
             ->first();
 
         if (!$booking) { /* ... xử lý lỗi ... */
@@ -40,7 +39,7 @@ class PaymentController extends Controller
 
         // 2. Tính toán tổng tiền
         $seatCount = count(json_decode($booking->seats, true) ?: []);
-        $amount = ($booking->start_price ?? 0) * $seatCount;
+        $amount = ($booking->bus_route_price ?? 0) * $seatCount; // <<<< Sử dụng giá từ bus_routes
         $vnp_Amount = (int)($amount * 100);
         if ($vnp_Amount <= 0) { /* ... xử lý lỗi ... */
             Log::error("VNPAY Create Payment Error: Invalid amount.", ['booking_id' => $bookingId, 'amount' => $amount]);
@@ -287,24 +286,74 @@ class PaymentController extends Controller
      * (Tùy chọn) Hàm riêng để gửi email. (Giữ nguyên)
      */
     private function sendBookingConfirmationEmail(int $bookingId): void
-    { /* ... code ... */
+    {
         try {
-            $bookingDetailsForMail = DB::table('bookings')->join('customers', 'bookings.customer_id', '=', 'customers.id')->join('bus_routes', 'bookings.bus_route_id', '=', 'bus_routes.id')->join('buses', 'bus_routes.bus_id', '=', 'buses.id')->join('routes', 'bus_routes.route_id', '=', 'routes.id')->join('provinces as p_start', 'routes.province_id_start', '=', 'p_start.id')->join('provinces as p_end', 'routes.province_id_end', '=', 'p_end.id')->where('bookings.id', $bookingId)->select('bookings.id as booking_id', 'bookings.seats', 'bookings.payment_method', 'bookings.payment_status', 'bookings.booking_date', 'customers.fullname as customer_name', 'customers.email as customer_email', 'customers.phone as customer_phone', 'bus_routes.start_at', 'bus_routes.slug as bus_route_slug', 'buses.name as bus_name', 'buses.type as bus_type', 'routes.title as route_title', 'routes.start_price', 'p_start.name as start_province_name', 'p_end.name as end_province_name')->first();
+            // Lấy thông tin chi tiết booking, bao gồm cả bus_routes.price
+            $bookingDetailsForMail = DB::table('bookings')
+                ->join('customers', 'bookings.customer_id', '=', 'customers.id')
+                ->join('bus_routes', 'bookings.bus_route_id', '=', 'bus_routes.id')
+                ->join('buses', 'bus_routes.bus_id', '=', 'buses.id')
+                ->join('routes', 'bus_routes.route_id', '=', 'routes.id') // Vẫn join routes để lấy thông tin chung
+                ->join('provinces as p_start', 'routes.province_id_start', '=', 'p_start.id')
+                ->join('provinces as p_end', 'routes.province_id_end', '=', 'p_end.id')
+                ->where('bookings.id', $bookingId)
+                ->select(
+                    'bookings.id as booking_id',
+                    'bookings.seats',
+                    'bookings.payment_method',
+                    'bookings.payment_status',
+                    'bookings.booking_date',
+                    'customers.fullname as customer_name',
+                    'customers.email as customer_email',
+                    'customers.phone as customer_phone',
+                    'bus_routes.start_at',
+                    'bus_routes.slug as bus_route_slug',
+                    'bus_routes.price as bus_route_price', // <<<< Lấy giá từ bus_routes
+                    'buses.name as bus_name',
+                    'buses.type as bus_type',
+                    'routes.title as route_title',
+                    // 'routes.start_price', // Không dùng giá này để tính tổng nữa
+                    'p_start.name as start_province_name',
+                    'p_end.name as end_province_name'
+                )->first();
+
             if (!$bookingDetailsForMail) {
                 Log::error("Cannot find booking details to send email.", ['booking_id' => $bookingId]);
                 return;
             }
             $selectedSeats = json_decode($bookingDetailsForMail->seats, true) ?: [];
-            $totalPrice = count($selectedSeats) * ($bookingDetailsForMail->start_price ?? 0);
+            // Tính tổng tiền dựa trên bus_route_price
+            $totalPrice = count($selectedSeats) * ($bookingDetailsForMail->bus_route_price ?? 0);
             $webInfo = DB::table('web_info')->first();
             $mailData = [ /* ... data mapping ... */
-                'booking_id' => $bookingDetailsForMail->booking_id, 'customer_name' => $bookingDetailsForMail->customer_name, 'customer_email' => $bookingDetailsForMail->customer_email, 'customer_phone' => $bookingDetailsForMail->customer_phone, 'route_title' => $bookingDetailsForMail->route_title, 'start_province' => $bookingDetailsForMail->start_province_name, 'end_province' => $bookingDetailsForMail->end_province_name, 'departure_date' => Carbon::parse($bookingDetailsForMail->booking_date)->format('d/m/Y'), 'start_time' => Carbon::parse($bookingDetailsForMail->start_at)->format('H:i'), 'bus_name' => $bookingDetailsForMail->bus_name, 'bus_type_name' => match ($bookingDetailsForMail->bus_type) {
+                'booking_id' => $bookingDetailsForMail->booking_id,
+                'customer_name' => $bookingDetailsForMail->customer_name,
+                'customer_email' => $bookingDetailsForMail->customer_email,
+                'customer_phone' => $bookingDetailsForMail->customer_phone,
+                'route_title' => $bookingDetailsForMail->route_title,
+                'start_province' => $bookingDetailsForMail->start_province_name,
+                'end_province' => $bookingDetailsForMail->end_province_name,
+                'departure_date' => Carbon::parse($bookingDetailsForMail->booking_date)->format('d/m/Y'),
+                'start_time' => Carbon::parse($bookingDetailsForMail->start_at)->format('H:i'),
+                'bus_name' => $bookingDetailsForMail->bus_name,
+                'bus_type_name' => match ($bookingDetailsForMail->bus_type) {
                     'sleeper' => 'Giường nằm',
                     'cabin' => 'Cabin đơn',
                     'doublecabin' => 'Cabin đôi',
                     'limousine' => 'Limousine',
                     default => ucfirst($bookingDetailsForMail->bus_type)
-                }, 'bus_route_slug' => $bookingDetailsForMail->bus_route_slug, 'seats' => $selectedSeats, 'total_price' => $totalPrice, 'payment_method' => $bookingDetailsForMail->payment_method, 'payment_status' => $bookingDetailsForMail->payment_status, 'web_logo' => $webInfo->logo ?? null, 'web_title' => $webInfo->title ?? config('app.name'), 'web_phone' => $webInfo->hotline ?? $webInfo->phone ?? null, 'web_email' => $webInfo->email ?? null, 'web_link' => $webInfo->web_link ?? null,];
+                },
+                'bus_route_slug' => $bookingDetailsForMail->bus_route_slug,
+                'seats' => $selectedSeats,
+                'total_price' => $totalPrice, // <<<< Sử dụng totalPrice đã tính lại
+                'payment_method' => $bookingDetailsForMail->payment_method,
+                'payment_status' => $bookingDetailsForMail->payment_status,
+                'web_logo' => $webInfo->logo ?? null,
+                'web_title' => $webInfo->title ?? config('app.name'),
+                'web_phone' => $webInfo->hotline ?? $webInfo->phone ?? null,
+                'web_email' => $webInfo->email ?? null,
+                'web_link' => $webInfo->web_link ?? null,
+            ];
             Mail::to($bookingDetailsForMail->customer_email)->queue(new BookingConfirmMail($mailData));
             Log::info('Booking confirmation email queued after successful payment/IPN.', ['booking_id' => $bookingId]);
         } catch (\Exception $e) {

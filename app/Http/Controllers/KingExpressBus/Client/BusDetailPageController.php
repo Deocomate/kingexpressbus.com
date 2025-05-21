@@ -35,6 +35,7 @@ class BusDetailPageController extends Controller
                     'bus_routes.slug as bus_route_slug',
                     'bus_routes.start_at',
                     'bus_routes.end_at',
+                    'bus_routes.price', // <<<< Lấy giá từ bus_routes
                     'bus_routes.description as bus_route_description',
                     'bus_routes.detail as bus_route_detail', // Chi tiết riêng của lịch trình nếu có
                     // Bus Info
@@ -48,7 +49,7 @@ class BusDetailPageController extends Controller
                     'buses.floors as bus_floors',
                     // Route Info
                     'routes.title as route_title',
-                    'routes.start_price',
+                    // 'routes.start_price', // Không cần giá từ route nữa
                     'routes.distance',
                     'routes.slug as route_slug',
                     'routes.duration as route_duration_text', // Thời gian dạng text của route

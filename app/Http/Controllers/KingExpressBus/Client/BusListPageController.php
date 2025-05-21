@@ -35,7 +35,6 @@ class BusListPageController extends Controller
                     'routes.id',
                     'routes.title',
                     'routes.slug',
-                    'routes.start_price', // Giá khởi điểm của tuyến
                     'p_start.name as start_province_name',
                     'p_end.name as end_province_name'
                 )
@@ -56,6 +55,7 @@ class BusListPageController extends Controller
                     'bus_routes.slug as bus_route_slug',
                     'bus_routes.start_at',
                     'bus_routes.end_at',
+                    'bus_routes.price',
                     'bus_routes.description as bus_route_description', // Mô tả của lịch trình
                     'buses.id as bus_id',
                     'buses.name as bus_name',
@@ -91,15 +91,12 @@ class BusListPageController extends Controller
                 case 'time_desc':
                     $query->orderBy('bus_routes.start_at', 'desc');
                     break;
-                // Sắp xếp theo giá nếu có giá riêng cho bus_route, nếu không dùng giá của route
                 case 'price_asc':
-                    // Giả sử giá lấy từ routes.start_price (cần join hoặc có sẵn)
-                    // Nếu giá nằm ở bảng khác hoặc tính toán phức tạp, cần điều chỉnh query
-                    $query->orderBy(DB::raw($route->start_price ?? 0), 'asc'); // Sắp xếp theo giá của route
+                    $query->orderBy('bus_routes.price', 'asc'); // <<<< Sắp xếp theo giá của bus_routes
                     $query->orderBy('bus_routes.start_at', 'asc'); // Thứ tự phụ
                     break;
                 case 'price_desc':
-                    $query->orderBy(DB::raw($route->start_price ?? 0), 'desc');
+                    $query->orderBy('bus_routes.price', 'desc'); // <<<< Sắp xếp theo giá của bus_routes
                     $query->orderBy('bus_routes.start_at', 'asc');
                     break;
                 default:
@@ -161,6 +158,8 @@ class BusListPageController extends Controller
             // Có thể trả về view lỗi hoặc quay lại trang trước với lỗi
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi tải danh sách chuyến xe.');
         }
+
+//        dd($busRoutes);
 
         // Truyền dữ liệu vào view
         return view("kingexpressbus.client.modules.bus_list.index", compact(

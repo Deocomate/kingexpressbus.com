@@ -36,7 +36,7 @@ class BusRouteController extends Controller
             $busRoutes = DB::table('bus_routes')
                 ->join('buses', 'bus_routes.bus_id', '=', 'buses.id')
                 ->where('bus_routes.route_id', $selectedRouteId)
-                ->select('bus_routes.*', 'buses.name as bus_name')
+                ->select('bus_routes.*', 'buses.name as bus_name') // Lấy tất cả cột từ bus_routes bao gồm cả price mới
                 ->orderBy('bus_routes.priority', 'asc')
                 ->orderBy('bus_routes.start_at', 'asc')
                 ->get();
@@ -110,6 +110,7 @@ class BusRouteController extends Controller
             'description' => 'required|string',
             'start_at' => 'required|date_format:H:i',
             'end_at' => 'required|date_format:H:i|after:start_at',
+            'price' => 'required|integer|min:0', // Thêm validation cho price
             'detail' => 'required|string',
             'priority' => 'required|integer',
             // <<< Start: Stop Validation >>>
@@ -246,6 +247,7 @@ class BusRouteController extends Controller
             'description' => 'required|string',
             'start_at' => 'required|date_format:H:i',
             'end_at' => 'required|date_format:H:i|after:start_at',
+            'price' => 'required|integer|min:0', // Thêm validation cho price
             'detail' => 'required|string',
             'priority' => 'required|integer',
             // <<< Start: Stop Validation >>>

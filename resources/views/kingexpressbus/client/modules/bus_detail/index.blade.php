@@ -91,7 +91,7 @@
                             <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                  fill="currentColor" viewBox="0 0 20 20">
                                 <path
-                                        d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
+                                    d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z"/>
                             </svg>
                             Trang chủ
                         </a>
@@ -177,7 +177,7 @@
                                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <span>Khởi hành: <span
-                                                class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}</span></span>
+                                            class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -186,7 +186,7 @@
                                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <span>Dự kiến đến: <span
-                                                class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->end_at)->format('H:i') }}</span></span>
+                                            class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->end_at)->format('H:i') }}</span></span>
                                 </div>
                                 <div class="flex items-center col-span-2">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -195,7 +195,7 @@
                                               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
                                     <span>Ngày đi: <span
-                                                class="font-semibold text-gray-800">{{ $departure_date->format('d/m/Y') }}</span></span>
+                                            class="font-semibold text-gray-800">{{ $departure_date->format('d/m/Y') }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -204,7 +204,7 @@
                                               d="M17.657 16.657l-1.414-1.414a1 1 0 00-1.414 0L12 17.586l-2.828-2.829a1 1 0 00-1.414 1.414l3.535 3.536a1 1 0 001.414 0l5.93-5.93a1 1 0 000-1.414zM12 21a9 9 0 100-18 9 9 0 000 18z"></path>
                                     </svg>
                                     <span>Điểm đi: <span
-                                                class="font-semibold text-gray-800">{{ $busRouteData->start_province_name }}</span></span>
+                                            class="font-semibold text-gray-800">{{ $busRouteData->start_province_name }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -213,7 +213,7 @@
                                               d="M17.657 16.657l-1.414-1.414a1 1 0 00-1.414 0L12 17.586l-2.828-2.829a1 1 0 00-1.414 1.414l3.535 3.536a1 1 0 001.414 0l5.93-5.93a1 1 0 000-1.414zM12 21a9 9 0 100-18 9 9 0 000 18z"></path>
                                     </svg>
                                     <span>Điểm đến: <span
-                                                class="font-semibold text-gray-800">{{ $busRouteData->end_province_name }}</span></span>
+                                            class="font-semibold text-gray-800">{{ $busRouteData->end_province_name }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -222,7 +222,7 @@
                                               d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                     </svg>
                                     <span>Thời gian: <span
-                                                class="font-semibold text-gray-800">{{ $busRouteData->duration_formatted ?? 'N/A' }}</span></span>
+                                            class="font-semibold text-gray-800">{{ $busRouteData->duration_formatted ?? 'N/A' }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -231,7 +231,7 @@
                                               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                     </svg>
                                     <span>Số chỗ: <span
-                                                class="font-semibold text-gray-800">{{ $busRouteData->total_seats ?? 'N/A' }}</span></span>
+                                            class="font-semibold text-gray-800">{{ $busRouteData->total_seats ?? 'N/A' }}</span></span>
                                 </div>
                             </div>
                         </div>
@@ -241,7 +241,7 @@
                             <div class="flex justify-between items-center mb-4">
                                 <p class="text-gray-700">Giá vé chỉ từ:</p>
                                 <p class="text-2xl font-bold text-yellow-600">
-                                    {{ $busRouteData->start_price ? number_format($busRouteData->start_price) . 'đ' : 'Liên hệ' }}
+                                    {{ $busRouteData->price ? number_format($busRouteData->price) . 'đ' : 'Liên hệ' }}
                                 </p>
                             </div>
                             <a href="{{ route('client.booking_page', ['bus_route_slug' => $busRouteData->bus_route_slug, 'departure_date' => $departure_date->format('Y-m-d')]) }}"
@@ -267,17 +267,17 @@
                         </li>
                         <li class="me-2" role="presentation">
                             <button
-                                    class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300"
-                                    id="stops-tab" data-tabs-target="#stops" type="button" role="tab"
-                                    aria-controls="stops"
-                                    aria-selected="false">Lộ trình & Điểm dừng
+                                class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300"
+                                id="stops-tab" data-tabs-target="#stops" type="button" role="tab"
+                                aria-controls="stops"
+                                aria-selected="false">Lộ trình & Điểm dừng
                             </button>
                         </li>
                         <li class="me-2" role="presentation">
                             <button
-                                    class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300"
-                                    id="description-tab" data-tabs-target="#description" type="button" role="tab"
-                                    aria-controls="description" aria-selected="false">Mô tả chi tiết
+                                class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300"
+                                id="description-tab" data-tabs-target="#description" type="button" role="tab"
+                                aria-controls="description" aria-selected="false">Mô tả chi tiết
                             </button>
                         </li>
                         {{-- Thêm tab Đánh giá nếu có --}}
@@ -314,7 +314,7 @@
                                 {{-- Điểm bắt đầu --}}
                                 <li class="flex items-center">
                                 <span
-                                        class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
+                                    class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
                                     {{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}
                                 </span>
                                     <span class="font-semibold">{{ $busRouteData->start_province_name }} (Điểm xuất phát)</span>
@@ -323,7 +323,7 @@
                                 @foreach($busRouteData->stops as $stop)
                                     <li class="flex items-center pl-3 border-l-2 border-dashed border-gray-300 ml-3">
                                      <span
-                                             class="flex items-center justify-center w-6 h-6 mr-3 bg-gray-400 text-white rounded-full text-xs font-bold">
+                                         class="flex items-center justify-center w-6 h-6 mr-3 bg-gray-400 text-white rounded-full text-xs font-bold">
                                          {{ \Carbon\Carbon::parse($stop->stop_at)->format('H:i') }}
                                      </span>
                                         <span>{{ $stop->stop_title ? $stop->stop_title . ' (' . $stop->district_name . ')' : $stop->district_name }}</span>
@@ -332,7 +332,7 @@
                                 {{-- Điểm kết thúc --}}
                                 <li class="flex items-center pl-3 border-l-2 border-transparent ml-3">
                                  <span
-                                         class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
+                                     class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
                                      {{ \Carbon\Carbon::parse($busRouteData->end_at)->format('H:i') }}
                                  </span>
                                     <span class="font-semibold">{{ $busRouteData->end_province_name }} (Điểm đến dự kiến)</span>

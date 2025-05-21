@@ -1,3 +1,4 @@
+{{-- resources\views\kingexpressbus\admin\modules\bus_routes\index.blade.php --}}
 @extends('kingexpressbus.admin.layouts.main')
 @section('title','Danh sách Lịch trình xe')
 
@@ -52,6 +53,7 @@
                         <th>Tên Xe</th>
                         <th>Giờ đi</th>
                         <th>Giờ đến</th>
+                        <th>Giá vé (VNĐ)</th> {{-- Thêm cột Giá vé --}}
                         <th>Ưu tiên</th>
                         <th>Hành động</th>
                     </tr>
@@ -64,6 +66,7 @@
                             <td>{{ $busRoute->bus_name }}</td> {{-- Lấy từ join --}}
                             <td>{{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</td> {{-- Format giờ --}}
                             <td>{{ \Carbon\Carbon::parse($busRoute->end_at)->format('H:i') }}</td> {{-- Format giờ --}}
+                            <td>{{ number_format($busRoute->price) }}</td> {{-- Hiển thị giá vé --}}
                             <td>{{ $busRoute->priority }}</td>
                             <td>
                                 <a class="btn btn-warning btn-sm"
@@ -101,7 +104,7 @@
                     "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "language": {"url": "/admin/plugins/datatables/Vietnamese.json"},
-                    "order": [[5, "asc"], [3, "asc"]] // Sắp xếp theo Ưu tiên rồi đến Giờ đi
+                    "order": [[6, "asc"], [3, "asc"]] // Cập nhật index cột order (Ưu tiên rồi đến Giờ đi)
                 }).buttons().container().appendTo('#data-table-bus-routes_wrapper .col-md-6:eq(0)');
             }
         });

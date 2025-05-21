@@ -156,7 +156,7 @@
                                         </div>
                                         <div class="text-right ml-4 flex-shrink-0">
                                             <p class="text-xl font-bold text-yellow-600">
-                                                {{ $route->start_price ? number_format($route->start_price) . 'đ' : 'Liên hệ' }}
+                                                {{ $busRoute->price ? number_format($busRoute->price) . 'đ' : 'Liên hệ' }}
                                             </p>
                                             <p class="text-xs text-gray-500">/vé</p>
                                         </div>
