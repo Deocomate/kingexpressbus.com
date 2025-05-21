@@ -1,4 +1,3 @@
-// database\migrations\2025_03_26_142803_create_kingexpressbus_schemas.php
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -13,32 +12,32 @@ return new class extends Migration {
     {
         // Create web_info table
         Schema::create('web_info', function (Blueprint $table) {
-            $table->id();
-            $table->string('logo');
-            $table->string('title');
-            $table->text('description');
-            $table->string('email');
-            $table->string('phone');
-            $table->string('hotline');
-            $table->string('phone_detail');
-            $table->string('web_link');
-            $table->string('facebook');
-            $table->string('zalo');
-            $table->string('address');
-            $table->text('map');
-            $table->longText('policy');
-            $table->text('detail');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->string('logo')->nullable();
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('hotline')->nullable();
+            $table->string('phone_detail')->nullable();
+            $table->string('web_link')->nullable();
+            $table->string('facebook')->nullable();
+            $table->string('zalo')->nullable();
+            $table->string('address')->nullable();
+            $table->text('map')->nullable();
+            $table->longText('policy')->nullable();
+            $table->text('detail')->nullable();
+            $table->nullableTimestamps(); // Makes created_at and updated_at nullable
         });
 
         // Create menus table
         Schema::create('menus', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('url');
-            $table->integer('priority')->default(0);
-            $table->unsignedBigInteger('parent_id')->nullable();
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->string('name')->nullable();
+            $table->string('url')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable(); // Already nullable
+            $table->nullableTimestamps();
 
             $table->foreign('parent_id')
                 ->references('id')
@@ -48,33 +47,33 @@ return new class extends Migration {
 
         // Create provinces table
         Schema::create('provinces', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->enum('type', ['thanhpho', 'tinh']);
-            $table->string('title');
-            $table->string('description');
-            $table->string('thumbnail');
-            $table->json('images');
-            $table->longText('detail');
-            $table->integer('priority')->default(0);
-            $table->string('slug');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->string('name')->nullable();
+            $table->enum('type', ['thanhpho', 'tinh'])->nullable();
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->json('images')->nullable();
+            $table->longText('detail')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->string('slug')->nullable();
+            $table->nullableTimestamps();
         });
 
         // Create districts table
         Schema::create('districts', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('province_id');
-            $table->string('name');
-            $table->enum('type', ['quan', 'huyen', 'thanhpho', 'thixa', 'benxe', 'sanbay', 'diadiemdulich']);
-            $table->string('title');
-            $table->string('description');
-            $table->string('thumbnail');
-            $table->json('images');
-            $table->longText('detail');
-            $table->integer('priority')->default(0);
-            $table->string('slug');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->unsignedBigInteger('province_id')->nullable(); // Made nullable
+            $table->string('name')->nullable();
+            $table->enum('type', ['quan', 'huyen', 'thanhpho', 'thixa', 'benxe', 'sanbay', 'diadiemdulich'])->nullable();
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->json('images')->nullable();
+            $table->longText('detail')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->string('slug')->nullable();
+            $table->nullableTimestamps();
 
             $table->foreign('province_id')
                 ->references('id')
@@ -84,20 +83,20 @@ return new class extends Migration {
 
         // Create routes table
         Schema::create('routes', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('province_id_start');
-            $table->unsignedBigInteger('province_id_end');
-            $table->string('title');
-            $table->string('description');
-            $table->string('thumbnail');
-            $table->json('images');
-            $table->integer('distance');
-            $table->string('duration');
-            $table->integer('start_price');
-            $table->longText('detail');
-            $table->integer('priority')->default(0);
-            $table->string('slug');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->unsignedBigInteger('province_id_start')->nullable(); // Made nullable
+            $table->unsignedBigInteger('province_id_end')->nullable(); // Made nullable
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->json('images')->nullable();
+            $table->integer('distance')->nullable();
+            $table->string('duration')->nullable();
+            $table->integer('start_price')->nullable();
+            $table->longText('detail')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->string('slug')->nullable();
+            $table->nullableTimestamps();
 
             $table->foreign('province_id_start')
                 ->references('id')
@@ -112,39 +111,39 @@ return new class extends Migration {
 
         // Create buses table
         Schema::create('buses', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->text('description');
-            $table->string('thumbnail');
-            $table->json('images');
-            $table->string('name');
-            $table->string('model_name');
-            $table->enum('type', ['sleeper', 'cabin', 'doublecabin', 'limousine']);
-            $table->integer('number_of_seats');
-            $table->json('services');
-            $table->integer('floors');
-            $table->integer('seat_row_number');
-            $table->integer('seat_column_number');
-            $table->longText('detail');
-            $table->integer('priority')->default(0);
-            $table->string('slug');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->string('title')->nullable();
+            $table->text('description')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->json('images')->nullable();
+            $table->string('name')->nullable();
+            $table->string('model_name')->nullable();
+            $table->enum('type', ['sleeper', 'cabin', 'doublecabin', 'limousine'])->nullable();
+            $table->integer('number_of_seats')->nullable();
+            $table->json('services')->nullable();
+            $table->integer('floors')->nullable();
+            $table->integer('seat_row_number')->nullable();
+            $table->integer('seat_column_number')->nullable();
+            $table->longText('detail')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->string('slug')->nullable();
+            $table->nullableTimestamps();
         });
 
         // Create bus_routes table
         Schema::create('bus_routes', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('bus_id');
-            $table->unsignedBigInteger('route_id');
-            $table->string('title');
-            $table->string('description');
-            $table->time('start_at');
-            $table->time('end_at');
-            $table->unsignedBigInteger('price')->default(0); // Thêm cột price
-            $table->text('detail');
-            $table->integer('priority')->default(0);
-            $table->string('slug');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->unsignedBigInteger('bus_id')->nullable(); // Made nullable
+            $table->unsignedBigInteger('route_id')->nullable(); // Made nullable
+            $table->string('title')->nullable();
+            $table->string('description')->nullable();
+            $table->time('start_at')->nullable();
+            $table->time('end_at')->nullable();
+            $table->unsignedBigInteger('price')->default(0)->nullable();
+            $table->text('detail')->nullable();
+            $table->integer('priority')->default(0)->nullable();
+            $table->string('slug')->nullable();
+            $table->nullableTimestamps();
 
             $table->foreign('bus_id')
                 ->references('id')
@@ -159,11 +158,13 @@ return new class extends Migration {
 
         // Create stops table
         Schema::create('stops', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('bus_route_id');
-            $table->unsignedBigInteger('district_id');
-            $table->string('title');
-            $table->time('stop_at');
+            $table->id(); // Primary key, not nullable
+            $table->unsignedBigInteger('bus_route_id')->nullable(); // Made nullable
+            $table->unsignedBigInteger('district_id')->nullable(); // Made nullable
+            $table->string('title')->nullable();
+            $table->time('stop_at')->nullable();
+            // Note: No timestamps() or nullableTimestamps() here in the original, adding nullableTimestamps for consistency
+            $table->nullableTimestamps();
 
             $table->foreign('bus_route_id')
                 ->references('id')
@@ -178,27 +179,27 @@ return new class extends Migration {
 
         // Create customers table
         Schema::create('customers', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('fullname');
-            $table->string('email')->unique();
-            $table->string('phone');
-            $table->string('address');
-            $table->string('password');
-            $table->boolean('is_registered')->default(false);
-            $table->timestamps();
+            $table->increments('id'); // Primary key, not nullable
+            $table->string('fullname')->nullable();
+            $table->string('email')->unique()->nullable();
+            $table->string('phone')->nullable();
+            $table->string('address')->nullable();
+            $table->string('password')->nullable();
+            $table->boolean('is_registered')->default(false)->nullable();
+            $table->nullableTimestamps();
         });
 
         // Create bookings table
         Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('customer_id');
-            $table->unsignedBigInteger('bus_route_id');
-            $table->date('booking_date');
-            $table->json('seats');
-            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending');
-            $table->enum('payment_method', ['online', 'offline'])->default('offline');
-            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
-            $table->timestamps();
+            $table->id(); // Primary key, not nullable
+            $table->unsignedInteger('customer_id')->nullable(); // Made nullable
+            $table->unsignedBigInteger('bus_route_id')->nullable(); // Made nullable
+            $table->date('booking_date')->nullable();
+            $table->json('seats')->nullable();
+            $table->enum('status', ['pending', 'confirmed', 'cancelled', 'completed'])->default('pending')->nullable();
+            $table->enum('payment_method', ['online', 'offline'])->default('offline')->nullable();
+            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid')->nullable();
+            $table->nullableTimestamps();
 
             $table->foreign('customer_id')
                 ->references('id')
@@ -212,6 +213,9 @@ return new class extends Migration {
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('bookings');
