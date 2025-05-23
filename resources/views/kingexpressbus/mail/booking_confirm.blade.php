@@ -5,27 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Xác nhận đặt vé - {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}</title>
-    {{-- Bỏ khối <style> đi --}}
+    {{-- Inline CSS for better email client compatibility --}}
 </head>
 <body
     style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f4f4;">
 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4;">
     <tr>
         <td align="center">
-            {{-- Container chính --}}
             <table width="600" border="0" cellpadding="0" cellspacing="0"
                    style="max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #dddddd; border-radius: 5px; background-color: #ffffff;">
-                {{-- Header --}}
                 <tr>
                     <td align="center"
                         style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee;">
+                        @if(!empty($bookingDetails['web_logo']))
+                            <img src="{{ $bookingDetails['web_logo'] }}"
+                                 alt="{{ $bookingDetails['web_title'] ?? 'King Express Bus' }}"
+                                 style="max-height: 70px; margin-bottom: 10px;">
+                        @endif
                         <h2 style="margin: 5px 0 0 0; font-size: 20px; color: #333333;">Xác nhận đặt vé thành công</h2>
                         <p style="margin: 5px 0 0 0; font-style: italic; color: #555555; font-size: 14px;">Booking
                             Confirmation Successful</p>
                     </td>
                 </tr>
-
-                {{-- Content --}}
                 <tr>
                     <td style="padding: 10px 0;">
                         <p style="margin: 10px 0; font-size: 14px;"><strong style="font-weight: bold;">Kính gửi Quý
@@ -41,7 +42,6 @@
                         <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
                             Chi tiết đặt vé / <span style="font-style: italic;">Booking Details</span></h3>
 
-                        {{-- Bảng chi tiết đặt vé --}}
                         <table width="100%" border="0" cellpadding="10" cellspacing="0"
                                style="border-collapse: collapse; margin: 20px 0; font-size: 14px;">
                             <tbody>
@@ -96,35 +96,29 @@
                                 <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
                                     Loại xe (Bus)
                                 </th>
-                                <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;">
-                                    {{ $bookingDetails['bus_name'] ?? 'N/A' }}
+                                <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;">{{ $bookingDetails['bus_name'] ?? 'N/A' }}
                                     ({{ $bookingDetails['bus_type_name'] ?? 'N/A' }})
-                                    {{-- Bỏ link xem chi tiết xe trong mail cho đơn giản --}}
                                 </td>
                             </tr>
                             <tr>
                                 <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
-                                    Số ghế (Seats)
+                                    Số lượng vé (Quantity)
                                 </th>
-                                <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;">
-                                    @if(!empty($bookingDetails['seats']) && is_array($bookingDetails['seats']))
-                                        @foreach($bookingDetails['seats'] as $seat)
-                                            {{-- Style cho từng ghế --}}
-                                            <span
-                                                style="display: inline-block; background-color: #f59e0b; color: white; padding: 3px 8px; border-radius: 4px; font-size: 12px; margin-right: 5px; margin-bottom: 5px; font-weight: bold;">{{ $seat }}</span>
-                                        @endforeach
-                                    @else
-                                        N/A
-                                    @endif
-                                </td>
+                                <td style="border: 1px solid #dddddd; padding: 10px; text-align: left; font-weight: bold; color: #333333;">{{ $bookingDetails['quantity'] ?? 'N/A' }}</td>
                             </tr>
                             <tr style="background-color:#f9f9f9">
+                                <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
+                                    Điểm đón (Pickup Point)
+                                </th>
+                                <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;">{{ $bookingDetails['pickup_info'] ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
                                 <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
                                     Tổng tiền (Price)
                                 </th>
                                 <td style="border: 1px solid #dddddd; padding: 10px; text-align: left; font-weight: bold; color: #333333;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . 'đ' : 'Liên hệ' }}</td>
                             </tr>
-                            <tr>
+                            <tr style="background-color:#f9f9f9">
                                 <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
                                     Thanh toán (Payment)
                                 </th>
@@ -133,7 +127,6 @@
                                         Thanh toán sau (Tại văn phòng/lên xe) / <span
                                             style="font-style: italic; color: #555555;">Pay later (At office/on board)</span>
                                     @elseif($bookingDetails['payment_method'] === 'online')
-                                        {{-- Cập nhật trạng thái nếu đã thanh toán online thành công --}}
                                         @if($bookingDetails['payment_status'] === 'paid')
                                             Đã thanh toán trực tuyến / <span
                                                 style="font-style: italic; color: #555555;">Paid Online</span>
@@ -192,12 +185,10 @@
                             Express Bus!</p>
                     </td>
                 </tr>
-
-                {{-- Footer --}}
                 <tr>
                     <td style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center;">
                         <p style="margin: 5px 0;">
-                            &copy; {{ date('Y') }} {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}. All rights
+                            © {{ date('Y') }} {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}. All rights
                             reserved.</p>
                         @if(!empty($bookingDetails['web_link']))
                             <p style="margin: 5px 0;"><a href="{{ $bookingDetails['web_link'] }}"
@@ -206,9 +197,9 @@
                         @endif
                     </td>
                 </tr>
-            </table> {{-- Đóng container chính --}}
+            </table>
         </td>
     </tr>
-</table> {{-- Đóng table bao ngoài --}}
+</table>
 </body>
 </html>

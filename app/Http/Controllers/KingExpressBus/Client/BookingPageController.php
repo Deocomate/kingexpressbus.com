@@ -4,26 +4,21 @@ namespace App\Http\Controllers\KingExpressBus\Client;
 
 use App\Http\Controllers\Controller;
 use App\Mail\KingExpressBus\BookingConfirmMail;
-
-// Đảm bảo đã import Mailable
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-
-// Thêm RedirectResponse
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-
-// Đảm bảo đã import Mail Facade
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Arr;
+
+// Keep Arr for isList if needed later
 use Carbon\Carbon;
 
 class BookingPageController extends Controller
 {
     public function index(Request $request, string $bus_route_slug)
     {
-        // --- Lấy và Validate Ngày đi ---
         $departure_date_str = $request->query('departure_date', session('departure_date'));
         try {
             $departure_date = Carbon::parse($departure_date_str)->startOfDay();
@@ -34,7 +29,6 @@ class BookingPageController extends Controller
         }
 
         try {
-            // --- Lấy thông tin Chuyến xe (Bus Route) và Xe (Bus) ---
             $busRouteData = DB::table('bus_routes')
                 ->join('buses', 'bus_routes.bus_id', '=', 'buses.id')
                 ->join('routes', 'bus_routes.route_id', '=', 'routes.id')
@@ -45,15 +39,11 @@ class BookingPageController extends Controller
                     'bus_routes.id as bus_route_id',
                     'bus_routes.start_at',
                     'bus_routes.slug as bus_route_slug',
-                    'bus_routes.price', // <<<< Lấy giá từ bus_routes
+                    'bus_routes.price',
                     'buses.id as bus_id',
                     'buses.name as bus_name',
                     'buses.type as bus_type',
-                    'buses.seat_row_number',
-                    'buses.seat_column_number',
-                    'buses.floors',
-                    'buses.number_of_seats as total_seats',
-                    // 'routes.start_price', // Không cần giá từ routes nữa
+                    'buses.number_of_seats as total_seats', // Contextual info
                     'routes.title as route_title',
                     'p_start.name as start_province_name',
                     'p_end.name as end_province_name'
@@ -72,17 +62,25 @@ class BookingPageController extends Controller
                 default => ucfirst($busRouteData->bus_type)
             };
 
-            // --- Lấy danh sách ghế đã đặt ---
-            $bookedSeatsData = DB::table('bookings')
-                ->where('bus_route_id', $busRouteData->bus_route_id)
-                ->whereDate('booking_date', $departure_date->format('Y-m-d'))
-                ->whereNotIn('status', ['cancelled'])
-                ->pluck('seats');
+            // Fetch stops for pickup points
+            $stops = DB::table('stops')
+                ->join('districts', 'stops.district_id', '=', 'districts.id')
+                ->where('stops.bus_route_id', $busRouteData->bus_route_id)
+                ->select('stops.id as stop_id', 'stops.title as stop_title_specific', 'stops.stop_at', 'districts.name as district_name', 'districts.type as district_type')
+                ->orderBy('stops.stop_at', 'asc')
+                ->get()
+                ->map(function ($stop) {
+                    // Create a more descriptive name for the stop
+                    $stop->display_name = $stop->stop_title_specific ?: $stop->district_name;
+                    if ($stop->stop_title_specific && $stop->stop_title_specific !== $stop->district_name) {
+                        $stop->display_name = $stop->stop_title_specific . ' (' . $stop->district_name . ')';
+                    }
+                    return $stop;
+                });
 
-            $bookedSeats = $bookedSeatsData->flatMap(fn($jsonSeats) => json_decode($jsonSeats, true) ?: [])->unique()->values()->toArray();
 
-            // --- Lấy thông tin khách hàng nếu đã đăng nhập ---
             $customer = session()->has('customer_id') ? DB::table('customers')->find(session('customer_id')) : null;
+            $webInfo = DB::table('web_info')->first(); // For policies and payment address
 
         } catch (\Exception $e) {
             Log::error('Error fetching booking page data: ' . $e->getMessage(), ['bus_route_slug' => $bus_route_slug]);
@@ -92,23 +90,21 @@ class BookingPageController extends Controller
         return view("kingexpressbus.client.modules.booking.index", compact(
             'busRouteData',
             'departure_date',
-            'bookedSeats',
-            'customer'
+            'customer',
+            'stops',
+            'webInfo'
         ));
     }
 
-    public function booking(Request $request, string $bus_route_slug): RedirectResponse // Thêm type hint
+    public function booking(Request $request, string $bus_route_slug): RedirectResponse
     {
-        // --- Lấy Ngày đi từ session ---
         $departure_date_str = session('departure_date');
-
         try {
             $departure_date = Carbon::parse($departure_date_str)->startOfDay();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Phiên làm việc đã hết hạn hoặc ngày đi không hợp lệ. Vui lòng thử lại.')->withInput();
         }
 
-        // --- Lấy thông tin Bus Route, Route, Bus ---
         $busRouteInfo = DB::table('bus_routes')
             ->join('buses', 'bus_routes.bus_id', '=', 'buses.id')
             ->join('routes', 'bus_routes.route_id', '=', 'routes.id')
@@ -118,33 +114,33 @@ class BookingPageController extends Controller
             ->select(
                 'bus_routes.id as bus_route_id',
                 'bus_routes.start_at',
-                'bus_routes.price', // <<<< Lấy giá từ bus_routes
+                'bus_routes.price',
                 'buses.name as bus_name',
                 'buses.type as bus_type',
-                // 'routes.start_price', // Không cần giá từ routes
                 'routes.title as route_title',
                 'p_start.name as start_province_name',
                 'p_end.name as end_province_name'
             )
             ->first();
+
         if (!$busRouteInfo) {
             return redirect()->route('homepage')->with('error', 'Chuyến xe không tồn tại.');
         }
         $bus_route_id = $busRouteInfo->bus_route_id;
 
-        // --- Validation Dữ liệu ---
         $validator = Validator::make($request->all(), [
-            'seats' => 'required|array|min:1',
-            'seats.*' => 'required|string|max:10',
+            'number_of_tickets' => 'required|integer|min:1',
             'fullname' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15', // Cập nhật regex nếu cần
+            'phone' => 'required|string|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
             'address' => 'nullable|string|max:255',
             'payment_method' => 'required|in:online,offline',
+            'pickup_point' => 'required|string',
+            'hotel_address_detail' => 'nullable|string|max:255|required_if:pickup_point,hotel_old_quarter',
         ], [
-            'seats.required' => 'Vui lòng chọn ít nhất một ghế.',
-            'seats.min' => 'Vui lòng chọn ít nhất một ghế.',
-            'seats.*.required' => 'Mã ghế không hợp lệ.',
+            'number_of_tickets.required' => 'Vui lòng nhập số lượng vé.',
+            'number_of_tickets.integer' => 'Số lượng vé phải là số.',
+            'number_of_tickets.min' => 'Vui lòng đặt ít nhất 1 vé.',
             'fullname.required' => 'Vui lòng nhập họ và tên.',
             'email.required' => 'Vui lòng nhập địa chỉ email.',
             'email.email' => 'Địa chỉ email không hợp lệ.',
@@ -153,127 +149,143 @@ class BookingPageController extends Controller
             'phone.min' => 'Số điện thoại quá ngắn.',
             'payment_method.required' => 'Vui lòng chọn phương thức thanh toán.',
             'payment_method.in' => 'Phương thức thanh toán không hợp lệ.',
+            'pickup_point.required' => 'Vui lòng chọn điểm đón.',
+            'hotel_address_detail.required_if' => 'Vui lòng nhập địa chỉ khách sạn tại Phố Cổ.',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $selectedSeats = $request->input('seats');
         $paymentMethod = $request->input('payment_method');
         $customerInfo = $request->only(['fullname', 'email', 'phone', 'address']);
+        $numberOfTickets = (int)$request->input('number_of_tickets');
+        $pickupOptionValue = $request->input('pickup_point'); // e.g., "stop_id_123_Ben Xe My Dinh" or "hotel_old_quarter"
+        $hotelAddressDetail = $request->input('hotel_address_detail');
 
-        // --- Xử lý Đặt vé trong Transaction ---
         $bookingResult = null;
-        $customerForMail = null; // Biến này sẽ chứa thông tin khách hàng để gửi mail (cho offline)
+        $customerForMail = null;
         $totalPrice = 0;
+        $pickupInfoForMail = ''; // This will hold the text for the email
 
         try {
-            // Sử dụng DB::transaction để đảm bảo tính toàn vẹn
-            DB::transaction(function () use ($request, $bus_route_id, $departure_date, $selectedSeats, $paymentMethod, $customerInfo, $busRouteInfo, &$bookingResult, &$customerForMail, &$totalPrice) {
+            DB::transaction(function () use (
+                $request, $bus_route_id, $departure_date, $paymentMethod, $customerInfo,
+                $busRouteInfo, &$bookingResult, &$customerForMail, &$totalPrice,
+                $numberOfTickets, $pickupOptionValue, $hotelAddressDetail, &$pickupInfoForMail
+            ) {
 
-                // 1. Kiểm tra lại ghế trống (quan trọng)
-                $allCurrentlyBookedSeats = DB::table('bookings')
-                    ->where('bus_route_id', $bus_route_id)
-                    ->whereDate('booking_date', $departure_date->format('Y-m-d'))
-                    ->whereNotIn('status', ['cancelled'])
-                    ->lockForUpdate() // *** Thêm lock để tránh race condition ***
-                    ->pluck('seats')
-                    ->flatMap(fn($json) => json_decode($json, true) ?: [])
-                    ->unique()->toArray();
-
-                $conflictingSeats = [];
-                foreach ($selectedSeats as $seat) {
-                    if (in_array($seat, $allCurrentlyBookedSeats)) {
-                        $conflictingSeats[] = $seat;
-                    }
-                }
-                if (!empty($conflictingSeats)) {
-                    throw new \Exception("Ghế [" . implode(', ', $conflictingSeats) . "] vừa được đặt. Vui lòng chọn lại.");
-                }
-
-                // 2. Tìm hoặc Tạo Khách hàng
+                // 1. Find or Create Customer
                 $customer_id = session('customer_id');
-                $customerRecord = null; // Biến lưu trữ bản ghi customer đầy đủ
+                $customerRecord = null;
 
                 if (!$customer_id) {
-                    // Dùng updateOrCreate để tránh lỗi nếu email đã tồn tại
-                    $customerRecord = DB::table('customers')->updateOrInsert(
-                        ['email' => $customerInfo['email']],
-                        [
+                    // Attempt to find customer by email first
+                    $customerRecord = DB::table('customers')->where('email', $customerInfo['email'])->first();
+                    if ($customerRecord) { // If customer exists, update their info if necessary
+                        DB::table('customers')->where('id', $customerRecord->id)->update([
                             'fullname' => $customerInfo['fullname'],
                             'phone' => $customerInfo['phone'],
                             'address' => $customerInfo['address'],
-                            'is_registered' => false,
+                            // 'is_registered' => $customerRecord->is_registered, // Keep existing registration status
+                            'updated_at' => now(),
+                        ]);
+                        // Re-fetch to ensure we have the latest, including ID
+                        $customerRecord = DB::table('customers')->find($customerRecord->id);
+                    } else { // Customer does not exist, create new
+                        $newCustomerId = DB::table('customers')->insertGetId([
+                            'fullname' => $customerInfo['fullname'],
+                            'email' => $customerInfo['email'],
+                            'phone' => $customerInfo['phone'],
+                            'address' => $customerInfo['address'],
+                            'is_registered' => false, // New non-registered customer
                             'password' => null,
                             'created_at' => now(),
                             'updated_at' => now(),
-                        ]
-                    );
-                    // Lấy lại ID sau khi updateOrCreate (vì nó có thể trả về boolean)
-                    if (is_bool($customerRecord) && $customerRecord) { // Nếu trả về true (chỉ update)
-                        $customerRecord = DB::table('customers')->where('email', $customerInfo['email'])->first();
-                    } elseif (!is_bool($customerRecord)) { // Nếu trả về model (khi insert)
-                        // Đã có $customerRecord
-                    } else { // Lỗi không xác định
+                        ]);
+                        $customerRecord = DB::table('customers')->find($newCustomerId);
+                    }
+                    if (!$customerRecord || !$customerRecord->id) {
                         throw new \Exception("Không thể tạo hoặc cập nhật thông tin khách hàng.");
                     }
                     $customer_id = $customerRecord->id;
-
-                } else {
-                    // Lấy thông tin khách hàng đã đăng nhập
+                } else { // Customer is logged in
                     $customerRecord = DB::table('customers')->find($customer_id);
                     if (!$customerRecord) {
-                        // Nếu không tìm thấy customer dù có session_id (lỗi lạ)
-                        session()->forget('customer_id'); // Xóa session lỗi
+                        session()->forget('customer_id'); // Clear invalid session
                         throw new \Exception("Thông tin tài khoản không hợp lệ, vui lòng đăng nhập lại.");
                     }
-                    // Cập nhật thông tin nếu cần (ví dụ: cập nhật sđt, địa chỉ nếu khác)
-                    // DB::table('customers')->where('id', $customer_id)->update([...]);
+                    // Optionally update logged-in customer's info if different from form
+                    // For simplicity, we'll assume form info is for this booking only if logged in,
+                    // unless you want to explicitly update their profile here.
                 }
-                // Gán customer record để dùng cho mail
                 $customerForMail = $customerRecord;
 
 
-                // 3. Tạo Booking Mới
-                $totalPrice = count($selectedSeats) * ($busRouteInfo->price ?? 0); // <<<< Sử dụng $busRouteInfo->price
+                // 2. Prepare pickup information and seats JSON
+                $pickupDisplayText = ''; // For display in email/confirmation
+                $finalPickupDetailForDb = null; // For storing in DB if it's a hotel
+
+                if ($pickupOptionValue === 'hotel_old_quarter') {
+                    $pickupDisplayText = "Đón tại khách sạn Phố Cổ: " . $hotelAddressDetail;
+                    $finalPickupDetailForDb = $hotelAddressDetail;
+                } else {
+                    // Extract stop name from "stop_id_ID_Stop Name"
+                    if (preg_match('/^stop_id_(\d+)_(.+)$/', $pickupOptionValue, $matches)) {
+                        $stopId = $matches[1];
+                        $pickupDisplayText = $matches[2]; // The actual name part
+                        // Fetch stop time if $stopId is valid
+                        $stopData = DB::table('stops')->where('id', $stopId)->first();
+                        if ($stopData && $stopData->stop_at) {
+                            $pickupDisplayText .= ' (Dự kiến: ' . Carbon::parse($stopData->stop_at)->format('H:i') . ')';
+                        }
+                    } else {
+                        $pickupDisplayText = $pickupOptionValue; // Fallback if format is unexpected
+                    }
+                }
+                $pickupInfoForMail = $pickupDisplayText;
+
+                // New structure for 'seats' column
+                $seatsJsonData = json_encode([
+                    'quantity' => $numberOfTickets,
+                    'pickup_option_value' => $pickupOptionValue, // Store the raw value from select
+                    'pickup_display_text' => $pickupDisplayText, // Store the formatted text for display
+                    'pickup_address_detail' => ($pickupOptionValue === 'hotel_old_quarter') ? $hotelAddressDetail : null
+                ]);
+
+
+                // 3. Create New Booking
+                $totalPrice = $numberOfTickets * ($busRouteInfo->price ?? 0);
                 $bookingData = [
                     'customer_id' => $customer_id,
                     'bus_route_id' => $bus_route_id,
                     'booking_date' => $departure_date->format('Y-m-d'),
-                    'seats' => json_encode($selectedSeats),
+                    'seats' => $seatsJsonData, // Store new JSON structure
                     'payment_method' => $paymentMethod,
-                    'status' => ($paymentMethod === 'offline') ? 'confirmed' : 'pending', // Online là pending
+                    'status' => ($paymentMethod === 'offline') ? 'confirmed' : 'pending',
                     'payment_status' => 'unpaid',
                     'created_at' => now(),
                     'updated_at' => now(),
-                    // 'total_price' => $totalPrice, // Thêm nếu có cột này (tạm thời tính trực tiếp)
                 ];
                 $bookingId = DB::table('bookings')->insertGetId($bookingData);
 
-                // Gán kết quả trả về từ transaction
                 $bookingResult = [
                     'success' => true,
                     'booking_id' => $bookingId,
-                    'total_price' => $totalPrice, // Trả về tổng giá để dùng sau
+                    'total_price' => $totalPrice,
                 ];
 
-            }); // Kết thúc DB::transaction
+            }); // End DB::transaction
 
-            // --- Xử lý sau Transaction ---
             if ($bookingResult && $bookingResult['success']) {
                 $bookingId = $bookingResult['booking_id'];
-                $totalPrice = $bookingResult['total_price']; // Lấy tổng giá từ kết quả transaction
+                $totalPrice = $bookingResult['total_price'];
 
-                // *** Xử lý dựa trên phương thức thanh toán ***
                 if ($paymentMethod === 'online') {
-                    // *** CHUYỂN HƯỚNG ĐẾN VNPAY ***
                     Log::info('Redirecting to VNPAY create payment.', ['booking_id' => $bookingId]);
                     return redirect()->route('payment.vnpay.create', ['bookingId' => $bookingId]);
-
                 } else { // Thanh toán offline
-                    // *** GỬI EMAIL XÁC NHẬN (OFFLINE) ***
-                    if ($customerForMail) { // $customerForMail đã được gán trong transaction
+                    if ($customerForMail) {
                         try {
                             $webInfo = DB::table('web_info')->first();
                             $mailData = [
@@ -287,16 +299,17 @@ class BookingPageController extends Controller
                                 'departure_date' => $departure_date->format('d/m/Y'),
                                 'start_time' => Carbon::parse($busRouteInfo->start_at)->format('H:i'),
                                 'bus_name' => $busRouteInfo->bus_name,
-                                'bus_type_name' => match ($busRouteInfo->bus_type) { /*...*/
+                                'bus_type_name' => match ($busRouteInfo->bus_type) {
                                     'sleeper' => 'Giường nằm',
                                     'cabin' => 'Cabin đơn',
                                     'doublecabin' => 'Cabin đôi',
                                     'limousine' => 'Limousine',
                                     default => ucfirst($busRouteInfo->bus_type)
                                 },
-                                'bus_route_slug' => $bus_route_slug,
-                                'seats' => $selectedSeats,
-                                'total_price' => $totalPrice, // Sử dụng $totalPrice đã tính
+                                'bus_route_slug' => $bus_route_slug, // For potential links in email
+                                'quantity' => $numberOfTickets,
+                                'pickup_info' => $pickupInfoForMail, // Use the prepared display text
+                                'total_price' => $totalPrice,
                                 'payment_method' => $paymentMethod,
                                 'payment_status' => 'unpaid',
                                 'web_logo' => $webInfo->logo ?? null,
@@ -305,27 +318,24 @@ class BookingPageController extends Controller
                                 'web_email' => $webInfo->email ?? null,
                                 'web_link' => $webInfo->web_link ?? null,
                             ];
-                            Mail::to($customerForMail->email)->send(new BookingConfirmMail($mailData)); // Dùng queue
-                            Mail::to("kingexpressbus@gmail.com")->send(new BookingConfirmMail($mailData)); // Dùng queue
+                            Mail::to($customerForMail->email)->send(new BookingConfirmMail($mailData));
+                            Mail::to("kingexpressbus@gmail.com")->send(new BookingConfirmMail($mailData));
                             Log::info('Offline booking confirmation email queued.', ['booking_id' => $bookingId]);
                         } catch (\Exception $e) {
-                            dd($e);
                             Log::error('Failed to queue offline booking email.', ['booking_id' => $bookingId, 'error' => $e->getMessage()]);
                         }
                     } else {
                         Log::warning('Customer info not available for sending offline email.', ['booking_id' => $bookingId]);
                     }
-                    session()->forget('departure_date');
+                    session()->forget('departure_date'); // Clear after successful booking
                     return redirect()->route('homepage')
                         ->with('success', 'Đặt vé thành công! Mã đặt vé của bạn là #' . $bookingId . '. Vui lòng thanh toán khi lên xe hoặc tại văn phòng.');
                 }
             } else {
-                // Trường hợp transaction không thành công nhưng không ném Exception
                 throw new \Exception("Không thể hoàn tất đặt vé do lỗi không xác định trong transaction.");
             }
-
         } catch (\Exception $e) {
-            Log::error('Booking process failed: ' . $e->getMessage(), ['request_data' => $request->except(['_token'])]);
+            Log::error('Booking process failed: ' . $e->getMessage(), ['request_data' => $request->except(['_token', 'password', 'password_confirmation'])]);
             return redirect()->back()->with('error', 'Đặt vé thất bại: ' . $e->getMessage())->withInput();
         }
     }

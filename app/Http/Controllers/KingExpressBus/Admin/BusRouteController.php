@@ -102,9 +102,6 @@ class BusRouteController extends Controller
             'bus_id' => [
                 'required',
                 'exists:buses,id',
-                Rule::unique('bus_routes')->where(function ($query) use ($request) {
-                    return $query->where('route_id', $request->input('route_id'));
-                })
             ],
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -239,9 +236,6 @@ class BusRouteController extends Controller
             'bus_id' => [
                 'required',
                 'exists:buses,id',
-                Rule::unique('bus_routes')->where(function ($query) use ($request, $busRoute) {
-                    return $query->where('route_id', $busRoute->route_id); // Use original route_id
-                })->ignore($id)
             ],
             'title' => 'required|string|max:255',
             'description' => 'required|string',
