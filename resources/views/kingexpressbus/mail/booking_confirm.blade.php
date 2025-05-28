@@ -7,7 +7,7 @@
     <title>Xác nhận đặt vé - {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}</title>
 </head>
 <body
-    style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f4f4;">
+        style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f4f4;">
 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f4f4f4;">
     <tr>
         <td align="center">
@@ -49,7 +49,7 @@
                                     Mã đặt vé (ID)
                                 </th>
                                 <td style="border: 1px solid #dddddd; padding: 10px; text-align: left; font-weight: bold; color: #333333;">
-                                    #{{ $bookingDetails['booking_id'] ?? 'N/A' }}</td>
+                                    #{{$bookingDetails['customer_phone'] ?? 'N/A' }}</td>
                             </tr>
                             <tr style="background-color:#f9f9f9">
                                 <th style="border: 1px solid #dddddd; padding: 10px; text-align: left; width: 150px; font-weight: bold; color: #555555;">
@@ -62,8 +62,8 @@
                                     Email
                                 </th>
                                 <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;"><a
-                                        href="mailto:{{ $bookingDetails['customer_email'] ?? '' }}"
-                                        style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['customer_email'] ?? 'N/A' }}</a>
+                                            href="mailto:{{ $bookingDetails['customer_email'] ?? '' }}"
+                                            style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['customer_email'] ?? 'N/A' }}</a>
                                 </td>
                             </tr>
                             <tr style="background-color:#f9f9f9">
@@ -124,14 +124,14 @@
                                 <td style="border: 1px solid #dddddd; padding: 10px; text-align: left;">
                                     @if($bookingDetails['payment_method'] === 'offline')
                                         Thanh toán sau (Tại văn phòng/lên xe) / <span
-                                            style="font-style: italic; color: #555555;">Pay later (At office/on board)</span>
+                                                style="font-style: italic; color: #555555;">Pay later (At office/on board)</span>
                                     @elseif($bookingDetails['payment_method'] === 'online')
                                         @if($bookingDetails['payment_status'] === 'paid')
                                             Đã thanh toán trực tuyến / <span
-                                                style="font-style: italic; color: #555555;">Paid Online</span>
+                                                    style="font-style: italic; color: #555555;">Paid Online</span>
                                         @else
                                             Chuyển khoản ngân hàng (Chờ xác nhận) / <span
-                                                style="font-style: italic; color: #555555;">Bank Transfer (Awaiting confirmation)</span>
+                                                    style="font-style: italic; color: #555555;">Bank Transfer (Awaiting confirmation)</span>
                                         @endif
                                     @else
                                         {{ ucfirst($bookingDetails['payment_method'] ?? 'N/A') }}
@@ -161,7 +161,8 @@
                                 <strong>2 – Chuyển khoản qua ngân hàng:</strong> Quý khách chuyển khoản cho chúng tôi
                                 theo thông tin tài khoản mà chúng tôi cung cấp dưới đây. Khi chuyển khoản quý khách lưu
                                 ý ghi rõ thông tin trong nội dung chuyển khoản <b
-                                    style="font-weight: bold; color: #D9534F;">(Tên + Số điện thoại khách hàng)</b> để
+                                        style="font-weight: bold; color: #D9534F;">(Tên + Số điện thoại khách hàng)</b>
+                                để
                                 chúng tôi tiện theo dõi và chuyển ủy
                                 nhiệm chi cho chúng tôi qua mail kingexpressbus@gmail.com.
                             </p>
@@ -197,15 +198,15 @@
 
                         <p style="font-weight: bold; margin-top: 20px; font-size: 14px;">
                             Nếu Quý khách có bất kỳ thắc mắc nào, vui lòng liên hệ Hotline/Zalo/WhatsApp: <a
-                                href="tel:{{ $bookingDetails['web_phone'] ?? '+84924300366' }}"
-                                style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_phone'] ?? '+84924300366' }}</a>
+                                    href="tel:{{ $bookingDetails['web_phone'] ?? '+84924300366' }}"
+                                    style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_phone'] ?? '+84924300366' }}</a>
                             hoặc Email: <a href="mailto:{{ $bookingDetails['web_email'] ?? '' }}"
                                            style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_email'] ?? '' }}</a>.
                         </p>
                         <p style="font-style: italic; font-weight: bold; color: #555555; font-size: 14px;">
                             If you have any further questions, please contact us via Hotline/Zalo/WhatsApp: <a
-                                href="tel:{{ $bookingDetails['web_phone'] ?? '+84924300366' }}"
-                                style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_phone'] ?? '+84924300366' }}</a>
+                                    href="tel:{{ $bookingDetails['web_phone'] ?? '+84924300366' }}"
+                                    style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_phone'] ?? '+84924300366' }}</a>
                             or Email: <a href="mailto:{{ $bookingDetails['web_email'] ?? '' }}"
                                          style="color: #B8860B; text-decoration: none;">{{ $bookingDetails['web_email'] ?? '' }}</a>.
                         </p>
