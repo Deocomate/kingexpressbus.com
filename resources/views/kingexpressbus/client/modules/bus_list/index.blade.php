@@ -52,7 +52,7 @@
                     {{ $route->end_province_name }}
                 </h1>
                 <p class="text-gray-600 mt-1">Ngày đi: <span
-                            class="font-semibold">{{ $departure_date->format('d/m/Y') }}</span></p>
+                        class="font-semibold">{{ $departure_date->format('d/m/Y') }}</span></p>
                 {{-- Có thể thêm nút đổi ngày/tuyến ở đây --}}
                 <a href="{{ route('homepage') }}#search-section"
                    class="text-sm text-yellow-600 hover:text-yellow-800 mt-2 inline-block">&larr; Đổi tìm kiếm</a>
@@ -114,7 +114,7 @@
                                     <option value="">Tất cả loại xe</option>
                                     @foreach($availableBusTypes as $typeName => $typeValue)
                                         <option
-                                                value="{{ $typeValue }}" @selected($filter_bus_type == $typeValue)>{{ $typeName }}</option>
+                                            value="{{ $typeValue }}" @selected($filter_bus_type == $typeValue)>{{ $typeName }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -142,7 +142,7 @@
                         <div class="md:flex">
                             {{-- Hình ảnh xe --}}
                             <div class="md:flex-shrink-0">
-                                <img class="h-48 w-full h-full object-cover md:w-64"
+                                <img class="h-48 h-full object-cover md:w-80"
                                      src="{{ $busRoute->bus_thumbnail ?? 'https://placehold.co/300x200/fef3c7/ca8a04?text=' . urlencode($busRoute->bus_name) }}"
                                      alt="Xe {{ $busRoute->bus_name }}">
                             </div>
@@ -164,14 +164,14 @@
 
                                     <div class="flex items-center text-gray-700 mb-3">
                                         <span
-                                                class="font-bold text-lg">{{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</span>
+                                            class="font-bold text-lg">{{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</span>
                                         <svg class="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor"
                                              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                   d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                                         </svg>
                                         <span
-                                                class="text-gray-500">{{ \Carbon\Carbon::parse($busRoute->end_at)->format('H:i') }}</span>
+                                            class="text-gray-500">{{ \Carbon\Carbon::parse($busRoute->end_at)->format('H:i') }}</span>
                                         <span class="text-gray-500 text-sm ml-3">({{ $busRoute->duration_formatted ?? '...' }})</span>
                                     </div>
 
@@ -192,7 +192,7 @@
                                             <div class="flex flex-wrap gap-2">
                                                 @foreach($busRoute->bus_services as $service)
                                                     <span
-                                                            class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded border border-yellow-300">{{ $service }}</span>
+                                                        class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded border border-yellow-300">{{ $service }}</span>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -221,12 +221,12 @@
                                             <div id="accordion-stops-body-{{ $busRoute->bus_route_id }}" class="hidden"
                                                  aria-labelledby="accordion-stops-heading-{{ $busRoute->bus_route_id }}">
                                                 <div
-                                                        class="p-3 border border-t-0 border-gray-200 rounded-b-lg bg-gray-50">
+                                                    class="p-3 border border-t-0 border-gray-200 rounded-b-lg bg-gray-50">
                                                     <ul class="list-disc list-inside space-y-1 text-xs text-gray-600">
                                                         @foreach($busRoute->stops as $stop)
                                                             <li>
                                                                 <span
-                                                                        class="font-semibold">{{ \Carbon\Carbon::parse($stop->stop_at)->format('H:i') }}</span>
+                                                                    class="font-semibold">{{ \Carbon\Carbon::parse($stop->stop_at)->format('H:i') }}</span>
                                                                 - {{ $stop->stop_title ? $stop->stop_title . ' (' . $stop->district_name . ')' : $stop->district_name }}
                                                             </li>
                                                         @endforeach
