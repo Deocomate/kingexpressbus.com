@@ -149,23 +149,25 @@
                             {{-- Thông tin chuyến --}}
                             <div class="p-4 md:p-6 flex-grow flex flex-col justify-between">
                                 <div>
-                                    <div class="flex justify-between items-start mb-2">
+                                    <div class="flex justify-between items-start mb-3">
                                         <div>
-                                            <h3 class="text-xl font-semibold text-gray-800">{{ $busRoute->bus_name }}</h3>
-                                            <p class="text-sm text-yellow-700">{{ $busRoute->bus_type_name }}</p>
+                                            <h3 class="text-xl lg:text-2xl font-bold text-gray-800">{{ $busRoute->bus_name }}</h3>
                                         </div>
                                         <div class="text-right ml-4 flex-shrink-0">
-                                            <p class="text-xl font-bold text-yellow-600">
-                                                {{ $busRoute->price ? number_format($busRoute->price) . 'đ' : 'Liên hệ' }}
+                                            <p class="text-xl lg:text-2xl font-bold text-yellow-600">
+                                                {{ $busRoute->price ? number_format($busRoute->price) . 'VND' : 'Liên hệ' }}
                                             </p>
-                                            <p class="text-xs text-gray-500">/vé</p>
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center text-gray-700 mb-3">
+                                    <p class="text-sm text-gray-600 mb-3">
                                         <span
-                                            class="font-bold text-lg">Giờ khởi hành: {{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</span>
-                                    </div>
+                                            class="font-medium">Giờ khởi hành:</span> {{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}
+                                    </p>
+
+                                    <p class="text-sm text-gray-600 mb-3">
+                                        <span class="font-medium">Loại xe:</span> {{ $busRoute->bus_type_name }}
+                                    </p>
 
                                     <p class="text-sm text-gray-600 mb-3">
                                         <span class="font-medium">Điểm đi:</span> {{ $route->start_province_name }}
