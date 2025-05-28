@@ -160,19 +160,10 @@
                             <p style="font-size: 14px; margin-bottom: 10px; padding-left: 15px;">
                                 <strong>2 – Chuyển khoản qua ngân hàng:</strong> Quý khách chuyển khoản cho chúng tôi
                                 theo thông tin tài khoản mà chúng tôi cung cấp dưới đây. Khi chuyển khoản quý khách lưu
-                                ý ghi rõ thông tin trong nội dung chuyển khoản để chúng tôi tiện theo dõi và chuyển ủy
+                                ý ghi rõ thông tin trong nội dung chuyển khoản <b
+                                    style="font-weight: bold; color: #D9534F;">(Tên + Số điện thoại khách hàng)</b> để
+                                chúng tôi tiện theo dõi và chuyển ủy
                                 nhiệm chi cho chúng tôi qua mail kingexpressbus@gmail.com.
-                            </p>
-                            <p style="font-size: 14px; margin-bottom: 15px; padding-left: 30px;">
-                                Vui lòng chuyển khoản số tiền <strong
-                                    style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VNĐ' : '...' }}</strong>
-                                với nội dung <strong
-                                    style="font-weight: bold;">{{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong>
-                                vào một trong các tài khoản sau để giữ vé:
-                                <br>
-                                <span style="font-style: italic; color: #555555;">Please transfer the amount of <strong
-                                        style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VND' : '...' }}</strong> with the memo <strong
-                                        style="font-weight: bold;">{{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong> (e.g., An 1234) to one of the following accounts to secure your ticket:</span>
                             </p>
                             <table width="100%" border="0" cellpadding="8" cellspacing="0"
                                    style="border-collapse: collapse; margin-bottom: 15px; margin-left: 30px; max-width: 540px; font-size: 14px;">
