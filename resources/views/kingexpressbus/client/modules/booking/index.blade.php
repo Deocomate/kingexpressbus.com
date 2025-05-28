@@ -225,7 +225,7 @@
                                          class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
                                         <p class="font-semibold">Thông tin chuyển khoản:</p>
                                         <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                                        <p><strong>Số tài khoản:</strong> 2924300366</p>
+                                        <p><strong>Số tài khoản:</strong> 0924300366</p>
                                         <p><strong>Chủ tài khoản:</strong> Nguyen Vu Ha My</p>
                                         <p><strong>Số tiền:</strong> <span x-text="formatCurrency(totalPrice)"></span>
                                         </p>
