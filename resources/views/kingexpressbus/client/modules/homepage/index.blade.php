@@ -124,7 +124,7 @@
                                                     <p class="text-sm text-gray-500">{{ $route->distance ? number_format($route->distance) . 'km' : '' }}{{ $route->distance && $route->duration ? ' - ' : '' }}{{ $route->duration ?? '' }}</p>
                                                 </div>
                                                 <div class="text-yellow-600 font-bold text-lg whitespace-nowrap ml-2">
-                                                    {{ $route->start_price ? number_format($route->start_price) . 'đ' : 'Liên hệ' }}
+                                                    {{ $route->start_price ? number_format($route->start_price) . 'VND' : 'Liên hệ' }}
                                                 </div>
                                             </div>
                                             <p class="text-sm text-gray-600 mb-4 line-clamp-2">
