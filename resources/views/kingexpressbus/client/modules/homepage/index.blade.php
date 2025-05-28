@@ -109,7 +109,7 @@
                                     {{-- Ảnh tuyến đường --}}
                                     <img
                                         src="{{ $route->thumbnail ?? 'https://placehold.co/600x400/fef3c7/ca8a04?text=' . urlencode($route->start_province_name . ' - ' . $route->end_province_name) }}"
-                                        alt="Tuyến {{ $route->title }}" class="w-full h-40 object-cover">
+                                        alt="Tuyến {{ $route->title }}" class="w-full h-60 object-cover">
                                     {{-- Nội dung card --}}
                                     <div class="p-5"> {{-- Giảm padding chút --}}
                                         <div class="route-card-content">
@@ -335,7 +335,7 @@
                         },
                         // when window width is >= 1024px
                         1024: {
-                            slidesPerView: 3,
+                            slidesPerView: 2,
                             spaceBetween: 30
                         }
                     },
