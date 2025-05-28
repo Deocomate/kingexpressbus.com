@@ -178,31 +178,50 @@
                         {{-- Phương thức thanh toán --}}
                         <div class="mb-6 border-t border-gray-200 pt-6">
                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
-                            <fieldset>
+                            <fieldset x-data="{ paymentMethod: '{{ old('payment_method', 'offline') }}' }">
                                 <legend class="sr-only">Chọn phương thức thanh toán</legend>
                                 <div class="space-y-3">
                                     <div
                                         class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_offline" type="radio" value="offline" name="payment_method"
+                                               x-model="paymentMethod"
                                                required
                                                {{ old('payment_method', 'offline') == 'offline' ? 'checked' : '' }} class="w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2">
                                         <label for="payment_offline"
                                                class="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-pointer">
-                                            Thanh toán sau (Tại VP/Lên xe) <p class="text-xs text-gray-500 mt-0.5">Giữ
+                                            Thanh toán tiền mặt (Tại VP/Lên xe) <p class="text-xs text-gray-500 mt-0.5">
+                                                Giữ
                                                 chỗ và thanh toán trực tiếp.</p></label>
                                     </div>
-                                    {{-- VNPAY Option - Disabled Temporarily --}}
+                                    {{-- Bank Transfer Option --}}
                                     <div
-                                        class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400 relative opacity-50 cursor-not-allowed">
+                                        class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_online" type="radio" value="online" name="payment_method"
-                                               disabled
+                                               x-model="paymentMethod"
+                                               {{ old('payment_method') == 'online' ? 'checked' : '' }}
+                                               required
                                                class="w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2">
                                         <label for="payment_online"
-                                               class="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-not-allowed">
-                                            Thanh toán Online qua VNPAY
-                                            <span class="text-xs text-red-500 ml-1">(Tạm thời không khả dụng)</span>
-                                            <p class="text-xs text-gray-500 mt-0.5">Thanh toán ngay để xác nhận vé.</p>
+                                               class="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-pointer">
+                                            Chuyển khoản ngân hàng (Giữ vé sau khi chuyển khoản)
+                                            <span class="text-xs text-gray-500 mt-0.5 block">Vui lòng chuyển khoản theo thông tin bên dưới để hoàn tất đặt vé.</span>
                                         </label>
+                                    </div>
+                                    {{-- Bank details shown when "online" payment is selected --}}
+                                    <div x-show="paymentMethod === 'online'" x-transition
+                                         class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-700">
+                                        <p class="font-semibold">Thông tin chuyển khoản:</p>
+                                        <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                                        <p><strong>Số tài khoản:</strong> 0924300366</p>
+                                        <p><strong>Chủ tài khoản:</strong> Nguyen Vu Ha My</p>
+                                        <p><strong>Số tiền:</strong> <span x-text="formatCurrency(totalPrice)"></span>
+                                        </p>
+                                        <p><strong>Nội dung chuyển khoản:</strong> <span class="font-semibold">KEB <span
+                                                    x-text="document.getElementById('fullname')?.value.trim().split(' ').pop() || 'TEN'"></span> <span
+                                                    x-text="document.getElementById('phone')?.value.slice(-4) || 'SDT'"></span></span>
+                                            (Ví dụ: KEB An 1234)</p>
+                                        <p class="mt-1 text-xs text-blue-600">Quý khách vui lòng ghi đúng nội dung
+                                            chuyển khoản để việc xác nhận được nhanh chóng.</p>
                                     </div>
                                 </div>
                                 @error('payment_method') <p
@@ -218,7 +237,6 @@
                                 <template x-if="isSubmitting">
                                     <div class="spinner mr-2"></div>
                                 </template>
-                                {{-- Sửa lỗi hiển thị text ở đây --}}
                                 <span
                                     x-text="isSubmitting ? 'Đang xử lý...' : `Xác nhận đặt ${numberOfTickets >= 1 ? numberOfTickets : 0} vé`"></span>
                             </button>

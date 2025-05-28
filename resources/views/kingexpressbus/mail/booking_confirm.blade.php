@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Xác nhận đặt vé - {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}</title>
-    {{-- Inline CSS for better email client compatibility --}}
 </head>
 <body
     style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f4f4;">
@@ -22,9 +21,9 @@
                                  alt="{{ $bookingDetails['web_title'] ?? 'King Express Bus' }}"
                                  style="max-height: 70px; margin-bottom: 10px;">
                         @endif
-                        <h2 style="margin: 5px 0 0 0; font-size: 20px; color: #333333;">Xác nhận đặt vé thành công</h2>
+                        <h2 style="margin: 5px 0 0 0; font-size: 20px; color: #333333;">Xác nhận yêu cầu đặt vé</h2>
                         <p style="margin: 5px 0 0 0; font-style: italic; color: #555555; font-size: 14px;">Booking
-                            Confirmation Successful</p>
+                            Request Confirmation</p>
                     </td>
                 </tr>
                 <tr>
@@ -35,8 +34,8 @@
                         </p>
                         <p style="margin: 10px 0; font-size: 14px;">
                             King Express Bus xin chân thành cảm ơn Quý khách đã tin tưởng và sử dụng dịch vụ của chúng
-                            tôi. Chúng tôi xác nhận thông tin đặt vé của Quý khách như sau:<br>
-                            <span style="font-style: italic; color: #555555;">King Express Bus would like to thank you for trusting and using our services. We confirm your booking information as follows:</span>
+                            tôi. Chúng tôi xác nhận thông tin yêu cầu đặt vé của Quý khách như sau:<br>
+                            <span style="font-style: italic; color: #555555;">King Express Bus would like to thank you for trusting and using our services. We confirm your booking request information as follows:</span>
                         </p>
 
                         <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
@@ -131,8 +130,8 @@
                                             Đã thanh toán trực tuyến / <span
                                                 style="font-style: italic; color: #555555;">Paid Online</span>
                                         @else
-                                            Thanh toán trực tuyến (Chờ xử lý) / <span
-                                                style="font-style: italic; color: #555555;">Online Payment (Pending)</span>
+                                            Chuyển khoản ngân hàng (Chờ xác nhận) / <span
+                                                style="font-style: italic; color: #555555;">Bank Transfer (Awaiting confirmation)</span>
                                         @endif
                                     @else
                                         {{ ucfirst($bookingDetails['payment_method'] ?? 'N/A') }}
@@ -141,6 +140,54 @@
                             </tr>
                             </tbody>
                         </table>
+
+                        {{-- Bank Transfer Information - Conditional --}}
+                        @if($bookingDetails['needs_bank_transfer_info'] && $bookingDetails['payment_status'] !== 'paid')
+                            <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
+                                Thông tin chuyển khoản / <span
+                                    style="font-style: italic;">Bank Transfer Information</span>
+                            </h3>
+                            <p style="font-size: 14px; margin-bottom: 15px;">
+                                Vui lòng chuyển khoản số tiền <strong
+                                    style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VNĐ' : '...' }}</strong>
+                                với nội dung <strong
+                                    style="font-weight: bold;">KEB {{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong>
+                                (Ví dụ: KEB An 1234) vào một trong các tài khoản sau để giữ vé:
+                                <br>
+                                <span style="font-style: italic; color: #555555;">Please transfer the amount of <strong
+                                        style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VND' : '...' }}</strong> with the memo <strong
+                                        style="font-weight: bold;">KEB {{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong> (e.g., KEB An 1234) to one of the following accounts to secure your ticket:</span>
+                            </p>
+                            <table width="100%" border="0" cellpadding="8" cellspacing="0"
+                                   style="border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                                <tr style="background-color:#f9f9f9;">
+                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #555555;">
+                                        Ngân hàng (Bank):
+                                    </td>
+                                    <td style="border: 1px solid #dddddd; padding: 8px;">Vietcombank</td>
+                                </tr>
+                                <tr>
+                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #555555;">
+                                        Số tài khoản (Account No.):
+                                    </td>
+                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #B8860B;">
+                                        2924300366
+                                    </td>
+                                </tr>
+                                <tr style="background-color:#f9f9f9;">
+                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #555555;">
+                                        Chủ tài khoản (Beneficiary):
+                                    </td>
+                                    <td style="border: 1px solid #dddddd; padding: 8px;">Nguyen Vu Ha My</td>
+                                </tr>
+                            </table>
+                            <p style="font-size: 13px; color: #777777; margin-bottom: 15px;">
+                                <i>Lưu ý: Vé của bạn sẽ được xác nhận sau khi chúng tôi nhận được thanh toán. Vui lòng
+                                    hoàn tất chuyển khoản trong vòng 24 giờ.</i><br>
+                                <span style="font-style: italic;">Note: Your ticket will be confirmed once we receive the payment. Please complete the transfer within 24 hours.</span>
+                            </p>
+                        @endif
+
 
                         <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
                             Lưu ý / <span style="font-style: italic;">Notes</span></h3>
