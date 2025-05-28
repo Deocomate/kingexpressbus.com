@@ -164,7 +164,7 @@
 
                                     <div class="flex items-center text-gray-700 mb-3">
                                         <span
-                                            class="font-bold text-lg">{{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</span>
+                                            class="font-bold text-lg">Giờ khởi hành: {{ \Carbon\Carbon::parse($busRoute->start_at)->format('H:i') }}</span>
                                         <svg class="w-4 h-4 mx-2 text-gray-400" fill="none" stroke="currentColor"
                                              viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -172,12 +172,20 @@
                                         </svg>
                                         <span
                                             class="text-gray-500">{{ \Carbon\Carbon::parse($busRoute->end_at)->format('H:i') }}</span>
-                                        <span class="text-gray-500 text-sm ml-3">({{ $busRoute->duration_formatted ?? '...' }})</span>
+                                        <span class="text-gray-500 text-sm ml-3">(Khoảng {{ $busRoute->duration_formatted ?? '...' }})</span>
                                     </div>
 
                                     <p class="text-sm text-gray-600 mb-3">
-                                        <span class="font-medium">Điểm đi:</span> {{ $route->start_province_name }} -
+                                        <span class="font-medium">Điểm đi:</span> {{ $route->start_province_name }}
+                                    </p>
+
+                                    <p class="text-sm text-gray-600 mb-3">
                                         <span class="font-medium">Điểm đến:</span> {{ $route->end_province_name }}
+                                    </p>
+
+                                    <p class="text-sm text-gray-600 mb-3">
+                                        <span class="font-medium">Số chỗ:</span> {{ $busRoute->total_seats ?? 'N/A' }}
+                                        chỗ {{-- Tạm hiển thị tổng số ghế --}}
                                     </p>
 
                                     {{-- Tiện ích --}}
