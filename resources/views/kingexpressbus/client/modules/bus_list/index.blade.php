@@ -142,7 +142,7 @@
                         <div class="md:flex">
                             {{-- Hình ảnh xe --}}
                             <div class="md:flex-shrink-0">
-                                <img class="h-48 h-full object-cover md:w-80"
+                                <img class="h-30 h-full object-cover md:w-96 lg:w-130"
                                      src="{{ $busRoute->bus_thumbnail ?? 'https://placehold.co/300x200/fef3c7/ca8a04?text=' . urlencode($busRoute->bus_name) }}"
                                      alt="Xe {{ $busRoute->bus_name }}">
                             </div>
