@@ -141,13 +141,29 @@
                             </tbody>
                         </table>
 
-                        {{-- Bank Transfer Information - Conditional --}}
+                        {{-- Payment Information - Conditional --}}
                         @if($bookingDetails['needs_bank_transfer_info'] && $bookingDetails['payment_status'] !== 'paid')
                             <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
-                                Thông tin chuyển khoản / <span
-                                    style="font-style: italic;">Bank Transfer Information</span>
+                                Hình thức thanh toán / <span style="font-style: italic;">Payment Methods</span>
                             </h3>
                             <p style="font-size: 14px; margin-bottom: 15px;">
+                                Khi đặt các dịch vụ tại King Express Bus, để giữ và đảm bảo dịch vụ quý khách vui lòng
+                                thanh toán cho booking. Việc thanh toán thông thường được tiến hành bằng các cách sau:
+                            </p>
+                            <p style="font-size: 14px; margin-bottom: 10px; padding-left: 15px;">
+                                <strong>1 – Thanh toán tiền mặt:</strong> Quý khách đến và thanh toán trực tiếp tại công
+                                ty theo địa chỉ sau:<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Địa chỉ: 19 Hàng Thiếc – Hoàn Kiếm – Hà Nội<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Điện thoại: 02438281996<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Di động: +84924300366
+                            </p>
+                            <p style="font-size: 14px; margin-bottom: 10px; padding-left: 15px;">
+                                <strong>2 – Chuyển khoản qua ngân hàng:</strong> Quý khách chuyển khoản cho chúng tôi
+                                theo thông tin tài khoản mà chúng tôi cung cấp dưới đây. Khi chuyển khoản quý khách lưu
+                                ý ghi rõ thông tin trong nội dung chuyển khoản để chúng tôi tiện theo dõi và chuyển ủy
+                                nhiệm chi cho chúng tôi qua mail kingexpressbus@gmail.com.
+                            </p>
+                            <p style="font-size: 14px; margin-bottom: 15px; padding-left: 30px;">
                                 Vui lòng chuyển khoản số tiền <strong
                                     style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VNĐ' : '...' }}</strong>
                                 với nội dung <strong
@@ -159,9 +175,9 @@
                                         style="font-weight: bold;">KEB {{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong> (e.g., KEB An 1234) to one of the following accounts to secure your ticket:</span>
                             </p>
                             <table width="100%" border="0" cellpadding="8" cellspacing="0"
-                                   style="border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+                                   style="border-collapse: collapse; margin-bottom: 15px; margin-left: 30px; max-width: 540px; font-size: 14px;">
                                 <tr style="background-color:#f9f9f9;">
-                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #555555;">
+                                    <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #555555; width: 170px;">
                                         Ngân hàng (Bank):
                                     </td>
                                     <td style="border: 1px solid #dddddd; padding: 8px;">Vietcombank</td>
@@ -171,7 +187,7 @@
                                         Số tài khoản (Account No.):
                                     </td>
                                     <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #B8860B;">
-                                        0924300366
+                                        2924300366
                                     </td>
                                 </tr>
                                 <tr style="background-color:#f9f9f9;">
@@ -181,8 +197,13 @@
                                     <td style="border: 1px solid #dddddd; padding: 8px;">Nguyen Vu Ha My</td>
                                 </tr>
                             </table>
-                            <p style="font-size: 13px; color: #777777; margin-bottom: 15px;">
-                                <i>Lưu ý: Vé của bạn sẽ được xác nhận sau khi chúng tôi nhận được thanh toán. Vui lòng
+                            <p style="font-size: 13px; color: #777777; margin-bottom: 5px; padding-left: 15px;">
+                                <i>Lưu ý: Quý khách vui lòng chỉ chuyển khoản vào các số tài khoản trên. Trong trường
+                                    hợp quý khách chuyển khoản ngoài các số trên nếu có rủi ro nào khác, công ty không
+                                    chịu trách nhiệm.</i>
+                            </p>
+                            <p style="font-size: 13px; color: #777777; margin-bottom: 15px; padding-left: 15px;">
+                                <i>Vé của bạn sẽ được xác nhận sau khi chúng tôi nhận được thanh toán. Vui lòng
                                     hoàn tất chuyển khoản trong vòng 24 giờ.</i><br>
                                 <span style="font-style: italic;">Note: Your ticket will be confirmed once we receive the payment. Please complete the transfer within 24 hours.</span>
                             </p>
@@ -191,27 +212,6 @@
 
                         <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
                             Lưu ý / <span style="font-style: italic;">Notes</span></h3>
-                        <ul style="font-size: 14px; list-style-type: disc; padding-left: 20px; margin: 0 0 15px 0;">
-                            <li style="margin-bottom: 5px;">Vui lòng có mặt tại điểm đón <strong
-                                    style="font-weight: bold;">trước 30 phút</strong> so với giờ khởi hành.
-                            </li>
-                            <li style="margin-bottom: 5px; font-style: italic; color: #555555;">Please be present at the
-                                pick-up point <strong style="font-weight: bold;">30 minutes prior</strong> to departure
-                                time.
-                            </li>
-                            <li style="margin-bottom: 5px;">Xuất trình email này hoặc tin nhắn xác nhận khi lên xe.</li>
-                            <li style="margin-bottom: 5px; font-style: italic; color: #555555;">Present this email or
-                                confirmation message when boarding.
-                            </li>
-                            @if($bookingDetails['payment_method'] === 'offline')
-                                <li style="margin-bottom: 5px;">Vui lòng thanh toán vé trước giờ khởi hành tại văn phòng
-                                    hoặc trực tiếp cho phụ xe.
-                                </li>
-                                <li style="margin-bottom: 5px; font-style: italic; color: #555555;">Please pay for your
-                                    ticket before departure time at our office or directly to the bus staff.
-                                </li>
-                            @endif
-                        </ul>
 
                         <p style="font-weight: bold; margin-top: 20px; font-size: 14px;">
                             Nếu Quý khách có bất kỳ thắc mắc nào, vui lòng liên hệ Hotline/Zalo/WhatsApp: <a
