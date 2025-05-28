@@ -330,11 +330,12 @@
                     return numTickets * this.pricePerSeat;
                 },
                 formatCurrency(value) {
-                    if (isNaN(value)) return '0đ';
+                    if (isNaN(value)) return '0VND'; // Changed default to 0VND
                     return new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
-                        minimumFractionDigits: 0
+                        minimumFractionDigits: 0,
+                        currencyDisplay: 'code' // Add this line to use 'VND' instead of 'đ'
                     }).format(value);
                 }
             }
