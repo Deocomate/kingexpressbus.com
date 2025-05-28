@@ -253,10 +253,10 @@
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
                                          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                     </svg>
-                                    <span>Khởi hành: <span
-                                            class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}</span></span>
+                                    <span>Ngày đi: <span
+                                            class="font-semibold text-gray-800">{{ $departure_date->format('d/m/Y') }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
@@ -264,17 +264,8 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
-                                    <span>Dự kiến đến: <span
-                                            class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->end_at)->format('H:i') }}</span></span>
-                                </div>
-                                <div class="flex items-center col-span-2">
-                                    <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
-                                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <span>Ngày đi: <span
-                                            class="font-semibold text-gray-800">{{ $departure_date->format('d/m/Y') }}</span></span>
+                                    <span>Khởi hành: <span
+                                            class="font-semibold text-gray-800">{{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}</span></span>
                                 </div>
                                 <div class="flex items-center">
                                     <svg class="w-4 h-4 mr-2 text-yellow-600" fill="none" stroke="currentColor"
