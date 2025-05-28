@@ -171,7 +171,7 @@
                                         Số tài khoản (Account No.):
                                     </td>
                                     <td style="border: 1px solid #dddddd; padding: 8px; font-weight: bold; color: #B8860B;">
-                                        2924300366
+                                        0924300366
                                     </td>
                                 </tr>
                                 <tr style="background-color:#f9f9f9;">
