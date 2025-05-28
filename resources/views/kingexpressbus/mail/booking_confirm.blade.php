@@ -202,16 +202,7 @@
                                     hợp quý khách chuyển khoản ngoài các số trên nếu có rủi ro nào khác, công ty không
                                     chịu trách nhiệm.</i>
                             </p>
-                            <p style="font-size: 13px; color: #777777; margin-bottom: 15px; padding-left: 15px;">
-                                <i>Vé của bạn sẽ được xác nhận sau khi chúng tôi nhận được thanh toán. Vui lòng
-                                    hoàn tất chuyển khoản trong vòng 24 giờ.</i><br>
-                                <span style="font-style: italic;">Note: Your ticket will be confirmed once we receive the payment. Please complete the transfer within 24 hours.</span>
-                            </p>
                         @endif
-
-
-                        <h3 style="color: #B8860B; border-bottom: 1px solid #eeeeee; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; font-size: 16px;">
-                            Lưu ý / <span style="font-style: italic;">Notes</span></h3>
 
                         <p style="font-weight: bold; margin-top: 20px; font-size: 14px;">
                             Nếu Quý khách có bất kỳ thắc mắc nào, vui lòng liên hệ Hotline/Zalo/WhatsApp: <a
