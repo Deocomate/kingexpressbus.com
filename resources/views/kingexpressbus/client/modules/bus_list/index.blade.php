@@ -180,11 +180,6 @@
                                         <span class="font-medium">Điểm đến:</span> {{ $route->end_province_name }}
                                     </p>
 
-                                    <p class="text-sm text-gray-600 mb-3">
-                                        <span class="font-medium">Còn lại:</span> {{ $busRoute->total_seats ?? 'N/A' }}
-                                        chỗ {{-- Tạm hiển thị tổng số ghế --}}
-                                    </p>
-
                                     {{-- Tiện ích --}}
                                     @if(!empty($busRoute->bus_services))
                                         <div class="mb-4">
