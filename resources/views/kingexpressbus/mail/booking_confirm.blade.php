@@ -168,7 +168,7 @@
                                     style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VNĐ' : '...' }}</strong>
                                 với nội dung <strong
                                     style="font-weight: bold;">{{ Illuminate\Support\Str::limit(explode(' ', $bookingDetails['customer_name'] ?? '')[count(explode(' ', $bookingDetails['customer_name'] ?? ''))-1], 10, '') }} {{ substr($bookingDetails['customer_phone'] ?? '', -4) }}</strong>
-                                (Ví dụ: An 1234) vào một trong các tài khoản sau để giữ vé:
+                                vào một trong các tài khoản sau để giữ vé:
                                 <br>
                                 <span style="font-style: italic; color: #555555;">Please transfer the amount of <strong
                                         style="font-weight: bold; color: #D9534F;">{{ $bookingDetails['total_price'] ? number_format($bookingDetails['total_price']) . ' VND' : '...' }}</strong> with the memo <strong

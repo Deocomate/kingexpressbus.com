@@ -229,10 +229,10 @@
                                         <p><strong>Chủ tài khoản:</strong> Nguyen Vu Ha My</p>
                                         <p><strong>Số tiền:</strong> <span x-text="formatCurrency(totalPrice)"></span>
                                         </p>
-                                        <p><strong>Nội dung chuyển khoản:</strong> <span class="font-semibold">KEB <span
+                                        <p><strong>Nội dung chuyển khoản:</strong> <span class="font-semibold"><span
                                                     x-text="document.getElementById('fullname')?.value.trim().split(' ').pop() || 'TEN'"></span> <span
                                                     x-text="document.getElementById('phone')?.value.slice(-4) || 'SDT'"></span></span>
-                                            (Ví dụ: KEB An 1234)</p>
+                                            (Ví dụ: An 1234)</p>
                                         <p class="mt-1 text-xs text-green-600">Quý khách vui lòng ghi đúng nội dung
                                             chuyển khoản để việc xác nhận được nhanh chóng.</p>
                                     </div>
