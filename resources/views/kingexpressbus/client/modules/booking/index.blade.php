@@ -36,7 +36,9 @@
                 pricePerSeat: {{ $busRouteData->price ?? 0 }},
                 oldNumberOfTickets: {{ old('number_of_tickets', 1) }},
                 oldPickupOption: '{{ old('pickup_point', '') }}',
-                oldHotelAddressDetail: '{{ old('hotel_address_detail', '') }}'
+                oldHotelAddressDetail: '{{ old('hotel_address_detail', '') }}',
+                officeAddress: '{{ $webInfo->address ?? '19 Hàng Thiếc, Hoàn Kiếm, Hà Nội' }}', // Add office address here
+                officePhone: '{{ $webInfo->phone ?? $webInfo->hotline ?? '0924300366' }}' // Add office phone
             })"
                  class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
@@ -181,6 +183,7 @@
                             <fieldset x-data="{ paymentMethod: '{{ old('payment_method', 'offline') }}' }">
                                 <legend class="sr-only">Chọn phương thức thanh toán</legend>
                                 <div class="space-y-3">
+                                    {{-- Thanh toán tiền mặt --}}
                                     <div
                                         class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_offline" type="radio" value="offline" name="payment_method"
@@ -189,11 +192,21 @@
                                                {{ old('payment_method', 'offline') == 'offline' ? 'checked' : '' }} class="w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2">
                                         <label for="payment_offline"
                                                class="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-pointer">
-                                            Thanh toán tiền mặt (Tại VP/Lên xe) <p class="text-xs text-gray-500 mt-0.5">
+                                            Thanh toán tiền mặt <p class="text-xs text-gray-500 mt-0.5">
                                                 Giữ
                                                 chỗ và thanh toán trực tiếp.</p></label>
                                     </div>
-                                    {{-- Bank Transfer Option --}}
+                                    {{-- Thông tin thanh toán tiền mặt --}}
+                                    <div x-show="paymentMethod === 'offline'" x-transition
+                                         class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
+                                        <p class="font-semibold">Địa điểm thanh toán tiền mặt:</p>
+                                        <p><strong>Địa chỉ:</strong> <span x-text="officeAddress"></span></p>
+                                        <p><strong>Điện thoại:</strong> <span x-text="officePhone"></span></p>
+                                        <p class="mt-1 text-xs text-green-600">Quý khách vui lòng thanh toán tại văn
+                                            phòng hoặc khi lên xe.</p>
+                                    </div>
+
+                                    {{-- Chuyển khoản ngân hàng --}}
                                     <div
                                         class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_online" type="radio" value="online" name="payment_method"
@@ -203,16 +216,16 @@
                                                class="w-4 h-4 text-yellow-600 bg-gray-100 border-gray-300 focus:ring-yellow-500 focus:ring-2">
                                         <label for="payment_online"
                                                class="w-full py-3 ms-2 text-sm font-medium text-gray-900 cursor-pointer">
-                                            Chuyển khoản ngân hàng (Giữ vé sau khi chuyển khoản)
+                                            Chuyển khoản ngân hàng
                                             <span class="text-xs text-gray-500 mt-0.5 block">Vui lòng chuyển khoản theo thông tin bên dưới để hoàn tất đặt vé.</span>
                                         </label>
                                     </div>
-                                    {{-- Bank details shown when "online" payment is selected --}}
+                                    {{-- Thông tin chuyển khoản ngân hàng --}}
                                     <div x-show="paymentMethod === 'online'" x-transition
-                                         class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md text-sm text-blue-700">
+                                         class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
                                         <p class="font-semibold">Thông tin chuyển khoản:</p>
                                         <p><strong>Ngân hàng:</strong> Vietcombank</p>
-                                        <p><strong>Số tài khoản:</strong> 0924300366</p>
+                                        <p><strong>Số tài khoản:</strong> 2924300366</p>
                                         <p><strong>Chủ tài khoản:</strong> Nguyen Vu Ha My</p>
                                         <p><strong>Số tiền:</strong> <span x-text="formatCurrency(totalPrice)"></span>
                                         </p>
@@ -220,7 +233,7 @@
                                                     x-text="document.getElementById('fullname')?.value.trim().split(' ').pop() || 'TEN'"></span> <span
                                                     x-text="document.getElementById('phone')?.value.slice(-4) || 'SDT'"></span></span>
                                             (Ví dụ: KEB An 1234)</p>
-                                        <p class="mt-1 text-xs text-blue-600">Quý khách vui lòng ghi đúng nội dung
+                                        <p class="mt-1 text-xs text-green-600">Quý khách vui lòng ghi đúng nội dung
                                             chuyển khoản để việc xác nhận được nhanh chóng.</p>
                                     </div>
                                 </div>
@@ -284,6 +297,8 @@
                 pickupOption: config.oldPickupOption || '',
                 hotelAddressDetail: config.oldHotelAddressDetail || '',
                 isSubmitting: false,
+                officeAddress: config.officeAddress || 'N/A', // Get office address from config
+                officePhone: config.officePhone || 'N/A', // Get office phone from config
                 init() {
                     if ({{ old('number_of_tickets') ? 'true' : 'false' }}) {
                         this.numberOfTickets = parseInt('{{ old('number_of_tickets') }}', 10);
