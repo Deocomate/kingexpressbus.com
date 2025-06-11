@@ -39,8 +39,7 @@ class BusListPageController extends Controller
             $stops = DB::table('stops')
                 ->join('districts', 'stops.district_id', '=', 'districts.id')
                 ->where('stops.route_id', $route->id) // CHANGED: Fetch by route_id
-                ->orderBy('stops.stop_at', 'asc')
-                ->select('stops.title as stop_title', 'stops.stop_at', 'districts.name as district_name', 'districts.type as district_type')
+                ->select('stops.title as stop_title', 'districts.name as district_name', 'districts.type as district_type')
                 ->get();
 
             $query = DB::table('bus_routes')
@@ -130,6 +129,7 @@ class BusListPageController extends Controller
                 ->sort();
 
         } catch (\Exception $e) {
+            dd($e);
             Log::error('Error fetching bus list: ' . $e->getMessage(), ['route_slug' => $route_slug]);
             return redirect()->back()->with('error', 'Đã xảy ra lỗi khi tải danh sách chuyến xe.');
         }
