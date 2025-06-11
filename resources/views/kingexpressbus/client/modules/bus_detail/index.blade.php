@@ -382,26 +382,14 @@
                         @if($busRouteData->stops->isNotEmpty())
                             <ul class="space-y-2 text-sm text-gray-700">
                                 <li class="flex items-center">
-                                    <span
-                                        class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
-                                        {{ \Carbon\Carbon::parse($busRouteData->start_at)->format('H:i') }}
-                                    </span>
                                     <span class="font-semibold">{{ $busRouteData->start_province_name }} (Điểm xuất phát)</span>
                                 </li>
                                 @foreach($busRouteData->stops as $stop)
                                     <li class="flex items-center pl-3 border-l-2 border-dashed border-gray-300 ml-3">
-                                        <span
-                                            class="flex items-center justify-center w-6 h-6 mr-3 bg-gray-400 text-white rounded-full text-xs font-bold">
-                                            {{ \Carbon\Carbon::parse($stop->stop_at)->format('H:i') }}
-                                        </span>
                                         <span>{{ $stop->stop_title ? $stop->stop_title . ' (' . $stop->district_name . ')' : $stop->district_name }}</span>
                                     </li>
                                 @endforeach
                                 <li class="flex items-center pl-3 border-l-2 border-transparent ml-3">
-                                    <span
-                                        class="flex items-center justify-center w-6 h-6 mr-3 bg-yellow-500 text-white rounded-full text-xs font-bold">
-                                        {{ \Carbon\Carbon::parse($busRouteData->end_at)->format('H:i') }}
-                                    </span>
                                     <span class="font-semibold">{{ $busRouteData->end_province_name }} (Điểm đến dự kiến)</span>
                                 </li>
                             </ul>

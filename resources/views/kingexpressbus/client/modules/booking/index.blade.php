@@ -1,3 +1,4 @@
+/* ===== resources/views/kingexpressbus/client/booking/index.blade.php ===== */
 @extends("kingexpressbus.client.layouts.main")
 
 @section("title")
@@ -31,24 +32,21 @@
 @section("content")
     <div class="bg-gray-50 py-8 md:py-12">
         <div class="container mx-auto px-4">
-            {{-- Alpine.js component for managing form state --}}
             <div x-data="bookingForm({
                 pricePerSeat: {{ $busRouteData->price ?? 0 }},
                 oldNumberOfTickets: {{ old('number_of_tickets', 1) }},
                 oldPickupOption: '{{ old('pickup_point', '') }}',
                 oldHotelAddressDetail: '{{ old('hotel_address_detail', '') }}',
-                officeAddress: '{{ $webInfo->address ?? '19 Hàng Thiếc, Hoàn Kiếm, Hà Nội' }}', // Add office address here
-                officePhone: '{{ $webInfo->phone ?? $webInfo->hotline ?? '2924300366' }}' // Add office phone
+                officeAddress: '{{ $webInfo->address ?? '19 Hàng Thiếc, Hoàn Kiếm, Hà Nội' }}',
+                officePhone: '{{ $webInfo->phone ?? $webInfo->hotline ?? '2924300366' }}'
             })"
                  class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-                {{-- Cột chính: Thông tin chuyến và Form đặt vé --}}
                 <div class="lg:col-span-2 bg-white rounded-lg shadow-lg border border-gray-200 p-6 md:p-8">
                     <div class="mb-6 text-center border-b border-gray-200 pb-4">
                         <h1 class="text-2xl md:text-3xl font-bold text-yellow-800">Thông tin đặt vé</h1>
                     </div>
 
-                    {{-- Thông tin chuyến đi (Tóm tắt) --}}
                     <div class="mb-6 text-sm bg-yellow-50 p-4 rounded-md border border-yellow-200">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
                             <p><span class="font-medium text-gray-600">Tuyến:</span> <strong
@@ -67,15 +65,12 @@
                         </div>
                     </div>
 
-                    {{-- Form đặt vé --}}
                     <form x-ref="bookingFormElement"
-                          @submit="isSubmitting = true;" {{-- Set submitting state on form submit --}}
+                          @submit="isSubmitting = true;"
                           action="{{ route('client.booking', ['bus_route_slug' => $busRouteData->bus_route_slug]) }}"
                           method="POST"
-                          class="mt-6"
-                    >
+                          class="mt-6">
                         @csrf
-                        {{-- Thông tin khách hàng --}}
                         <div class="mb-6">
                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Thông tin liên hệ</h2>
                             <div class="space-y-4">
@@ -122,7 +117,6 @@
                             </div>
                         </div>
 
-                        {{-- Số lượng vé và Điểm đón --}}
                         <div class="mb-6 border-t border-gray-200 pt-6">
                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Chi tiết đặt vé</h2>
                             <div class="space-y-4">
@@ -146,7 +140,6 @@
                                         @foreach($stops as $stop)
                                             <option
                                                 value="stop_id_{{ $stop->stop_id }}_{{ $stop->display_name }}">{{ $stop->display_name }}
-                                                ({{ \Carbon\Carbon::parse($stop->stop_at ?? '')->format('H:i') }})
                                             </option>
                                         @endforeach
                                         <option value="hotel_old_quarter">Đón tại khách sạn trong Phố Cổ</option>
@@ -168,7 +161,6 @@
                             </div>
                         </div>
 
-                        {{-- Tổng tiền (Alpine managed) --}}
                         <div class="mt-6 mb-6 border-t border-gray-200 pt-4">
                             <div class="flex justify-between items-center">
                                 <span class="text-gray-700 text-lg font-medium">Tổng tiền:</span>
@@ -177,13 +169,11 @@
                             </div>
                         </div>
 
-                        {{-- Phương thức thanh toán --}}
                         <div class="mb-6 border-t border-gray-200 pt-6">
                             <h2 class="text-xl font-semibold text-gray-800 mb-4">Phương thức thanh toán</h2>
                             <fieldset x-data="{ paymentMethod: '{{ old('payment_method', 'offline') }}' }">
                                 <legend class="sr-only">Chọn phương thức thanh toán</legend>
                                 <div class="space-y-3">
-                                    {{-- Thanh toán tiền mặt --}}
                                     <div
                                         class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_offline" type="radio" value="offline" name="payment_method"
@@ -196,7 +186,6 @@
                                                 Giữ
                                                 chỗ và thanh toán trực tiếp.</p></label>
                                     </div>
-                                    {{-- Thông tin thanh toán tiền mặt --}}
                                     <div x-show="paymentMethod === 'offline'" x-transition
                                          class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
                                         <p class="font-semibold">Địa điểm thanh toán tiền mặt:</p>
@@ -205,8 +194,6 @@
                                         <p class="mt-1 text-xs text-green-600">Quý khách vui lòng thanh toán tại văn
                                             phòng hoặc khi lên xe.</p>
                                     </div>
-
-                                    {{-- Chuyển khoản ngân hàng --}}
                                     <div
                                         class="flex items-center ps-4 border border-gray-200 rounded hover:bg-gray-50 has-[:checked]:border-yellow-400 has-[:checked]:ring-1 has-[:checked]:ring-yellow-400">
                                         <input id="payment_online" type="radio" value="online" name="payment_method"
@@ -220,7 +207,6 @@
                                             <span class="text-xs text-gray-500 mt-0.5 block">Vui lòng chuyển khoản theo thông tin bên dưới để hoàn tất đặt vé.</span>
                                         </label>
                                     </div>
-                                    {{-- Thông tin chuyển khoản ngân hàng --}}
                                     <div x-show="paymentMethod === 'online'" x-transition
                                          class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md text-sm text-green-700">
                                         <p class="font-semibold">Thông tin chuyển khoản:</p>
@@ -241,8 +227,6 @@
                                     class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </fieldset>
                         </div>
-
-                        {{-- Nút Đặt vé --}}
                         <div class="mt-6 pt-6 border-t border-gray-200">
                             <button type="submit"
                                     :disabled="numberOfTickets < 1 || isSubmitting"
@@ -256,8 +240,6 @@
                         </div>
                     </form>
                 </div>
-
-                {{-- Cột phải: Chính sách và thông tin --}}
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 sticky top-8">
                         <h3 class="text-lg font-semibold text-yellow-800 mb-3">Chính sách & Quy định</h3>
@@ -288,7 +270,6 @@
             </div>
         </div>
     </div>
-
     <script>
         function bookingForm(config) {
             return {
@@ -297,20 +278,16 @@
                 pickupOption: config.oldPickupOption || '',
                 hotelAddressDetail: config.oldHotelAddressDetail || '',
                 isSubmitting: false,
-                officeAddress: config.officeAddress || 'N/A', // Get office address from config
-                officePhone: config.officePhone || 'N/A', // Get office phone from config
+                officeAddress: config.officeAddress || 'N/A',
+                officePhone: config.officePhone || 'N/A',
                 init() {
                     if ({{ old('number_of_tickets') ? 'true' : 'false' }}) {
                         this.numberOfTickets = parseInt('{{ old('number_of_tickets') }}', 10);
                     }
-                    // Đảm bảo pickupOption được khôi phục chính xác
                     this.pickupOption = '{{ old('pickup_point', '') }}';
-                    // Nếu pickupOption là hotel_old_quarter, khôi phục hotelAddressDetail
                     if (this.pickupOption === 'hotel_old_quarter') {
                         this.hotelAddressDetail = '{{ old('hotel_address_detail', '') }}';
                     }
-
-
                     this.$watch('numberOfTickets', (value) => {
                         if (!Number.isInteger(value) || value < 1) {
                             this.numberOfTickets = 1;
@@ -330,12 +307,12 @@
                     return numTickets * this.pricePerSeat;
                 },
                 formatCurrency(value) {
-                    if (isNaN(value)) return '0VND'; // Changed default to 0VND
+                    if (isNaN(value)) return '0VND';
                     return new Intl.NumberFormat('vi-VN', {
                         style: 'currency',
                         currency: 'VND',
                         minimumFractionDigits: 0,
-                        currencyDisplay: 'code' // Add this line to use 'VND' instead of 'đ'
+                        currencyDisplay: 'code'
                     }).format(value);
                 }
             }

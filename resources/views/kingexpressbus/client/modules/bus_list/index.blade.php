@@ -222,9 +222,7 @@
                                                     <ul class="list-disc list-inside space-y-1 text-xs text-gray-600">
                                                         @foreach($busRoute->stops as $stop)
                                                             <li>
-                                                                <span
-                                                                    class="font-semibold">{{ \Carbon\Carbon::parse($stop->stop_at)->format('H:i') }}</span>
-                                                                - {{ $stop->stop_title ? $stop->stop_title . ' (' . $stop->district_name . ')' : $stop->district_name }}
+                                                                {{ $stop->stop_title ? $stop->stop_title . ' (' . $stop->district_name . ')' : $stop->district_name }}
                                                             </li>
                                                         @endforeach
                                                     </ul>
