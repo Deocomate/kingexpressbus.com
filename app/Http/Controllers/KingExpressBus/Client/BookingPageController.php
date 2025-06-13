@@ -65,8 +65,7 @@ class BookingPageController extends Controller
             $stops = DB::table('stops')
                 ->join('districts', 'stops.district_id', '=', 'districts.id')
                 ->where('stops.route_id', $busRouteData->route_id)
-                ->select('stops.id as stop_id', 'stops.title as stop_title_specific', 'stops.stop_at', 'districts.name as district_name', 'districts.type as district_type')
-                ->orderBy('stops.stop_at', 'asc')
+                ->select('stops.id as stop_id', 'stops.title as stop_title_specific', 'districts.name as district_name', 'districts.type as district_type')
                 ->get()
                 ->map(function ($stop) {
                     $stop->display_name = $stop->stop_title_specific ?: $stop->district_name;
