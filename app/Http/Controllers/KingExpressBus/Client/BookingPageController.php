@@ -220,9 +220,6 @@ class BookingPageController extends Controller
                         $stopId = $matches[1];
                         $pickupDisplayText = $matches[2];
                         $stopData = DB::table('stops')->where('id', $stopId)->first();
-                        if ($stopData && $stopData->stop_at) {
-                            $pickupDisplayText .= ' (Dự kiến: ' . Carbon::parse($stopData->stop_at)->format('H:i') . ')';
-                        }
                     } else {
                         $pickupDisplayText = $pickupOptionValue;
                     }

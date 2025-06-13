@@ -116,10 +116,8 @@ class BusDetailPageController extends Controller
             $busRouteData->stops = DB::table('stops')
                 ->join('districts', 'stops.district_id', '=', 'districts.id')
                 ->where('stops.route_id', $busRouteData->route_id)
-                ->orderBy('stops.stop_at', 'asc')
-                ->select('stops.title as stop_title', 'stops.stop_at', 'districts.name as district_name', 'districts.type as district_type')
+                ->select('stops.title as stop_title', 'districts.name as district_name', 'districts.type as district_type')
                 ->get();
-
         } catch (\Exception $e) {
             Log::error('Error fetching bus detail: ' . $e->getMessage(), ['bus_route_slug' => $bus_route_slug]);
             return redirect()->route('homepage')->with('error', 'Không thể tải chi tiết chuyến xe.');
