@@ -1,4 +1,3 @@
-/* ===== resources/views/kingexpressbus/client/booking/index.blade.php ===== */
 @extends("kingexpressbus.client.layouts.main")
 
 @section("title")
