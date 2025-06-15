@@ -91,7 +91,7 @@
 
                 <x-inputs.editor label="Chính sách" name="policy" :value="old('policy', $webInfo->policy ?? '')"/>
 
-                <x-inputs.text-area label="Chi tiết khác" name="detail" :value="old('detail', $webInfo->detail ?? '')"/>
+                <x-inputs.editor label="Chi tiết liên hệ" name="detail" :value="old('detail', $webInfo->detail ?? '')"/>
 
             </div>
 
