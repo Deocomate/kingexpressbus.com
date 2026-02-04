@@ -9,11 +9,9 @@ graph TD
     WebRoutes --> Middleware[Role Middleware]
 
     Middleware --> AdminCtrl[Admin Controllers]
-    Middleware --> CompanyCtrl[Company Controllers]
     Middleware --> ClientCtrl[Client Controllers]
 
     AdminCtrl --> Models
-    CompanyCtrl --> Models
     ClientCtrl --> Models
 
     Models --> DB[(MySQL Database)]
@@ -31,27 +29,23 @@ graph TD
 -   `districts`: Sub-level locations.
 -   `stops`: Specific physical locations (Bus stations, offices).
 -   `routes`: Generic connection between two Provinces (e.g., Hanoi -> Sapa).
+-   `route_stops`: Ordered list of pickup/dropoff points per route.
 
-### Transport (Company Managed)
--   `companies`: Bus operators. Linked 1-1 to a `User` (manager).
--   `buses`: Vehicles owned by a company.
+### Transport (Admin Managed)
+-   `buses`: Fleet vehicles owned by the system.
 -   `bus_services`: Amenities (Wifi, AC, etc.).
--   `company_routes`: Specific implementation of a generic `route` by a company (e.g., "KingExpress Hanoi-Sapa Morning").
--   `company_route_stops`: Ordered list of stops for a specific company route.
--   `bus_routes`: **The Schedule/Trip**. Connects a `bus` to a `company_route` with `start_time`, `end_time`, and `price`.
+-   `trips`: **Schedules** connecting a `bus` to a `route` with `start_time`, `end_time`, and `price`.
 
 ### Booking
--   `bookings`: Connects `user` (optional) to `bus_routes`.
+-   `bookings`: Connects `user` (optional) to `trips`.
     -   Tracks `pickup_stop_id`, `dropoff_stop_id`.
     -   Statuses: `pending`, `confirmed`, `cancelled`, `completed`.
 
 ## 3. Key Relationships
 
--   **User <-> Company:** 1-to-1. A user manages one company.
--   **Route <-> CompanyRoute:** 1-to-Many. One generic route (Hanoi-Sapa) can be serviced by many companies.
--   **CompanyRoute <-> BusRoute:** 1-to-Many. A specific route pattern can have multiple daily trips (schedules).
+-   **Route <-> Trip:** 1-to-Many. One route can have multiple trips (schedules).
+-   **Bus <-> Trip:** 1-to-Many. One bus can serve multiple trips over time.
 
 ## 4. Security & Access Control
--   **Admin Access:** Full CRUD on Master Data (`provinces`, `routes`) and oversight of all `companies`.
--   **Company Access:** CRUD on their own `buses`, `company_routes`, `bus_routes`. Cannot modify Master Data.
+-   **Admin Access:** Full CRUD on master data (`provinces`, `routes`, `buses`, `trips`) and oversight of all bookings.
 -   **Customer Access:** Read-only on Routes/Schedules. Write access to `bookings` (creation) and `users` (own profile).

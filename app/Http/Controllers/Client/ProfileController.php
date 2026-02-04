@@ -48,11 +48,11 @@ class ProfileController extends Controller
 
     private function getBookings($userId)
     {
+        // Updated for single-tenant schema: trips instead of bus_routes/company_routes
         return DB::table('bookings as b')
-            ->join('bus_routes as br', 'b.bus_route_id', '=', 'br.id')
-            ->join('company_routes as cr', 'br.company_route_id', '=', 'cr.id')
-            ->join('routes as r', 'cr.route_id', '=', 'r.id')
-            ->leftJoin('companies as c', 'cr.company_id', '=', 'c.id')
+            ->join('trips as t', 'b.trip_id', '=', 't.id')
+            ->join('routes as r', 't.route_id', '=', 'r.id')
+            ->join('buses as bus', 't.bus_id', '=', 'bus.id')
             ->leftJoin('stops as ps', 'b.pickup_stop_id', '=', 'ps.id')
             ->leftJoin('stops as ds', 'b.dropoff_stop_id', '=', 'ds.id')
             ->select([
@@ -66,14 +66,13 @@ class ProfileController extends Controller
                 'b.total_price',
                 'b.created_at',
                 'b.notes',
-                'br.start_time',
-                'br.end_time',
-                'br.price as unit_price',
-                'cr.slug as company_route_slug',
+                't.start_time',
+                't.end_time',
+                't.price as unit_price',
                 'r.name as route_name',
                 'r.slug as route_slug',
-                'c.name as company_name',
-                'c.slug as company_slug',
+                'bus.name as bus_name',
+                'bus.model_name as bus_model',
                 'ps.name as pickup_name',
                 'ps.address as pickup_address',
                 'ds.name as dropoff_name',

@@ -255,8 +255,6 @@
                         <dl class="row mb-3">
                             <dt class="col-sm-4">Tuyến đường</dt>
                             <dd class="col-sm-8" id="modal-route-name"></dd>
-                            <dt class="col-sm-4">Nhà xe</dt>
-                            <dd class="col-sm-8" id="modal-company-name"></dd>
                             <dt class="col-sm-4">Xe</dt>
                             <dd class="col-sm-8" id="modal-bus-name"></dd>
                             <dt class="col-sm-4">Ngày đi</dt>
@@ -366,8 +364,7 @@
                                 $('#modal-customer-phone').text(data.customer_phone || 'N/A');
                                 $('#modal-customer-email').text(data.customer_email || 'N/A');
                                 $('#modal-route-name').text(data.route_name || 'N/A');
-                                $('#modal-company-name').text(data.company_name || 'N/A');
-                                $('#modal-bus-name').text(data.bus_name || 'N/A');
+                                $('#modal-bus-name').text((data.bus_name || 'N/A') + ' - ' + (data.bus_model || ''));
                                 $('#modal-booking-date').text(data.booking_date ? new Date(data.booking_date).toLocaleDateString('vi-VN') : 'N/A');
                                 $('#modal-start-time').text(data.start_time ? data.start_time.substring(0, 5) : 'N/A');
                                 $('#modal-end-time').text(data.end_time ? data.end_time.substring(0, 5) : 'N/A');

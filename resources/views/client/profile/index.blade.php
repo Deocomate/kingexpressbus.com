@@ -1,4 +1,4 @@
-<x-client.layout :title="$title ?? 'Tài khoản của tôi'" :description="$description ?? ''">
+<x-client.layout :title="$title ?? __('client.profile.meta_title')" :description="$description ?? ''">
     @php
         $userName = $user->name ?? 'Khách hàng';
         $userEmail = $user->email ?? null;
@@ -167,7 +167,8 @@
                                     <i class="fa-regular fa-calendar-xmark text-3xl"></i>
                                 </div>
                                 <h3 class="text-xl font-bold text-slate-800">Lịch sử trống</h3>
-                                <p class="text-slate-500 mt-2">Bạn chưa thực hiện chuyến đi nào tại King Express Bus.</p>
+                                <p class="text-slate-500 mt-2">Bạn chưa thực hiện chuyến đi nào tại King Express Bus.
+                                </p>
                             </div>
                         @endforelse
                     </div>

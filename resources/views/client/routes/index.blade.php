@@ -1,6 +1,5 @@
 {{-- ===== resources/views/client/routes/index.blade.php ===== --}}
-<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? 'Tìm kiếm tuyến xe'"
-    :description="$description ?? ''">
+<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.routes.index.meta_title')" :description="$description ?? ''">
 
     @push('styles')
         <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -102,6 +101,96 @@
                 font-size: 24px;
             }
 
+            /* Province Filter Tabs */
+            .province-tabs {
+                display: flex;
+                gap: 8px;
+                overflow-x: auto;
+                padding-bottom: 8px;
+                scrollbar-width: thin;
+            }
+
+            .province-tabs::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .province-tabs::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+            }
+
+            .province-tabs::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.3);
+                border-radius: 4px;
+            }
+
+            .province-tab {
+                padding: 10px 20px;
+                border-radius: 9999px;
+                font-size: 14px;
+                font-weight: 600;
+                white-space: nowrap;
+                transition: all 0.2s ease;
+                border: 1px solid #e5e7eb;
+                background: #ffffff;
+                color: #374151;
+                cursor: pointer;
+            }
+
+            .province-tab:hover {
+                background: #f3f4f6;
+                border-color: #d1d5db;
+            }
+
+            .province-tab.active {
+                background: linear-gradient(135deg, #fbbf24, #f59e0b);
+                border-color: transparent;
+                color: #0f172a;
+            }
+
+            /* Quick Route Pills */
+            .quick-route-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                border-radius: 9999px;
+                color: #fff;
+                font-size: 13px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                white-space: nowrap;
+            }
+
+            .quick-route-pill:hover {
+                background: rgba(251, 191, 36, 0.3);
+                border-color: rgba(251, 191, 36, 0.6);
+            }
+
+            /* Skeleton Loading */
+            .skeleton {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s infinite;
+            }
+
+            @keyframes skeleton-loading {
+                0% {
+                    background-position: 200% 0;
+                }
+
+                100% {
+                    background-position: -200% 0;
+                }
+
+                justify-content: center;
+                margin: 0 auto 16px;
+                font-size: 24px;
+            }
+
             /* Feature Cards */
             .feature-card {
                 padding: 24px;
@@ -191,8 +280,7 @@
     @endpush
 
     {{-- Hero Section --}}
-    <section class="hero-routes flex flex-col justify-center items-center px-4 py-28 lg:py-32"
-        x-data="routesHeroTypewriter">
+    <section class="hero-routes flex flex-col justify-center items-center px-4 py-28 lg:py-32" x-data="routesHeroTypewriter">
         <div class="container relative z-10 w-full max-w-5xl text-center space-y-8" data-aos="fade-up"
             data-aos-duration="1000">
 
@@ -217,9 +305,24 @@
 
             {{-- Search Bar --}}
             <div class="mt-10 w-full text-left" data-aos="fade-up" data-aos-delay="500">
-                <x-client.search-bar :search-data="$searchData"
-                    :submit-label="__('client.route_show.search_submit_label', ['default' => 'Tìm chuyến'])" />
+                <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label', ['default' => 'Tìm chuyến'])" />
             </div>
+
+            {{-- Quick Route Suggestions --}}
+            @if (isset($quickRouteSuggestions) && $quickRouteSuggestions->isNotEmpty())
+                <div class="mt-6 flex flex-wrap gap-2 justify-center" data-aos="fade-up" data-aos-delay="600">
+                    <span class="text-white/60 text-sm font-medium mr-2 self-center">
+                        {{ __('client.routes.index.popular_searches', ['default' => 'Phổ biến:']) }}
+                    </span>
+                    @foreach ($quickRouteSuggestions->take(4) as $suggestion)
+                        <a href="{{ route('client.routes.show', ['slug' => $suggestion->slug]) }}"
+                            class="quick-route-pill">
+                            <i class="fa-solid fa-location-arrow text-yellow-400 text-xs"></i>
+                            {{ $suggestion->name }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         {{-- Scroll Indicator --}}
@@ -249,13 +352,13 @@
                 </div>
                 <div class="stat-card" x-data="statsCounter(50, 1, 40)">
                     <div class="stat-icon bg-gradient-to-br from-blue-400 to-blue-600 text-white">
-                        <i class="fa-solid fa-building"></i>
+                        <i class="fa-solid fa-bus"></i>
                     </div>
                     <p class="text-3xl md:text-4xl font-extrabold text-gray-900">
                         <span x-text="displayCount">0</span>+
                     </p>
                     <p class="text-gray-500 text-sm mt-2 font-medium">
-                        {{ __('client.routes.index.stat_companies', ['default' => 'Nhà xe đối tác']) }}
+                        {{ __('client.routes.index.stat_fleet', ['default' => 'Đội xe']) }}
                     </p>
                 </div>
                 <div class="stat-card" x-data="statsCounter(10000, 200, 30, true)">
@@ -285,9 +388,28 @@
     </section>
 
     {{-- Popular Routes Section --}}
-    @if(isset($popularRoutes) && $popularRoutes->isNotEmpty())
+    @if (isset($popularRoutes) && $popularRoutes->isNotEmpty())
         <section class="py-16 md:py-24 bg-gray-50">
             <div class="container mx-auto px-4">
+
+                {{-- Province Filter Tabs --}}
+                @if (isset($provinces) && $provinces->isNotEmpty())
+                    <div class="mb-10" data-aos="fade-up">
+                        <div class="province-tabs">
+                            <a href="{{ route('client.routes.index') }}"
+                                class="province-tab {{ !$selectedProvince ? 'active' : '' }}">
+                                <i class="fa-solid fa-globe mr-1"></i>
+                                {{ __('client.routes.index.all_provinces', ['default' => 'Tất cả']) }}
+                            </a>
+                            @foreach ($provinces as $province)
+                                <a href="{{ route('client.routes.index', ['province' => $province->id]) }}"
+                                    class="province-tab {{ $selectedProvince == $province->id ? 'active' : '' }}">
+                                    {{ $province->name }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
                 {{-- Section Header --}}
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6"
                     data-aos="fade-right">
@@ -318,10 +440,13 @@
                     @foreach ($popularRoutes as $route)
                         @php
                             $minPrice = $route->min_price ?? 0;
-                            $priceDisplay = $minPrice > 0 ? number_format($minPrice) . 'đ' : __('client.common.contact_price', ['default' => 'Liên hệ']);
+                            $priceDisplay =
+                                $minPrice > 0
+                                    ? number_format($minPrice) . 'đ'
+                                    : __('client.common.contact_price', ['default' => 'Liên hệ']);
                         @endphp
-                        <a href="{{ route('client.routes.show', ['slug' => $route->slug]) }}" class="route-card group block"
-                            data-aos="fade-up" data-aos-delay="{{ $loop->index * 80 }}">
+                        <a href="{{ route('client.routes.show', ['slug' => $route->slug]) }}"
+                            class="route-card group block" data-aos="fade-up" data-aos-delay="{{ $loop->index * 80 }}">
 
                             {{-- Image --}}
                             <div class="route-card-image-wrapper">
@@ -329,13 +454,13 @@
                                     alt="{{ $route->name }}" class="route-card-image" loading="lazy">
                                 <div class="route-card-overlay"></div>
 
-                                {{-- Company Badge --}}
+                                {{-- Trip Count Badge --}}
                                 <div class="absolute top-4 left-4">
                                     <span
                                         class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-bold text-gray-800 shadow-sm">
                                         <i class="fa-solid fa-bus text-yellow-500"></i>
-                                        {{ $route->company_count ?? 0 }}
-                                        {{ __('client.routes.index.companies', ['default' => 'nhà xe']) }}
+                                        {{ $route->trip_count ?? 0 }}
+                                        {{ __('client.routes.index.trips', ['default' => 'chuyến']) }}
                                     </span>
                                 </div>
 
@@ -355,7 +480,7 @@
                                         <i class="fa-regular fa-clock"></i>
                                         <span>{{ $route->duration ?? 'N/A' }}</span>
                                     </div>
-                                    @if($route->distance_km ?? false)
+                                    @if ($route->distance_km ?? false)
                                         <div class="flex items-center gap-2 text-gray-500 text-sm">
                                             <i class="fa-solid fa-road"></i>
                                             <span>{{ $route->distance_km }}km</span>
@@ -473,7 +598,8 @@
                     {{-- Floating Badge 1 --}}
                     <div
                         class="absolute -bottom-6 -left-4 bg-white p-5 rounded-2xl shadow-xl hidden lg:flex items-center gap-4 float-animation z-10">
-                        <div class="bg-gradient-to-br from-yellow-400 to-amber-500 p-4 rounded-xl text-white shadow-lg">
+                        <div
+                            class="bg-gradient-to-br from-yellow-400 to-amber-500 p-4 rounded-xl text-white shadow-lg">
                             <i class="fa-solid fa-thumbs-up text-2xl"></i>
                         </div>
                         <div>
@@ -542,7 +668,9 @@
                                     this.animate();
                                 }
                             });
-                        }, { threshold: 0.3 });
+                        }, {
+                            threshold: 0.3
+                        });
                         observer.observe(this.$el);
                     },
                     animate() {
@@ -560,10 +688,10 @@
                 Alpine.data('routesHeroTypewriter', () => ({
                     text: '',
                     textArray: [
-                        '{{ __("client.routes.index.typing_1", ["default" => "Vi vu khắp Việt Nam"]) }}',
-                        '{{ __("client.routes.index.typing_2", ["default" => "Hà Nội - Sa Pa"]) }}',
-                        '{{ __("client.routes.index.typing_3", ["default" => "100+ tuyến đường"]) }}',
-                        '{{ __("client.routes.index.typing_4", ["default" => "Xe chất lượng cao"]) }}'
+                        '{{ __('client.routes.index.typing_1', ['default' => 'Vi vu khắp Việt Nam']) }}',
+                        '{{ __('client.routes.index.typing_2', ['default' => 'Hà Nội - Sa Pa']) }}',
+                        '{{ __('client.routes.index.typing_3', ['default' => '100+ tuyến đường']) }}',
+                        '{{ __('client.routes.index.typing_4', ['default' => 'Xe chất lượng cao']) }}'
                     ],
                     textIndex: 0,
                     charIndex: 0,
@@ -596,7 +724,7 @@
                 }))
             })
 
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 AOS.init({
                     once: true,
                     offset: 50,

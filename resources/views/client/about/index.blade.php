@@ -214,11 +214,11 @@
                     </p>
                     <p class="text-gray-500 text-xs md:text-sm mt-1">{{ __('client.about.stats.routes') }}</p>
                 </div>
-                <div class="text-center" x-data="statsCounter({{ $stats['company_count'] ?? 50 }}, 1, 40)">
+                <div class="text-center" x-data="statsCounter({{ $stats['bus_count'] ?? 10 }}, 1, 40)">
                     <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-blue-500 stat-number">
                         <span x-text="displayCount">0</span>+
                     </p>
-                    <p class="text-gray-500 text-xs md:text-sm mt-1">{{ __('client.about.stats.partners') }}</p>
+                    <p class="text-gray-500 text-xs md:text-sm mt-1">{{ __('client.about.stats.buses', ['default' => 'Xe chất lượng']) }}</p>
                 </div>
                 <div class="text-center" x-data="statsCounter({{ $stats['booking_count'] ?? 10000 }}, 200, 30, true)">
                     <p class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-green-500 stat-number">

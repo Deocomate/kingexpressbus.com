@@ -1,4 +1,4 @@
-<x-client.layout :title="$title ?? 'Trang noi dung'" :description="$description ?? ''">
+<x-client.layout :title="$title ?? __('client.page.meta_title')" :description="$description ?? ''">
     @php
         $updatedAt = $page->updated_at ?? null;
         $displayUpdatedAt = $updatedAt ? \Carbon\Carbon::parse($updatedAt)->format('d/m/Y H:i') : null;
@@ -31,7 +31,7 @@
                         Can ho tro them? Chung toi luon san sang dong hanh cung ban tren moi hanh trinh.
                     </p>
                     <a href="{{ route('client.contact') }}"
-                       class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-500 transition">
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-500 transition">
                         <i class="fa-solid fa-headset"></i>
                         Lien he ho tro
                     </a>
@@ -39,9 +39,12 @@
                 <div class="rounded-3xl border border-slate-100 bg-white p-6 space-y-4 text-sm text-slate-600">
                     <h3 class="text-base font-semibold text-slate-900">Trang pho bien</h3>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('client.page.show', ['slug' => 'gioi-thieu']) }}" class="text-blue-600 hover:text-blue-700">Gioi thieu</a></li>
-                        <li><a href="{{ route('client.page.show', ['slug' => 'chinh-sach']) }}" class="text-blue-600 hover:text-blue-700">Chinh sach ho tro</a></li>
-                        <li><a href="{{ route('client.home') }}" class="text-blue-600 hover:text-blue-700">Trang chu</a></li>
+                        <li><a href="{{ route('client.page.show', ['slug' => 'gioi-thieu']) }}"
+                                class="text-blue-600 hover:text-blue-700">Gioi thieu</a></li>
+                        <li><a href="{{ route('client.page.show', ['slug' => 'chinh-sach']) }}"
+                                class="text-blue-600 hover:text-blue-700">Chinh sach ho tro</a></li>
+                        <li><a href="{{ route('client.home') }}" class="text-blue-600 hover:text-blue-700">Trang chu</a>
+                        </li>
                     </ul>
                 </div>
             </aside>

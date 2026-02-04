@@ -1,0 +1,2 @@
+# Database Migration Script Dependencies
+mysql-connector-python>=8.0.0

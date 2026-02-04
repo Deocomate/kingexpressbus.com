@@ -30,6 +30,7 @@
                 </div>
                 @endsession
                 @csrf
+                <input type="hidden" name="role" value="admin">
                 <div class="input-group mb-3">
                     <input type="email" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}" required>
                     <div class="input-group-append">
@@ -43,17 +44,6 @@
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="input-group mb-3">
-                    <select name="role" class="form-control" required>
-                        <option value="admin" @selected(old('role') == 'admin')>Đăng nhập với tư cách Admin</option>
-                        <option value="company" @selected(old('role') == 'company')>Đăng nhập với tư cách Company</option>
-                    </select>
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-user-shield"></span>
                         </div>
                     </div>
                 </div>

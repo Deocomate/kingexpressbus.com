@@ -3,7 +3,10 @@
     @php
         $heroImage = $route->banner_url ?? ($route->thumbnail_url ?? '/userfiles/files/city_imgs/ha-noi.jpg');
         $minPrice = (int) ($route->min_price ?? 0);
-        $priceDisplay = $minPrice > 0 ? __('client.route_show.price_from', ['price' => number_format($minPrice) . 'đ']) : __('client.route_show.price_contact');
+        $priceDisplay =
+            $minPrice > 0
+                ? __('client.route_show.price_from', ['price' => number_format($minPrice) . 'đ'])
+                : __('client.route_show.price_contact');
         $routeHighlights = [
             [
                 'icon' => 'fa-solid fa-location-dot',
@@ -20,8 +23,11 @@
             [
                 'icon' => 'fa-solid fa-bus',
                 'color' => 'from-purple-400 to-purple-600',
-                'label' => __('client.route_show.hero_operators'),
-                'value' => __('client.route_show.hero_operator_count', ['count' => $route->company_count ?? $companyRoutes->count()]),
+                'label' => __('client.route_show.hero_trips', ['default' => 'Chuyến xe']),
+                'value' => __('client.route_show.hero_trip_count', [
+                    'count' => $trips->count(),
+                    'default' => $trips->count() . ' chuyến',
+                ]),
             ],
             [
                 'icon' => 'fa-solid fa-tag',
@@ -486,6 +492,18 @@
                 transform: translateX(0);
             }
 
+            /* Desktop Filter Panel Reset */
+            @media (min-width: 1024px) {
+                .lg\:mobile-filter-panel-reset {
+                    position: static;
+                    width: auto;
+                    max-width: none;
+                    transform: none;
+                    z-index: auto;
+                    overflow: visible;
+                }
+            }
+
             /* Scrollbar */
             .scrollbar-thin::-webkit-scrollbar {
                 height: 4px;
@@ -499,6 +517,49 @@
             .scrollbar-thin::-webkit-scrollbar-thumb {
                 background: #cbd5e1;
                 border-radius: 4px;
+            }
+
+            /* Quick Filter Pills */
+            .quick-filter-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: #ffffff;
+                border: 1px solid #e5e7eb;
+                border-radius: 9999px;
+                color: #374151;
+                font-size: 13px;
+                font-weight: 600;
+                white-space: nowrap;
+                transition: all 0.2s ease;
+                cursor: pointer;
+            }
+
+            .quick-filter-pill:hover {
+                background: #f3f4f6;
+                border-color: #d1d5db;
+            }
+
+            .quick-filter-pill.active {
+                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+                border-color: transparent;
+                color: #ffffff;
+            }
+
+            .quick-filter-pill.active:hover {
+                background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            }
+
+            .quick-filter-pill.clear-pill {
+                background: #fef2f2;
+                border-color: #fecaca;
+                color: #dc2626;
+            }
+
+            .quick-filter-pill.clear-pill:hover {
+                background: #fee2e2;
+                border-color: #f87171;
             }
 
             /* Responsive */
@@ -593,7 +654,7 @@
                     {{ __('client.route_show.hero_brand') }}
                 </span>
                 <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">{{ $route->name }}</h1>
-                @if($route->description)
+                @if ($route->description)
                     <p class="text-lg text-white/80 max-w-2xl">{{ $route->description }}</p>
                 @endif
             </div>
@@ -619,31 +680,91 @@
     <section id="search-section" class="bg-white py-8 border-b border-gray-100">
         <div class="container mx-auto px-4">
             <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
-                <x-client.search-bar :search-data="$searchData"
-                    :submit-label="__('client.route_show.search_submit_label')" />
+                <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
             </div>
         </div>
     </section>
 
-    @if ($trips->isNotEmpty())
+    @if ($trips->isNotEmpty() || $hasActiveFilters)
+        {{-- Quick Filter Pills --}}
+        <section class="bg-white py-3 border-b border-gray-100 sticky top-0 z-40 shadow-sm">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                    <span class="text-sm font-semibold text-gray-500 whitespace-nowrap mr-1">
+                        {{ __('client.route_show.quick_filters.label', ['default' => 'Lọc nhanh:']) }}
+                    </span>
+
+                    {{-- Time Range Quick Filters --}}
+                    @php
+                        $quickTimeFilters = [
+                            'early_morning' => ['label' => 'Sáng sớm (5h-8h)', 'icon' => 'fa-sun'],
+                            'morning' => ['label' => 'Buổi sáng (8h-12h)', 'icon' => 'fa-cloud-sun'],
+                            'afternoon' => ['label' => 'Buổi chiều (12h-17h)', 'icon' => 'fa-sun'],
+                            'evening' => ['label' => 'Buổi tối (17h-21h)', 'icon' => 'fa-moon'],
+                        ];
+                    @endphp
+
+                    @foreach ($quickTimeFilters as $key => $filter)
+                        @php
+                            $isActive = in_array($key, $filterState['time_ranges'] ?? []);
+                            $newTimeRanges = $isActive
+                                ? array_diff($filterState['time_ranges'] ?? [], [$key])
+                                : array_merge($filterState['time_ranges'] ?? [], [$key]);
+                            $filterUrl = request()->fullUrlWithQuery(['time_ranges' => $newTimeRanges]);
+                        @endphp
+                        <a href="{{ $filterUrl }}" class="quick-filter-pill {{ $isActive ? 'active' : '' }}"
+                            aria-pressed="{{ $isActive ? 'true' : 'false' }}">
+                            <i class="fa-solid {{ $filter['icon'] }}"></i>
+                            {{ $filter['label'] }}
+                        </a>
+                    @endforeach
+
+                    {{-- Seats Available Filter --}}
+                    @php
+                        $hasSeatsActive = $filterState['has_seats'] ?? false;
+                        $seatsUrl = request()->fullUrlWithQuery(['has_seats' => $hasSeatsActive ? null : 1]);
+                    @endphp
+                    <a href="{{ $seatsUrl }}" class="quick-filter-pill {{ $hasSeatsActive ? 'active' : '' }}"
+                        aria-pressed="{{ $hasSeatsActive ? 'true' : 'false' }}">
+                        <i class="fa-solid fa-chair"></i>
+                        {{ __('client.route_show.quick_filters.has_seats', ['default' => 'Còn chỗ']) }}
+                    </a>
+
+                    {{-- Clear All Filters --}}
+                    @if ($hasActiveFilters)
+                        <a href="{{ $clearFiltersUrl }}" class="quick-filter-pill clear-pill">
+                            <i class="fa-solid fa-xmark"></i>
+                            {{ __('client.route_show.quick_filters.clear_all', ['default' => 'Xóa lọc']) }}
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </section>
+
         {{-- Results Section --}}
         <section id="availabilities" class="py-12 lg:py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 {{-- Results Header --}}
                 <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">{{ __('client.route_show.results_title') }}
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">
+                            {{ __('client.route_show.results_title') }}
                         </h2>
                         <p class="text-gray-500 mt-1">
-                            {{ __('client.route_show.results_subtitle', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate]) }}
+                            @if ($tripStats['filtered'] < $tripStats['total'])
+                                {{ __('client.route_show.results_subtitle_filtered', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate, 'default' => $tripStats['filtered'] . ' / ' . $tripStats['total'] . ' chuyến • ' . $departureDate]) }}
+                            @else
+                                {{ __('client.route_show.results_subtitle', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate]) }}
+                            @endif
                         </p>
                     </div>
                     <button id="mobile-filter-toggle"
                         class="lg:hidden inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 shadow-sm">
-                        <i class="fa-solid fa-filter"></i>
+                        <i class="fa-solid fa-sliders"></i>
                         <span>{{ __('client.route_show.filters.mobile_button') }}</span>
                         @if ($hasActiveFilters)
-                            <span class="w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
+                            <span
+                                class="inline-flex items-center justify-center w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full">{{ $activeFilterCount }}</span>
                         @endif
                     </button>
                 </div>
@@ -651,128 +772,42 @@
                 {{-- Mobile Filter Backdrop --}}
                 <div id="mobile-filter-backdrop" class="mobile-filter-backdrop hidden lg:hidden"></div>
 
+                {{-- Mobile Filter Slide-in Panel --}}
+                <div id="filter-panel-mobile" class="mobile-filter-panel lg:hidden">
+                    {{-- Mobile Header --}}
+                    <div class="flex justify-between items-center p-5 border-b border-gray-100">
+                        <h3 class="text-lg font-bold">{{ __('client.route_show.filters.mobile_title') }}</h3>
+                        <button id="mobile-filter-close"
+                            class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                    </div>
+                    <form id="filter-form-mobile" action="{{ $clearFiltersUrl }}" method="GET"
+                        class="overflow-y-auto max-h-[calc(100vh-70px)]">
+                        @include('client.routes.partials.filter-form', [
+                            'filterState' => $filterState,
+                            'sortOptions' => $sortOptions,
+                            'priceRange' => $priceRange,
+                            'timeRangeOptions' => $timeRangeOptions,
+                            'availableServices' => $availableServices,
+                            'busCategoryOptions' => $busCategoryOptions,
+                            'clearFiltersUrl' => $clearFiltersUrl,
+                        ])
+                    </form>
+                </div>
+
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {{-- Filters Sidebar --}}
-                    <aside class="lg:col-span-3">
-                        <div id="filter-panel" class="mobile-filter-panel lg:mobile-filter-panel-reset filters-sidebar">
-                            {{-- Mobile Header --}}
-                            <div class="flex justify-between items-center p-5 border-b border-gray-100 lg:hidden">
-                                <h3 class="text-lg font-bold">{{ __('client.route_show.filters.mobile_title') }}</h3>
-                                <button id="mobile-filter-close"
-                                    class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                            </div>
-
+                    {{-- Filters Sidebar (Desktop only) --}}
+                    <aside class="hidden lg:block lg:col-span-3">
+                        <div id="filter-panel-desktop" class="filters-sidebar">
                             <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET">
-                                {{-- Sort --}}
-                                <div class="filter-section">
-                                    <h3 class="filter-title">
-                                        <i class="fa-solid fa-arrow-down-wide-short text-blue-500"></i>
-                                        {{ __('client.route_show.filters.sort_title') }}
-                                    </h3>
-                                    <div class="space-y-2">
-                                        @foreach ($sortOptions as $value => $label)
-                                            <label
-                                                class="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
-                                                <input type="radio" name="sort" value="{{ $value }}"
-                                                    @checked(($filterState['sort'] ?? 'recommended') === $value)
-                                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                <span>{{ $label }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                {{-- Price Range --}}
-                                <div class="filter-section">
-                                    <h3 class="filter-title">
-                                        <i class="fa-solid fa-money-bill-wave text-emerald-500"></i>
-                                        {{ __('client.route_show.filters.price_title') }}
-                                    </h3>
-                                    <div class="flex items-center gap-3">
-                                        <input type="number" name="price_min" value="{{ $filterState['price_min'] }}"
-                                            placeholder="{{ $priceRange['min'] ? number_format($priceRange['min']) : __('client.route_show.filters.price_from') }}"
-                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                                            min="0" inputmode="numeric">
-                                        <span class="text-gray-300">-</span>
-                                        <input type="number" name="price_max" value="{{ $filterState['price_max'] }}"
-                                            placeholder="{{ $priceRange['max'] ? number_format($priceRange['max']) : __('client.route_show.filters.price_to') }}"
-                                            class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
-                                            min="0" inputmode="numeric">
-                                    </div>
-                                </div>
-
-                                {{-- Time Range --}}
-                                @if ($timeRangeOptions->isNotEmpty())
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">
-                                            <i class="fa-solid fa-clock text-amber-500"></i>
-                                            {{ __('client.route_show.filters.time_range_title') }}
-                                        </h3>
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach ($timeRangeOptions as $key => $range)
-                                                <label class="filter-pill">
-                                                    <input type="checkbox" name="time_ranges[]" value="{{ $key }}"
-                                                        @checked(in_array($key, $filterState['time_ranges'] ?? []))>
-                                                    <span>{{ $range['label'] ?? $key }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- Services --}}
-                                @if ($availableServices->isNotEmpty())
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">
-                                            <i class="fa-solid fa-star text-yellow-500"></i>
-                                            {{ __('client.route_show.filters.services_title') }}
-                                        </h3>
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach ($availableServices as $service)
-                                                <label class="filter-pill">
-                                                    <input type="checkbox" name="services[]" value="{{ $service }}"
-                                                        @checked(in_array($service, $filterState['services'] ?? []))>
-                                                    <span>{{ $service }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- Bus Types --}}
-                                @if ($busCategoryOptions->isNotEmpty())
-                                    <div class="filter-section">
-                                        <h3 class="filter-title">
-                                            <i class="fa-solid fa-van-shuttle text-purple-500"></i>
-                                            {{ __('client.route_show.filters.bus_type_title') }}
-                                        </h3>
-                                        <div class="space-y-2">
-                                            @foreach ($busCategoryOptions as $category)
-                                                <label
-                                                    class="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
-                                                    <input type="checkbox" name="bus_categories[]" value="{{ $category }}"
-                                                        @checked(in_array($category, $filterState['bus_categories'] ?? []))
-                                                        class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                                    <span>{{ $category }}</span>
-                                                </label>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endif
-
-                                {{-- Action Buttons --}}
-                                <div class="filter-section bg-gray-50 rounded-b-2xl">
-                                    <button type="submit"
-                                        class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-check"></i>
-                                        {{ __('client.route_show.filters.apply_button') }}
-                                    </button>
-                                    <a href="{{ $clearFiltersUrl }}"
-                                        class="w-full mt-3 py-3.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-rotate-left"></i>
-                                        {{ __('client.route_show.filters.clear_button') }}
-                                    </a>
-                                </div>
+                                @include('client.routes.partials.filter-form', [
+                                    'filterState' => $filterState,
+                                    'sortOptions' => $sortOptions,
+                                    'priceRange' => $priceRange,
+                                    'timeRangeOptions' => $timeRangeOptions,
+                                    'availableServices' => $availableServices,
+                                    'busCategoryOptions' => $busCategoryOptions,
+                                    'clearFiltersUrl' => $clearFiltersUrl,
+                                ])
                             </form>
                         </div>
                     </aside>
@@ -787,29 +822,41 @@
                                 $dropoffPoints = collect($trip->dropoff_points ?? []);
                                 $firstPickup = $pickupPoints->first();
                                 $firstDropoff = $dropoffPoints->first();
-                                $imageGallery = collect($trip->image_gallery ?? ($trip->bus_images ?? []))->filter()->values();
+                                $imageGallery = collect($trip->image_gallery ?? ($trip->bus_images ?? []))
+                                    ->filter()
+                                    ->values();
                                 if ($imageGallery->isEmpty() && $trip->bus_thumbnail) {
                                     $imageGallery = collect([$trip->bus_thumbnail]);
                                 }
-                                $primaryImage = $trip->primary_bus_image ?? ($imageGallery->first() ?: $galleryFallback);
+                                $primaryImage =
+                                    $trip->primary_bus_image ?? ($imageGallery->first() ?: $galleryFallback);
                                 $durationMinutes = $trip->duration_minutes ?? 0;
-                                $durationLabel = $durationMinutes > 0
-                                    ? __('client.route_show.trip_card.duration_format', ['hours' => intdiv($durationMinutes, 60), 'minutes' => $durationMinutes % 60])
-                                    : __('client.route_show.trip_card.duration_format', ['hours' => (int) $tripStart->diff($tripEnd)->format('%h'), 'minutes' => (int) $tripStart->diff($tripEnd)->format('%i')]);
-                                $serviceList = collect($trip->services ?? [])->filter()->values();
+                                $durationLabel =
+                                    $durationMinutes > 0
+                                        ? __('client.route_show.trip_card.duration_format', [
+                                            'hours' => intdiv($durationMinutes, 60),
+                                            'minutes' => $durationMinutes % 60,
+                                        ])
+                                        : __('client.route_show.trip_card.duration_format', [
+                                            'hours' => (int) $tripStart->diff($tripEnd)->format('%h'),
+                                            'minutes' => (int) $tripStart->diff($tripEnd)->format('%i'),
+                                        ]);
+                                $serviceList = collect($trip->services ?? [])
+                                    ->filter()
+                                    ->values();
                                 $hasSeats = ($trip->seats_available ?? 0) > 0;
                             @endphp
 
                             <article class="trip-card">
                                 {{-- Image --}}
                                 <div class="trip-image-wrapper">
-                                    <img id="trip-image-{{ $trip->bus_route_id }}" src="{{ $primaryImage }}"
-                                        alt="{{ $trip->company_name }}" loading="lazy">
+                                    <img id="trip-image-{{ $trip->trip_id }}" src="{{ $primaryImage }}"
+                                        alt="{{ $trip->bus_name }}" loading="lazy">
                                     <div class="absolute top-4 left-4">
                                         <span
                                             class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-bold text-gray-800 shadow">
                                             <i class="fa-solid fa-bus text-yellow-500"></i>
-                                            {{ $trip->bus_category }}
+                                            {{ $trip->bus_model ?? 'N/A' }}
                                         </span>
                                     </div>
                                 </div>
@@ -819,18 +866,19 @@
                                     {{-- Header --}}
                                     <div class="flex items-start justify-between gap-4 mb-5">
                                         <div class="flex items-center gap-4">
-                                            <img src="{{ $trip->company_thumbnail ?: '/userfiles/files/web information/logo.jpg' }}"
-                                                alt="{{ $trip->company_name }}"
+                                            <img src="{{ $trip->bus_thumbnail ?: '/userfiles/files/web information/logo.jpg' }}"
+                                                alt="{{ $trip->bus_name }}"
                                                 class="h-14 w-14 rounded-xl object-cover border border-gray-100 shadow-sm">
                                             <div>
-                                                <h3 class="text-lg font-bold text-gray-900">{{ $trip->company_name }}</h3>
-                                                <p class="text-sm text-gray-500">{{ $trip->bus_name }}</p>
-                                                <p class="text-xs text-gray-400">Mã: {{ $trip->bus_route_id }}</p>
+                                                <h3 class="text-lg font-bold text-gray-900">{{ $trip->bus_name }}</h3>
+                                                <p class="text-sm text-gray-500">{{ $trip->bus_model ?? 'N/A' }}</p>
+                                                <p class="text-xs text-gray-400">Mã: {{ $trip->trip_id }}</p>
                                             </div>
                                         </div>
                                         <div class="text-right">
                                             @if ($trip->has_price)
-                                                <p class="price-tag">{{ number_format($trip->price_value) }}<small>đ</small></p>
+                                                <p class="price-tag">{{ number_format($trip->price) }}<small>đ</small>
+                                                </p>
                                                 <div class="mt-2">
                                                     <span
                                                         class="availability-badge {{ $trip->seats_available > 0 ? 'available' : 'unavailable' }}">
@@ -880,7 +928,8 @@
                                                 <p class="text-xs text-gray-400">Chưa cập nhật</p>
                                             @endforelse
                                             @if ($pickupPoints->count() > 2)
-                                                <p class="text-xs text-blue-600 font-medium mt-1">+{{ $pickupPoints->count() - 2 }}
+                                                <p class="text-xs text-blue-600 font-medium mt-1">
+                                                    +{{ $pickupPoints->count() - 2 }}
                                                     điểm khác</p>
                                             @endif
                                         </div>
@@ -921,7 +970,8 @@
                                         <div class="gallery-thumbs scrollbar-thin mb-5">
                                             @foreach ($imageGallery->take(5) as $image)
                                                 <button type="button" class="gallery-thumb" data-image-trigger
-                                                    data-target="#trip-image-{{ $trip->bus_route_id }}" data-image="{{ $image }}">
+                                                    data-target="#trip-image-{{ $trip->trip_id }}"
+                                                    data-image="{{ $image }}">
                                                     <img src="{{ $image }}" alt="Bus image" loading="lazy">
                                                 </button>
                                             @endforeach
@@ -936,7 +986,7 @@
 
                                     {{-- Action Buttons --}}
                                     <div class="flex gap-3 mt-auto pt-4 border-t border-gray-100">
-                                        <a href="{{ route('client.booking.create', ['bus_route_id' => $trip->bus_route_id, 'date' => $departureDate]) }}"
+                                        <a href="{{ route('client.booking.create', ['trip_id' => $trip->trip_id, 'date' => $departureDate]) }}"
                                             class="btn-book flex-1">
                                             <i class="fa-solid fa-ticket"></i>
                                             Chọn chuyến
@@ -989,7 +1039,8 @@
                     <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
                         <i class="fa-solid fa-lightbulb text-yellow-500 text-xl"></i>
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">{{ __('client.route_show.tips.title') }}</h2>
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">{{ __('client.route_show.tips.title') }}
+                    </h2>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     @foreach ($travelTips as $tip)
@@ -1019,7 +1070,8 @@
                     <div>
                         <h4 class="font-bold text-gray-800 mb-4">
                             {{ __('client.route_show.details_modal.bus_info_title') }}</h4>
-                        <img id="modal-bus-image" src="" alt="{{__('client.route_show.details_modal.bus_image_alt')}}"
+                        <img id="modal-bus-image" src=""
+                            alt="{{ __('client.route_show.details_modal.bus_image_alt') }}"
                             class="w-full h-52 object-cover rounded-xl mb-4 bg-gray-100">
                         <div id="modal-gallery" class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin"></div>
                         <ul class="space-y-3 text-sm mt-5">
@@ -1072,7 +1124,7 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
+            document.addEventListener('DOMContentLoaded', function() {
                 const body = document.body;
 
                 // Mobile Filter
@@ -1099,7 +1151,7 @@
                 filterClose?.addEventListener('click', closeFilters);
                 filterBackdrop?.addEventListener('click', closeFilters);
 
-                window.addEventListener('resize', function () {
+                window.addEventListener('resize', function() {
                     if (window.innerWidth >= 1024) {
                         body.classList.remove('overflow-hidden');
                         filterBackdrop?.classList.add('hidden');
@@ -1108,8 +1160,8 @@
                 });
 
                 // Image Trigger
-                document.querySelectorAll('[data-image-trigger]').forEach(function (button) {
-                    button.addEventListener('click', function () {
+                document.querySelectorAll('[data-image-trigger]').forEach(function(button) {
+                    button.addEventListener('click', function() {
                         const targetSelector = button.getAttribute('data-target');
                         const imageUrl = button.getAttribute('data-image');
                         const target = document.querySelector(targetSelector);
@@ -1117,7 +1169,8 @@
                             target.setAttribute('src', imageUrl);
                         }
                         // Update active state
-                        button.closest('.gallery-thumbs')?.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+                        button.closest('.gallery-thumbs')?.querySelectorAll('.gallery-thumb').forEach(
+                            t => t.classList.remove('active'));
                         button.classList.add('active');
                     });
                 });
@@ -1148,65 +1201,73 @@
                 }
 
                 closeModalBtn?.addEventListener('click', closeModal);
-                modal?.addEventListener('click', function (event) {
+                modal?.addEventListener('click', function(event) {
                     if (event.target === modal) closeModal();
                 });
 
-                document.querySelectorAll('.view-trip-details-btn').forEach(function (button) {
-                    button.addEventListener('click', function () {
+                document.querySelectorAll('.view-trip-details-btn').forEach(function(button) {
+                    button.addEventListener('click', function() {
                         const rawData = button.getAttribute('data-trip');
                         if (!rawData) return;
                         const tripData = JSON.parse(rawData);
                         if (!tripData) return;
 
-                        modalCompanyName.textContent = tripData.company_name || '';
-                        modalBusName.textContent = tripData.bus_name || '';
+                        modalCompanyName.textContent = "{{ config('app.name') }}";
+                        modalBusName.textContent = tripData.bus_model || '';
                         modalBusModel.textContent = tripData.bus_model || '';
-                        modalBusCategory.textContent = tripData.bus_category || "{{__('client.route_show.details_modal.not_updated')}}";
+                        modalBusCategory.textContent = tripData.bus_category ||
+                            "{{ __('client.route_show.details_modal.not_updated') }}";
 
-                        const galleryImages = Array.isArray(tripData.image_gallery) ? tripData.image_gallery : [];
-                        let initialImage = tripData.primary_bus_image || galleryImages[0] || tripData.bus_thumbnail || '{{ $galleryFallback }}';
+                        const galleryImages = Array.isArray(tripData.image_gallery) ? tripData
+                            .image_gallery : [];
+                        let initialImage = tripData.primary_bus_image || galleryImages[0] || tripData
+                            .bus_thumbnail || '{{ $galleryFallback }}';
                         modalBusImage.src = initialImage;
 
                         modalGallery.innerHTML = '';
                         if (galleryImages.length > 0) {
                             let activeThumb = null;
-                            galleryImages.forEach(function (src) {
+                            galleryImages.forEach(function(src) {
                                 const thumbBtn = document.createElement('button');
                                 thumbBtn.type = 'button';
                                 thumbBtn.className = 'modal-thumb';
-                                thumbBtn.innerHTML = '<img src="' + src + '" alt="{{__('client.route_show.details_modal.bus_image_alt')}}">';
+                                thumbBtn.innerHTML = '<img src="' + src +
+                                    '" alt="{{ __('client.route_show.details_modal.bus_image_alt') }}">';
                                 if (src === initialImage) {
                                     thumbBtn.classList.add('is-active');
                                     activeThumb = thumbBtn;
                                 }
-                                thumbBtn.addEventListener('click', function () {
+                                thumbBtn.addEventListener('click', function() {
                                     modalBusImage.src = src;
-                                    if (activeThumb) activeThumb.classList.remove('is-active');
+                                    if (activeThumb) activeThumb.classList.remove(
+                                        'is-active');
                                     thumbBtn.classList.add('is-active');
                                     activeThumb = thumbBtn;
                                 });
                                 modalGallery.appendChild(thumbBtn);
                             });
                         } else {
-                            modalGallery.innerHTML = '<p class="text-sm text-gray-500">' + "{{__('client.route_show.details_modal.no_gallery')}}" + '</p>';
+                            modalGallery.innerHTML = '<p class="text-sm text-gray-500">' +
+                                "{{ __('client.route_show.details_modal.no_gallery') }}" + '</p>';
                         }
 
                         modalServices.innerHTML = '';
                         if (tripData.services && tripData.services.length > 0) {
-                            tripData.services.forEach(function (service) {
+                            tripData.services.forEach(function(service) {
                                 const chip = document.createElement('span');
                                 chip.className = 'service-chip';
-                                chip.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' + service;
+                                chip.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' +
+                                    service;
                                 modalServices.appendChild(chip);
                             });
                         } else {
-                            modalServices.innerHTML = '<p class="text-sm text-gray-500">' + "{{__('client.route_show.details_modal.no_services')}}" + '</p>';
+                            modalServices.innerHTML = '<p class="text-sm text-gray-500">' +
+                                "{{ __('client.route_show.details_modal.no_services') }}" + '</p>';
                         }
 
                         modalPickupPoints.innerHTML = '';
                         if (tripData.pickup_points) {
-                            tripData.pickup_points.forEach(function (point) {
+                            tripData.pickup_points.forEach(function(point) {
                                 const item = document.createElement('li');
                                 item.className = 'point-item';
                                 item.textContent = point.name || '';
@@ -1216,7 +1277,7 @@
 
                         modalDropoffPoints.innerHTML = '';
                         if (tripData.dropoff_points) {
-                            tripData.dropoff_points.forEach(function (point) {
+                            tripData.dropoff_points.forEach(function(point) {
                                 const item = document.createElement('li');
                                 item.className = 'point-item';
                                 item.textContent = point.name || '';
@@ -1225,10 +1286,13 @@
                         }
 
                         const seatsAvailable = Number(tripData.seats_available ?? 0);
-                        modalAvailability.textContent = seatsAvailable > 0 ? "{{__('client.route_show.trip_card.seats_available')}}" : "{{__('client.route_show.trip_card.seats_full')}}";
+                        modalAvailability.textContent = seatsAvailable > 0 ?
+                            "{{ __('client.route_show.trip_card.seats_available') }}" :
+                            "{{ __('client.route_show.trip_card.seats_full') }}";
 
-                        const bookingUrl = new URL("{{ route('client.booking.create') }}", window.location.origin);
-                        bookingUrl.searchParams.set('bus_route_id', tripData.bus_route_id);
+                        const bookingUrl = new URL("{{ route('client.booking.create') }}", window
+                            .location.origin);
+                        bookingUrl.searchParams.set('trip_id', tripData.trip_id);
                         bookingUrl.searchParams.set('date', '{{ $departureDate }}');
                         modalBookingLink.href = bookingUrl.toString();
 
@@ -1236,6 +1300,98 @@
                     });
                 });
             });
+
+            // Mobile Filter Panel Toggle
+            (function() {
+                const filterToggle = document.getElementById('mobile-filter-toggle');
+                const filterPanel = document.getElementById('filter-panel-mobile');
+                const filterBackdrop = document.getElementById('mobile-filter-backdrop');
+                const filterClose = document.getElementById('mobile-filter-close');
+
+                function openFilterPanel() {
+                    filterPanel.classList.add('open');
+                    filterBackdrop.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeFilterPanel() {
+                    filterPanel.classList.remove('open');
+                    filterBackdrop.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+
+                if (filterToggle) {
+                    filterToggle.addEventListener('click', openFilterPanel);
+                }
+
+                if (filterClose) {
+                    filterClose.addEventListener('click', closeFilterPanel);
+                }
+
+                if (filterBackdrop) {
+                    filterBackdrop.addEventListener('click', closeFilterPanel);
+                }
+
+                // Close on Escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && filterPanel.classList.contains('open')) {
+                        closeFilterPanel();
+                    }
+                });
+            })();
         </script>
     @endpush
+
+    {{-- Mobile Sticky Booking Bar --}}
+    @if ($trips->isNotEmpty())
+        @php
+            $lowestPrice = $trips->min('price');
+        @endphp
+        <div id="mobile-booking-bar"
+            class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 transform translate-y-full transition-transform duration-300 lg:hidden">
+            <div class="container mx-auto px-4 py-3">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <p class="text-xs text-gray-500">
+                            {{ __('client.route_show.mobile_bar.from', ['default' => 'Chỉ từ']) }}</p>
+                        <p class="text-xl font-bold text-blue-600">
+                            {{ number_format($lowestPrice, 0, ',', '.') }}₫
+                        </p>
+                    </div>
+                    <a href="#availabilities"
+                        class="flex-1 max-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-900 font-bold rounded-xl shadow-md hover:shadow-lg transition">
+                        {{ __('client.route_show.mobile_bar.view_trips', ['default' => 'Xem chuyến']) }}
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        @push('scripts')
+            <script>
+                // Mobile Sticky Booking Bar
+                document.addEventListener('DOMContentLoaded', function() {
+                    const bookingBar = document.getElementById('mobile-booking-bar');
+                    const availabilities = document.getElementById('availabilities');
+
+                    if (bookingBar && availabilities) {
+                        const observer = new IntersectionObserver(function(entries) {
+                            entries.forEach(function(entry) {
+                                if (entry.isIntersecting) {
+                                    bookingBar.classList.add('translate-y-full');
+                                } else {
+                                    bookingBar.classList.remove('translate-y-full');
+                                }
+                            });
+                        }, {
+                            threshold: 0.3
+                        });
+
+                        observer.observe(availabilities);
+                    }
+                });
+            </script>
+        @endpush
+    @endif
+
 </x-client.layout>

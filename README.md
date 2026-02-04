@@ -1,13 +1,20 @@
 # KingExpressBus
 
-Bus ticket booking platform connecting passengers with high-quality bus operators. Built with Laravel 12.
+Single-tenant bus ticket booking system for managing transportation services. Built with Laravel 12.
 
 ## Project Overview
 
 KingExpressBus is a comprehensive solution for managing bus transportation services. It provides:
--   **Admin Portal:** For platform management, master data control, and company oversight.
--   **Company Portal:** For bus operators to manage their fleet, routes, schedules, and bookings.
+-   **Admin Portal:** For centralized management of buses, routes, trips (schedules), and bookings.
 -   **Client Portal:** A user-friendly interface for customers to search for trips, view details, and book tickets.
+
+## Architecture (Single-Tenant)
+
+This system follows a single-tenant architecture where:
+- All buses are managed directly by the system administrator
+- Routes define the travel paths between provinces
+- Trips are scheduled departures with specific buses, times, and prices
+- Bookings are made against specific trips
 
 ## Documentation
 
@@ -66,11 +73,21 @@ KingExpressBus is a comprehensive solution for managing bus transportation servi
 
 ## Key Features
 
--   **Multi-Role System:** Admin, Company, Customer.
--   **Dynamic Routing:** Management of Provinces, Districts, and specific Stops.
+-   **Single-Tenant System:** Centralized management by Admin.
+-   **Bus Fleet Management:** Manage buses with seat maps, services, and details.
+-   **Route Management:** Define routes between provinces with stops.
+-   **Trip Scheduling:** Create trips with specific buses, times, and prices.
 -   **Booking System:** Complete flow from search to payment status tracking.
 -   **Localization:** Support for English and Vietnamese.
 -   **Media Management:** Integration with CKFinder.
+
+## Database Structure
+
+- `routes` - Travel routes between provinces
+- `route_stops` - Pickup/dropoff stops for each route
+- `buses` - Fleet of buses with seat maps and services
+- `trips` - Scheduled departures (bus + route + time + price)
+- `bookings` - Customer reservations for trips
 
 ## License
 

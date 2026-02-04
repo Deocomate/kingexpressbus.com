@@ -28,10 +28,11 @@ class ContactController extends Controller
             ->limit(10)
             ->get();
 
-        // Lấy thống kê cơ bản
+        // Lấy thống kê cơ bản (Single-tenant: buses instead of companies)
         $stats = [
             'route_count' => DB::table('routes')->count(),
-            'company_count' => DB::table('companies')->count(),
+            'bus_count' => DB::table('buses')->count(),
+            'trip_count' => DB::table('trips')->where('is_active', true)->count(),
         ];
 
         return view('client.contact.index', [

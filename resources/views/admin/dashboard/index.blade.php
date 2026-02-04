@@ -30,11 +30,11 @@
         <div class="col-lg-3 col-6">
             <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3>{{ number_format($totalCompanies) }}</h3>
-                    <p>Nhà xe đối tác</p>
+                    <h3>{{ number_format($totalBuses ?? 0) }} <small class="text-sm">xe</small> / {{ number_format($totalTrips ?? 0) }} <small class="text-sm">chuyến</small></h3>
+                    <p>Đội xe & Chuyến hoạt động</p>
                 </div>
                 <div class="icon">
-                    <i class="fas fa-building"></i>
+                    <i class="fas fa-bus"></i>
                 </div>
             </div>
         </div>

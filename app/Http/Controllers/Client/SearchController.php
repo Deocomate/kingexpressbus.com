@@ -3,12 +3,19 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Services\RouteService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class SearchController extends Controller
 {
+    protected RouteService $routeService;
+
+    public function __construct(RouteService $routeService)
+    {
+        $this->routeService = $routeService;
+    }
+
     public function search(Request $request)
     {
         $validated = $request->validate([
@@ -21,17 +28,20 @@ class SearchController extends Controller
         ]);
 
         try {
-            $startProvinceId = $this->resolveProvinceId($validated['origin_type'], (int) $validated['origin_id']);
-            $endProvinceId = $this->resolveProvinceId($validated['destination_type'], (int) $validated['destination_id']);
+            $startProvinceId = $this->routeService->resolveProvinceId(
+                $validated['origin_type'],
+                (int) $validated['origin_id']
+            );
+            $endProvinceId = $this->routeService->resolveProvinceId(
+                $validated['destination_type'],
+                (int) $validated['destination_id']
+            );
 
             if (!$startProvinceId || !$endProvinceId) {
                 return $this->searchErrorResponse($request, __('client.route_show.search.invalid_location'));
             }
 
-            $route = DB::table('routes')
-                ->where('province_start_id', $startProvinceId)
-                ->where('province_end_id', $endProvinceId)
-                ->first();
+            $route = $this->routeService->findRouteByProvinces($startProvinceId, $endProvinceId);
 
             if (!$route) {
                 return $this->searchErrorResponse($request, __('client.route_show.search.no_route_found'));
@@ -61,26 +71,6 @@ class SearchController extends Controller
             Log::error('Client route search failed', ['error' => $exception->getMessage()]);
             return $this->searchErrorResponse($request, __('client.route_show.search.system_error'));
         }
-    }
-
-    private function resolveProvinceId(string $type, int $id): ?int
-    {
-        if ($type === 'province') {
-            return $id;
-        }
-
-        if ($type === 'district') {
-            return DB::table('districts')->where('id', $id)->value('province_id');
-        }
-
-        if ($type === 'stop') {
-            return DB::table('stops as s')
-                ->join('districts as d', 's.district_id', '=', 'd.id')
-                ->where('s.id', $id)
-                ->value('d.province_id');
-        }
-
-        return null;
     }
 
     private function searchErrorResponse(Request $request, string $message)

@@ -10,15 +10,18 @@ class DashboardController extends Controller
 {
     /**
      * Hiển thị trang dashboard của admin với các số liệu thống kê.
+     * Updated for single-tenant schema.
      *
      * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        // 1. Thống kê tổng quan (Info Boxes)
+        // 1. Thống kê tổng quan (Single-tenant: buses/trips instead of companies)
         $totalBookings = DB::table('bookings')->count();
         $totalRevenue = DB::table('bookings')->whereIn('status', ['confirmed', 'completed'])->sum('total_price');
-        $totalCompanies = DB::table('companies')->count();
+        $totalBuses = DB::table('buses')->count();
+        $totalTrips = DB::table('trips')->where('is_active', true)->count();
+        $totalRoutes = DB::table('routes')->count();
         $totalCustomers = DB::table('users')->where('role', 'customer')->count();
 
         // 2. Dữ liệu cho biểu đồ trạng thái đặt vé (Doughnut Chart)
@@ -52,11 +55,10 @@ class DashboardController extends Controller
             $monthlyRevenueData[] = $revenue;
         }
 
-        // 4. Lấy 10 đặt vé mới nhất (Updated Query)
+        // 4. Lấy 10 đặt vé mới nhất (Updated for single-tenant schema)
         $latestBookings = DB::table('bookings as b')
-            ->join('bus_routes as br', 'b.bus_route_id', '=', 'br.id')
-            ->join('company_routes as cr', 'br.company_route_id', '=', 'cr.id')
-            ->join('routes as r', 'cr.route_id', '=', 'r.id')
+            ->join('trips as t', 'b.trip_id', '=', 't.id')
+            ->join('routes as r', 't.route_id', '=', 'r.id')
             ->select(
                 'b.booking_code',
                 'b.customer_name',
@@ -72,7 +74,9 @@ class DashboardController extends Controller
         return view('admin.dashboard.index', compact(
             'totalBookings',
             'totalRevenue',
-            'totalCompanies',
+            'totalBuses',
+            'totalTrips',
+            'totalRoutes',
             'totalCustomers',
             'bookingStatusLabels',
             'bookingStatusData',

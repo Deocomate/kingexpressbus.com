@@ -2,11 +2,10 @@
 
 use App\Http\Controllers\System\CkFinderController;
 use Illuminate\Support\Facades\Route;
-
 use Illuminate\Http\Request;
+
 // Import Middleware
 use App\Http\Middleware\Roles\AdminAuthMiddleware;
-use App\Http\Middleware\Roles\CompanyAuthMiddleware;
 use App\Http\Middleware\Roles\CustomerAuthMiddleware;
 
 // Auth Controllers
@@ -23,34 +22,29 @@ use App\Http\Controllers\Admin\DistrictTypeController;
 use App\Http\Controllers\Admin\DistrictController;
 use App\Http\Controllers\Admin\StopController;
 use App\Http\Controllers\Admin\RouteController as AdminRouteController;
-use App\Http\Controllers\Admin\CompanyController as AdminCompanyController;
+use App\Http\Controllers\Admin\BusController as AdminBusController;
+use App\Http\Controllers\Admin\TripController as AdminTripController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\BusServiceController;
 
-// Company Controllers
-use App\Http\Controllers\Company\DashboardController as CompanyDashboardController;
-use App\Http\Controllers\Company\ProfileController as CompanyProfileController;
-use App\Http\Controllers\Company\BusController as CompanyBusController;
-use App\Http\Controllers\Company\RouteController as CompanyRouteController;
-use App\Http\Controllers\Company\BusRouteController as CompanyBusRouteController;
-use App\Http\Controllers\Company\BookingController as CompanyBookingController;
-
 // Client Controllers
 use App\Http\Controllers\Client\HomeController;
-use App\Http\Controllers\Client\RouteController as ClientRouteController;
-use App\Http\Controllers\Client\CompanyController as ClientCompanyController;
+use App\Http\Controllers\Client\TripController as ClientTripController;
 use App\Http\Controllers\Client\BookingController as ClientBookingController;
 use App\Http\Controllers\Client\ContactController;
 use App\Http\Controllers\Client\PageController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+use App\Http\Controllers\Client\SearchController as ClientSearchController;
 
 /*
 |--------------------------------------------------------------------------
-| CLIENT ROUTES: Homepage, contact page, find bus route page (with detail information of bus and route), bus route detail page, booking page, company list, company detail page, login, register, user profile page, ...
+| CLIENT ROUTES
+| Homepage, search trips, booking, contact, pages, auth
 |--------------------------------------------------------------------------
 */
 Route::name('client.')->group(function () {
+    // Locale switching
     Route::get('/locale/{locale}', function (string $locale, Request $request) {
         $availableLocales = ['en', 'vi'];
 
@@ -64,31 +58,34 @@ Route::name('client.')->group(function () {
         return back(fallback: route('client.home'));
     })->name('locale.switch');
 
+    // Home
     Route::get('/', [HomeController::class, 'index'])->name('home');
 
-    Route::get('/tim-kiem', [\App\Http\Controllers\Client\SearchController::class, 'search'])->name('routes.search');
+    // Search
+    Route::get('/tim-kiem', [ClientSearchController::class, 'search'])->name('routes.search');
 
-    Route::get('/tuyen-duong', [ClientRouteController::class, 'index'])->name('routes.index');
-    Route::get('/tuyen-duong/{slug}', [ClientRouteController::class, 'show'])->name('routes.show');
+    // Routes/Trips
+    Route::get('/tuyen-duong', [ClientTripController::class, 'index'])->name('routes.index');
+    Route::get('/tuyen-duong/{slug}', [ClientTripController::class, 'show'])->name('routes.show');
 
-    Route::get('/nha-xe', [ClientCompanyController::class, 'index'])->name('companies.index');
-    Route::get('/nha-xe/{slug}', [ClientCompanyController::class, 'show'])->name('companies.show');
-
+    // Booking
     Route::get('/dat-ve', [ClientBookingController::class, 'create'])->name('booking.create');
     Route::post('/dat-ve', [ClientBookingController::class, 'store'])->name('booking.store');
     Route::get('/dat-ve/thanh-cong', [ClientBookingController::class, 'success'])->name('booking.success');
 
+    // Static pages
     Route::get('/lien-he', [ContactController::class, 'index'])->name('contact');
+    Route::get('/gioi-thieu', [PageController::class, 'about'])->name('about');
     Route::get('/trang/{slug}', [PageController::class, 'show'])->name('page.show');
 
+    // Client Authentication
     Route::get('/dang-nhap', [ClientAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/dang-nhap', [ClientAuthController::class, 'login'])->name('login.submit');
     Route::get('/dang-ky', [ClientAuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/dang-ky', [ClientAuthController::class, 'register'])->name('register.submit');
     Route::post('/dang-xuat', [ClientAuthController::class, 'logout'])->name('logout');
 
-    Route::get('/gioi-thieu', [PageController::class, 'about'])->name('about');
-
+    // Protected client routes
     Route::middleware(CustomerAuthMiddleware::class)->group(function () {
         Route::get('/tai-khoan', [ClientProfileController::class, 'index'])->name('profile.index');
     });
@@ -97,7 +94,7 @@ Route::name('client.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| AUTHENTICATION ROUTES
+| AUTHENTICATION ROUTES (Admin)
 |--------------------------------------------------------------------------
 */
 Route::get("/examples/{name}", [\App\Http\Controllers\Examples\ExamplesController::class, "index"]);
@@ -109,55 +106,49 @@ Route::get('logout', [LogoutController::class, 'logout'])->name('logout');
 /*
 |--------------------------------------------------------------------------
 | ADMIN ROUTES
+| Centralized management for single-tenant system
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(AdminAuthMiddleware::class)
     ->group(function () {
+        // Dashboard
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard.index');
+
+        // Website Configuration
         Route::resource('web_profiles', WebProfileController::class);
         Route::patch('/web_profiles/{web_profile}/set-default', [WebProfileController::class, 'setDefault'])->name('web_profiles.setDefault');
         Route::resource('menus', MenuController::class)->except(['show']);
         Route::post('/menus/update-order', [MenuController::class, 'updateOrder'])->name('menus.updateOrder');
         Route::post('/menus/add-item', [MenuController::class, 'addItem'])->name('menus.addItem');
+
+        // Location Management
         Route::resource('provinces', ProvinceController::class);
         Route::resource('district-types', DistrictTypeController::class);
         Route::resource('districts', DistrictController::class);
         Route::post('/districts/update-order', [DistrictController::class, 'updateOrder'])->name('districts.updateOrder');
         Route::resource('stops', StopController::class);
         Route::post('/stops/update-order', [StopController::class, 'updateOrder'])->name('stops.updateOrder');
+
+        // Route Management (Tuyến đường)
         Route::resource('routes', AdminRouteController::class);
         Route::post('/routes/update-order', [AdminRouteController::class, 'updateOrder'])->name('routes.updateOrder');
-        Route::resource('companies', AdminCompanyController::class);
-        Route::resource('bus-services', BusServiceController::class);
-        Route::resource('bookings', AdminBookingController::class);
-    });
+        Route::get('/routes-all', [AdminRouteController::class, 'all'])->name('routes.all');
 
-/*
-|--------------------------------------------------------------------------
-| COMPANY ROUTES
-|--------------------------------------------------------------------------
-*/
-Route::prefix('company')
-    ->name('company.')
-    ->middleware(CompanyAuthMiddleware::class)
-    ->group(function () {
-        Route::get('/dashboard', [CompanyDashboardController::class, 'index'])->name('dashboard.index');
-        Route::get('/profile', [CompanyProfileController::class, 'index'])->name('profile.index');
-        Route::post('/profile', [CompanyProfileController::class, 'update'])->name('profile.update');
-        Route::get('/buses/list', [CompanyBusController::class, 'list'])->name('buses.list');
-        Route::get('/buses/all', [CompanyBusController::class, 'all'])->name('buses.all');
-        Route::resource('buses', CompanyBusController::class)->except(['create']);
-        Route::get('/company-routes/all', [CompanyRouteController::class, 'all'])->name('company-routes.all');
-        Route::post('company-routes/update-order', [CompanyRouteController::class, 'updateOrder'])->name('company-routes.updateOrder');
-        Route::resource('company-routes', CompanyRouteController::class)->except(['create']);
-        Route::post('bus-routes/update-order', [CompanyBusRouteController::class, 'updateOrder'])->name('bus-routes.updateOrder');
-        Route::resource('bus-routes', CompanyBusRouteController::class)->except(['create']);
-        Route::get('/bookings/list', [CompanyBookingController::class, 'list'])->name('bookings.list');
-        Route::get('/bookings', [CompanyBookingController::class, 'index'])->name('bookings.index');
-        Route::get('/bookings/{booking}', [CompanyBookingController::class, 'show'])->name('bookings.show');
-        Route::put('/bookings/{booking}/update-status', [CompanyBookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+        // Bus Management (Quản lý đội xe)
+        Route::resource('buses', AdminBusController::class);
+        Route::get('/buses-list', [AdminBusController::class, 'list'])->name('buses.list');
+        Route::get('/buses-all', [AdminBusController::class, 'all'])->name('buses.all');
+        Route::resource('bus-services', BusServiceController::class);
+
+        // Trip Management (Quản lý chuyến xe / Lịch chạy)
+        Route::resource('trips', AdminTripController::class);
+        Route::post('/trips/update-order', [AdminTripController::class, 'updateOrder'])->name('trips.updateOrder');
+        Route::patch('/trips/{trip}/toggle-status', [AdminTripController::class, 'toggleStatus'])->name('trips.toggleStatus');
+
+        // Booking Management (Quản lý đặt vé)
+        Route::resource('bookings', AdminBookingController::class);
     });
 
 

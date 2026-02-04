@@ -81,19 +81,19 @@ class PageController extends Controller
 
     public function about()
     {
-        // Lấy các số liệu thống kê động từ DB
+        // Lấy các số liệu thống kê động từ DB (Single-tenant: buses instead of companies)
         $stats = [
             'route_count' => DB::table('routes')->count(),
-            'company_count' => DB::table('companies')->count(),
+            'bus_count' => DB::table('buses')->count(),
+            'trip_count' => DB::table('trips')->where('is_active', true)->count(),
             'customer_count' => DB::table('bookings')->distinct('customer_email')->count('customer_email'),
             'booking_count' => DB::table('bookings')->count(),
             'years_experience' => now()->year - 2017,
         ];
 
-        // Lấy 4 popular routes để hiển thị
+        // Lấy 4 popular routes với thống kê từ trips table
         $popularRoutes = DB::table('routes')
-            ->leftJoin('company_routes', 'routes.id', '=', 'company_routes.route_id')
-            ->leftJoin('bus_routes', 'company_routes.id', '=', 'bus_routes.company_route_id')
+            ->leftJoin('trips', 'routes.id', '=', 'trips.route_id')
             ->select(
                 'routes.id',
                 'routes.name',
@@ -101,10 +101,10 @@ class PageController extends Controller
                 'routes.thumbnail_url',
                 'routes.duration'
             )
-            ->selectRaw('COUNT(DISTINCT company_routes.company_id) as company_count')
-            ->selectRaw('MIN(bus_routes.price) as min_price')
-            ->groupBy('routes.id', 'routes.name', 'routes.slug', 'routes.thumbnail_url', 'routes.duration')
-            ->orderByDesc('company_count')
+            ->selectRaw('COUNT(trips.id) as trip_count')
+            ->selectRaw('COALESCE(MIN(NULLIF(trips.price, 0)), routes.price_default, 0) as min_price')
+            ->groupBy('routes.id', 'routes.name', 'routes.slug', 'routes.thumbnail_url', 'routes.duration', 'routes.price_default')
+            ->orderByDesc('trip_count')
             ->limit(4)
             ->get();
 

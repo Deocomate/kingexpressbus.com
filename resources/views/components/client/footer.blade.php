@@ -6,7 +6,6 @@
     $aboutLinks = [
         ['label' => __('client.footer.links.intro'), 'url' => route('client.about')],
         ['label' => __('client.footer.links.routes'), 'url' => route('client.routes.index')],
-        ['label' => __('client.footer.links.companies'), 'url' => route('client.companies.index')],
         ['label' => __('client.footer.links.contact'), 'url' => route('client.contact')],
     ];
 
