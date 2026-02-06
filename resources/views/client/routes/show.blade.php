@@ -102,11 +102,19 @@
         <style>
             /* Hero Section */
             .route-hero {
-                background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.85) 100%),
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 95, 0.85) 50%, rgba(15, 23, 42, 0.9) 100%),
                     url('{{ $heroImage }}');
                 background-size: cover;
                 background-position: center;
                 min-height: 420px;
+                background-attachment: fixed;
+            }
+
+            @media (max-width: 768px) {
+                .route-hero {
+                    background-attachment: scroll;
+                    min-height: 360px;
+                }
             }
 
             /* Highlight Cards */
@@ -132,6 +140,50 @@
                 box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.1);
                 position: sticky;
                 top: 100px;
+                max-height: calc(100vh - 120px);
+                display: flex;
+                flex-direction: column;
+            }
+
+            .filters-sidebar form {
+                display: flex;
+                flex-direction: column;
+                max-height: calc(100vh - 120px);
+                overflow: hidden;
+            }
+
+            .filters-scrollable {
+                flex: 1;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #cbd5e1 transparent;
+            }
+
+            .filters-scrollable::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            .filters-scrollable::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .filters-scrollable::-webkit-scrollbar-thumb {
+                background: #cbd5e1;
+                border-radius: 4px;
+            }
+
+            .filters-scrollable::-webkit-scrollbar-thumb:hover {
+                background: #94a3b8;
+            }
+
+            .filters-sticky-footer {
+                position: sticky;
+                bottom: 0;
+                background: #f8fafc;
+                border-top: 1px solid #e5e7eb;
+                border-radius: 0 0 20px 20px;
+                padding: 16px 20px;
+                z-index: 2;
             }
 
             .filter-section {
@@ -152,7 +204,37 @@
                 margin-bottom: 14px;
                 display: flex;
                 align-items: center;
+                justify-content: space-between;
                 gap: 10px;
+            }
+
+            .filter-toggle {
+                cursor: pointer;
+                user-select: none;
+                margin-bottom: 0;
+                transition: color 0.2s ease;
+            }
+
+            .filter-toggle:hover {
+                color: #475569;
+            }
+
+            .filter-collapsible .filter-content {
+                max-height: 500px;
+                overflow: hidden;
+                transition: max-height 0.3s ease, margin-top 0.3s ease, opacity 0.2s ease;
+                opacity: 1;
+                margin-top: 14px;
+            }
+
+            .filter-collapsible.collapsed .filter-content {
+                max-height: 0;
+                opacity: 0;
+                margin-top: 0;
+            }
+
+            .filter-collapsible.collapsed .filter-chevron {
+                transform: rotate(-90deg);
             }
 
             .filter-pill {
@@ -205,7 +287,7 @@
 
             .trip-image-wrapper {
                 position: relative;
-                height: 180px;
+                height: 220px;
                 overflow: hidden;
             }
 
@@ -416,6 +498,11 @@
             .btn-book:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 12px 25px -8px rgba(251, 191, 36, 0.6);
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+            }
+
+            .btn-book:active {
+                transform: translateY(0);
             }
 
             .btn-details {
@@ -566,12 +653,18 @@
             @media (min-width: 1024px) {
                 .trip-card {
                     display: grid;
-                    grid-template-columns: 240px 1fr;
+                    grid-template-columns: 340px 1fr;
                 }
 
                 .trip-image-wrapper {
-                    height: auto;
-                    min-height: 280px;
+                    height: 100%;
+                    min-height: 320px;
+                }
+            }
+
+            @media (min-width: 1280px) {
+                .trip-card {
+                    grid-template-columns: 380px 1fr;
                 }
             }
 
@@ -589,6 +682,75 @@
                 .time-value {
                     font-size: 24px;
                 }
+            }
+
+            /* Trust Badges */
+            .trust-bar {
+                background: linear-gradient(90deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .trust-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #475569;
+                white-space: nowrap;
+            }
+
+            .trust-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                font-size: 12px;
+            }
+
+            /* Active Filters Count Badge */
+            .filter-sidebar-header {
+                padding: 16px 20px;
+                border-bottom: 1px solid #f1f5f9;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+                border-radius: 20px 20px 0 0;
+            }
+
+            .filter-sidebar-header h3 {
+                font-size: 15px;
+                font-weight: 700;
+                color: #1e293b;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* Trip Card Enhancements */
+            .trip-card-badge {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                padding: 4px 10px;
+                border-radius: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                backdrop-filter: blur(8px);
+            }
+
+            .trip-card-badge.hot {
+                background: rgba(239, 68, 68, 0.9);
+                color: #ffffff;
+            }
+
+            .trip-card-badge.new {
+                background: rgba(16, 185, 129, 0.9);
+                color: #ffffff;
             }
 
             /* Modal */
@@ -681,6 +843,38 @@
         <div class="container mx-auto px-4">
             <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
+            </div>
+        </div>
+    </section>
+
+    {{-- Trust Bar --}}
+    <section class="trust-bar py-3">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-center gap-6 md:gap-10 overflow-x-auto scrollbar-thin pb-1">
+                <div class="trust-item">
+                    <span class="trust-icon bg-emerald-100 text-emerald-600">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </span>
+                    <span>{{ __('client.route_show.trust.safe_booking', ['default' => 'Đặt vé an toàn']) }}</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon bg-blue-100 text-blue-600">
+                        <i class="fa-solid fa-headset"></i>
+                    </span>
+                    <span>{{ __('client.route_show.trust.support_247', ['default' => 'Hỗ trợ 24/7']) }}</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon bg-amber-100 text-amber-600">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </span>
+                    <span>{{ __('client.route_show.trust.easy_refund', ['default' => 'Hoàn vé dễ dàng']) }}</span>
+                </div>
+                <div class="trust-item">
+                    <span class="trust-icon bg-purple-100 text-purple-600">
+                        <i class="fa-solid fa-percent"></i>
+                    </span>
+                    <span>{{ __('client.route_show.trust.best_price', ['default' => 'Giá tốt nhất']) }}</span>
+                </div>
             </div>
         </div>
     </section>
@@ -798,6 +992,17 @@
                     {{-- Filters Sidebar (Desktop only) --}}
                     <aside class="hidden lg:block lg:col-span-3">
                         <div id="filter-panel-desktop" class="filters-sidebar">
+                            <div class="filter-sidebar-header">
+                                <h3>
+                                    <i class="fa-solid fa-sliders text-blue-500"></i>
+                                    {{ __('client.route_show.filters.sidebar_title', ['default' => 'Bộ lọc']) }}
+                                </h3>
+                                @if ($hasActiveFilters)
+                                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                                        {{ $activeFilterCount }} {{ __('client.route_show.filters.active', ['default' => 'đang lọc']) }}
+                                    </span>
+                                @endif
+                            </div>
                             <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET">
                                 @include('client.routes.partials.filter-form', [
                                     'filterState' => $filterState,
@@ -859,6 +1064,14 @@
                                             {{ $trip->bus_model ?? 'N/A' }}
                                         </span>
                                     </div>
+                                    @if ($hasSeats && ($trip->seats_available ?? 0) <= 5 && ($trip->seats_available ?? 0) > 0)
+                                        <div class="absolute top-4 right-4">
+                                            <span class="trip-card-badge hot">
+                                                <i class="fa-solid fa-fire mr-1"></i>
+                                                {{ __('client.route_show.trip_card.seats_left', ['count' => $trip->seats_available, 'default' => 'Còn ' . $trip->seats_available . ' chỗ']) }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 {{-- Content --}}
@@ -985,16 +1198,17 @@
                                     @endif
 
                                     {{-- Action Buttons --}}
-                                    <div class="flex gap-3 mt-auto pt-4 border-t border-gray-100">
+                                    <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-100">
                                         <a href="{{ route('client.booking.create', ['trip_id' => $trip->trip_id, 'date' => $departureDate]) }}"
-                                            class="btn-book flex-1">
+                                            class="btn-book flex-1"
+                                            @if (!$hasSeats) style="opacity: 0.5; pointer-events: none;" @endif>
                                             <i class="fa-solid fa-ticket"></i>
-                                            Chọn chuyến
+                                            {{ $hasSeats ? __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) : __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
                                         </a>
                                         <button type="button" class="btn-details view-trip-details-btn"
                                             data-trip='{{ json_encode($trip) }}'>
                                             <i class="fa-solid fa-circle-info"></i>
-                                            Chi tiết
+                                            {{ __('client.route_show.trip_card.details_button', ['default' => 'Chi tiết']) }}
                                         </button>
                                     </div>
                                 </div>
@@ -1008,24 +1222,41 @@
         {{-- No Results --}}
         <section class="py-20 bg-gray-50">
             <div class="container mx-auto px-4 text-center max-w-lg">
-                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                <div class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-inner">
                     <i class="fa-solid fa-calendar-xmark text-4xl text-gray-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">{{ __('client.route_show.no_trips.title') }}</h2>
-                <p class="text-gray-500 mb-8">{{ __('client.route_show.no_trips.description') }}</p>
+                <p class="text-gray-500 mb-8 leading-relaxed">{{ __('client.route_show.no_trips.description') }}</p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="#search-section"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition">
+                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         {{ __('client.route_show.no_trips.research_button') }}
                     </a>
                     @if ($hasActiveFilters ?? false)
                         <a href="{{ $clearFiltersUrl }}"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition">
+                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-600/25">
                             <i class="fa-solid fa-xmark"></i>
                             {{ __('client.route_show.no_trips.clear_filters_button') }}
                         </a>
                     @endif
+                </div>
+                {{-- Suggestion --}}
+                <div class="mt-10 p-6 bg-white rounded-2xl border border-gray-200 text-left">
+                    <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-yellow-500"></i>
+                        {{ __('client.route_show.no_trips.suggestion_title', ['default' => 'Gợi ý']) }}
+                    </h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+                            {{ __('client.route_show.no_trips.suggestion_1', ['default' => 'Thử chọn ngày khác để tìm thêm chuyến xe']) }}
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+                            {{ __('client.route_show.no_trips.suggestion_2', ['default' => 'Liên hệ hotline để được hỗ trợ đặt vé']) }}
+                        </li>
+                    </ul>
                 </div>
             </div>
         </section>
@@ -1126,6 +1357,16 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const body = document.body;
+
+                // Collapsible Filter Sections
+                document.querySelectorAll('.filter-toggle').forEach(function(toggle) {
+                    toggle.addEventListener('click', function() {
+                        const section = toggle.closest('.filter-collapsible');
+                        if (section) {
+                            section.classList.toggle('collapsed');
+                        }
+                    });
+                });
 
                 // Mobile Filter
                 const filterPanel = document.getElementById('filter-panel');

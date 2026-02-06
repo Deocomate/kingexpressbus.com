@@ -256,6 +256,14 @@ return [
         'price_from' => 'Giá từ :price',
         'price_contact' => 'Giá liên hệ',
         'search_submit_label' => 'Đổi và tìm lại',
+        // Trust Bar
+        'trust' => [
+            'safe_booking' => 'Đặt vé an toàn',
+            'support_247' => 'Hỗ trợ 24/7',
+            'easy_refund' => 'Hoàn vé dễ dàng',
+            'best_price' => 'Giá tốt nhất',
+        ],
+
         'results_title' => 'Chuyến xe đang mở bán',
         'results_subtitle' => 'Hiển thị :filtered / :total chuyến cho ngày :date',
         'results_subtitle_filtered' => ':filtered / :total chuyến • :date',
@@ -298,6 +306,8 @@ return [
             'dropoff_title' => 'Điểm trả',
             'apply_button' => 'Áp dụng lọc',
             'clear_button' => 'Xóa bộ lọc',
+            'sidebar_title' => 'Bộ lọc',
+            'active' => 'đang lọc',
         ],
         'trip_card' => [
             'trip_code' => 'Mã chuyến',
@@ -315,6 +325,9 @@ return [
             'bus_image_alt' => 'Hình xe',
             'no_services_updated' => 'Chưa cập nhật tiện ích.',
             'select_trip_button' => 'Chọn chuyến',
+            'book_button' => 'Chọn chuyến',
+            'sold_out_button' => 'Hết chỗ',
+            'seats_left' => 'Còn :count chỗ',
             'details_button' => 'Xem chi tiết',
         ],
         'no_trips' => [
@@ -322,6 +335,9 @@ return [
             'description' => 'Vui lòng thay đổi ngày khởi hành hoặc điều chỉnh bộ lọc để xem thêm tùy chọn.',
             'research_button' => 'Tìm kiếm lại',
             'clear_filters_button' => 'Xóa bộ lọc',
+            'suggestion_title' => 'Gợi ý',
+            'suggestion_1' => 'Thử chọn ngày khác để tìm thêm chuyến xe',
+            'suggestion_2' => 'Liên hệ hotline để được hỗ trợ đặt vé',
         ],
         'tips' => [
             'title' => 'Kinh nghiệm dành cho bạn',

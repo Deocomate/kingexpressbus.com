@@ -256,6 +256,14 @@ return [
         'price_from' => 'From :price',
         'price_contact' => 'Contact for price',
         'search_submit_label' => 'Change & Find Again',
+        // Trust Bar
+        'trust' => [
+            'safe_booking' => 'Safe Booking',
+            'support_247' => '24/7 Support',
+            'easy_refund' => 'Easy Refund',
+            'best_price' => 'Best Price',
+        ],
+
         'results_title' => 'Available Trips',
         'results_subtitle' => 'Showing :filtered / :total trips for :date',
         'results_subtitle_filtered' => ':filtered / :total trips • :date',
@@ -298,6 +306,8 @@ return [
             'dropoff_title' => 'Drop-off Points',
             'apply_button' => 'Apply Filters',
             'clear_button' => 'Clear Filters',
+            'sidebar_title' => 'Filters',
+            'active' => 'active',
         ],
         'trip_card' => [
             'trip_code' => 'Trip Code',
@@ -315,6 +325,9 @@ return [
             'bus_image_alt' => 'Bus image',
             'no_services_updated' => 'Amenities not updated.',
             'select_trip_button' => 'Select Trip',
+            'book_button' => 'Select Trip',
+            'sold_out_button' => 'Sold Out',
+            'seats_left' => ':count seats left',
             'details_button' => 'View Details',
         ],
         'no_trips' => [
@@ -322,6 +335,9 @@ return [
             'description' => 'Please change the departure date or adjust the filters to see more options.',
             'research_button' => 'Search Again',
             'clear_filters_button' => 'Clear Filters',
+            'suggestion_title' => 'Suggestions',
+            'suggestion_1' => 'Try selecting a different date to find more trips',
+            'suggestion_2' => 'Contact our hotline for booking assistance',
         ],
         'tips' => [
             'title' => 'Tips for You',
