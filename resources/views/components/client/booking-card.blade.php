@@ -13,7 +13,7 @@
 @endphp
 
 <article
-    class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 {{ $isUpcoming ? 'ring-1 ring-blue-500/10' : '' }}">
+    class="bg-white rounded-lg p-6 border border-neutral-200 shadow-soft hover:shadow-card transition-shadow duration-200 {{ $isUpcoming ? 'ring-1 ring-primary-500/10' : '' }}">
     <div class="flex flex-col md:flex-row gap-6 justify-between items-start">
         <div class="space-y-3 flex-1">
             <div class="flex items-center gap-3">
@@ -60,9 +60,9 @@
                     đ</span>
             </div>
             <a href="{{ route('client.routes.show', ['slug' => $booking->route_slug]) }}"
-                class="group inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-slate-50 text-slate-600 hover:bg-blue-600 hover:text-white transition-all text-sm font-semibold">
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md bg-neutral-50 text-neutral-600 hover:bg-primary-600 hover:text-white transition-colors duration-200 text-sm font-semibold">
                 {{ $isUpcoming ? 'Chi tiết' : 'Đặt lại' }}
-                <i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
     </div>

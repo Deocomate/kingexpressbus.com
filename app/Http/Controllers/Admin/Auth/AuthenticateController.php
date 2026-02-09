@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -31,6 +31,7 @@ class AuthenticateController extends Controller
             return back()->with('error', 'Tài khoản của bạn không có quyền truy cập quản trị.');
         }
 
-        return back()->with('error', 'Email hoặc mật khẩu không chính xác.')->withInput($request->only('email'));
+        return back()->with('error', 'Email hoặc mật khẩu không chính xác.')
+            ->withInput($request->only('email'));
     }
 }

@@ -102,7 +102,7 @@
         <style>
             /* Hero Section */
             .route-hero {
-                background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 95, 0.85) 50%, rgba(15, 23, 42, 0.9) 100%),
+                background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.6)),
                     url('{{ $heroImage }}');
                 background-size: cover;
                 background-position: center;
@@ -120,24 +120,22 @@
             /* Highlight Cards */
             .highlight-card {
                 background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
                 border: 1px solid rgba(255, 255, 255, 0.15);
-                border-radius: 16px;
+                border-radius: 8px;
                 padding: 20px;
-                transition: all 0.3s ease;
+                transition: background 0.2s ease;
             }
 
             .highlight-card:hover {
                 background: rgba(255, 255, 255, 0.15);
-                transform: translateY(-2px);
             }
 
             /* Filter Sidebar */
             .filters-sidebar {
                 background: #ffffff;
-                border-radius: 20px;
+                border-radius: 8px;
                 border: 1px solid #e5e7eb;
-                box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
                 position: sticky;
                 top: 100px;
                 max-height: calc(100vh - 120px);
@@ -181,7 +179,7 @@
                 bottom: 0;
                 background: #f8fafc;
                 border-top: 1px solid #e5e7eb;
-                border-radius: 0 0 20px 20px;
+                border-radius: 0 0 8px 8px;
                 padding: 16px 20px;
                 z-index: 2;
             }
@@ -274,15 +272,14 @@
             .trip-card {
                 background: #ffffff;
                 border: 1px solid #e5e7eb;
-                border-radius: 20px;
+                border-radius: 8px;
                 overflow: hidden;
-                transition: all 0.3s ease;
+                transition: box-shadow 0.2s ease, border-color 0.2s ease;
             }
 
             .trip-card:hover {
-                border-color: #fbbf24;
-                box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.12);
-                transform: translateY(-4px);
+                border-color: #d1d5db;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             }
 
             .trip-image-wrapper {
@@ -299,7 +296,7 @@
             }
 
             .trip-card:hover .trip-image-wrapper img {
-                transform: scale(1.05);
+                transform: none;
             }
 
             .trip-body {
@@ -313,7 +310,7 @@
                 gap: 16px;
                 padding: 16px;
                 background: #f8fafc;
-                border-radius: 14px;
+                border-radius: 6px;
                 border: 1px solid #e2e8f0;
             }
 
@@ -486,23 +483,20 @@
                 justify-content: center;
                 gap: 10px;
                 padding: 14px 28px;
-                background: linear-gradient(135deg, #fbbf24, #f59e0b);
-                color: #0f172a;
-                font-weight: 700;
+                background: #D97706;
+                color: #ffffff;
+                font-weight: 600;
                 font-size: 15px;
-                border-radius: 14px;
-                transition: all 0.3s ease;
-                box-shadow: 0 8px 20px -8px rgba(251, 191, 36, 0.5);
+                border-radius: 6px;
+                transition: background 0.2s ease;
             }
 
             .btn-book:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 25px -8px rgba(251, 191, 36, 0.6);
-                background: linear-gradient(135deg, #f59e0b, #d97706);
+                background: #B45309;
             }
 
             .btn-book:active {
-                transform: translateY(0);
+                background: #92400E;
             }
 
             .btn-details {
@@ -515,8 +509,8 @@
                 color: #475569;
                 font-weight: 600;
                 font-size: 15px;
-                border-radius: 14px;
-                transition: all 0.3s ease;
+                border-radius: 6px;
+                transition: background 0.2s ease;
             }
 
             .btn-details:hover {
@@ -629,13 +623,13 @@
             }
 
             .quick-filter-pill.active {
-                background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                border-color: transparent;
+                background: #1565C0;
+                border-color: #1565C0;
                 color: #ffffff;
             }
 
             .quick-filter-pill.active:hover {
-                background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+                background: #0D47A1;
             }
 
             .quick-filter-pill.clear-pill {
@@ -686,7 +680,7 @@
 
             /* Trust Badges */
             .trust-bar {
-                background: linear-gradient(90deg, #f8fafc 0%, #ffffff 50%, #f8fafc 100%);
+                background: #ffffff;
                 border-bottom: 1px solid #e5e7eb;
             }
 
@@ -718,8 +712,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-                border-radius: 20px 20px 0 0;
+                background: #f8fafc;
+                border-radius: 8px 8px 0 0;
             }
 
             .filter-sidebar-header h3 {
@@ -768,7 +762,7 @@
 
             .modal-content {
                 background: #ffffff;
-                border-radius: 24px;
+                border-radius: 8px;
                 width: 100%;
                 max-width: 900px;
                 max-height: 90vh;
@@ -811,11 +805,11 @@
     <section class="route-hero flex items-end text-white">
         <div class="container mx-auto px-4 py-16 lg:py-20">
             <div class="max-w-4xl space-y-6">
-                <span class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-yellow-400">
+                <span class="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white/80">
                     <i class="fa-solid fa-map-location-dot"></i>
                     {{ __('client.route_show.hero_brand') }}
                 </span>
-                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">{{ $route->name }}</h1>
+                <h1 class="text-4xl md:text-5xl font-semibold leading-tight">{{ $route->name }}</h1>
                 @if ($route->description)
                     <p class="text-lg text-white/80 max-w-2xl">{{ $route->description }}</p>
                 @endif
@@ -825,7 +819,7 @@
                 @foreach ($routeHighlights as $highlight)
                     <div class="highlight-card flex items-center gap-4">
                         <div
-                            class="w-12 h-12 rounded-xl bg-gradient-to-br {{ $highlight['color'] }} flex items-center justify-center text-white flex-shrink-0">
+                            class="w-12 h-12 rounded-md bg-white/15 flex items-center justify-center text-white flex-shrink-0">
                             <i class="{{ $highlight['icon'] }} text-lg"></i>
                         </div>
                         <div>
@@ -841,7 +835,7 @@
     {{-- Search Section --}}
     <section id="search-section" class="bg-white py-8 border-b border-gray-100">
         <div class="container mx-auto px-4">
-            <div class="bg-gray-50 rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="bg-neutral-50 rounded-lg p-4 md:p-6 border border-neutral-200">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
             </div>
         </div>
@@ -1600,7 +1594,7 @@
                         </p>
                     </div>
                     <a href="#availabilities"
-                        class="flex-1 max-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-900 font-bold rounded-xl shadow-md hover:shadow-lg transition">
+                        class="flex-1 max-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent-500 text-white font-semibold rounded-md hover:bg-accent-600 transition-colors">
                         {{ __('client.route_show.mobile_bar.view_trips', ['default' => 'Xem chuyến']) }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>

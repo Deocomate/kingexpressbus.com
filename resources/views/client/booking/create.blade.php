@@ -4,8 +4,8 @@
         <style>
             .litepicker {
                 font-family: 'Inter', sans-serif;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-                border-radius: 1rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                border-radius: 8px;
                 border: 1px solid #e5e7eb;
             }
 
@@ -14,7 +14,7 @@
             }
 
             .quantity-btn:hover {
-                transform: scale(1.1);
+                opacity: 0.9;
             }
 
             .payment-method-label {
@@ -144,7 +144,7 @@
 
             /* Hotel Pickup Badge */
             .hotel-pickup-badge {
-                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                background: #fef3c7;
                 border: 1px solid #f59e0b;
             }
         </style>
@@ -158,15 +158,15 @@
     @endphp
 
     {{-- Hero Section --}}
-    <section class="bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white">
+    <section class="bg-neutral-800 text-white">
         <div class="container mx-auto px-4 py-10">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                 <div class="space-y-4 lg:col-span-2">
-                    <span class="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-yellow-300">
+                    <span class="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-accent-300">
                         <i class="fa-solid fa-ticket"></i>
                         {{ __('client.booking.create.header_subtitle') }}
                     </span>
-                    <h1 class="text-2xl md:text-3xl font-extrabold leading-tight">
+                    <h1 class="text-2xl md:text-3xl font-semibold leading-tight">
                         {{ $trip->route_name }}
                     </h1>
                     <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
@@ -185,11 +185,11 @@
                         </span>
                     </div>
                 </div>
-                <div class="relative h-40 lg:h-48 rounded-2xl overflow-hidden shadow-xl">
+                <div class="relative h-40 lg:h-48 rounded-lg overflow-hidden shadow-card">
                     <img src="{{ $busImage }}" alt="{{ $trip->bus_name }}" class="h-full w-full object-cover"
                         loading="lazy">
                     <span
-                        class="absolute bottom-3 left-3 inline-flex items-center gap-2 bg-white/95 text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold">
+                        class="absolute bottom-3 left-3 inline-flex items-center gap-2 bg-white/95 text-neutral-900 px-3 py-1.5 rounded-md text-xs font-semibold">
                         <i class="fa-solid fa-shield-heart text-blue-600"></i>
                         {{ __('client.booking.create.insurance_badge') }}
                     </span>
@@ -224,14 +224,14 @@
             <form class="xl:col-span-2 space-y-6" method="POST" action="{{ route('client.booking.store') }}"
                 id="booking-form">
                 @if (session('error'))
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl" role="alert">
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert">
                         <strong class="font-bold">{{ __('client.booking.create.error_title') }}</strong>
                         <span class="block sm:inline">{{ session('error') }}</span>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl" role="alert">
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert">
                         <strong class="font-bold">{{ __('client.booking.create.validation_error_title') }}</strong>
                         <ul class="mt-2 list-disc list-inside">
                             @foreach ($errors->all() as $error)
@@ -250,7 +250,7 @@
                     value="{{ old('dropoff_stop_id', request('dropoff_stop_id')) }}">
 
                 {{-- Step 1: Trip Info --}}
-                <section class="bg-white border border-gray-100 rounded-2xl p-5 space-y-5" id="section-step-1">
+                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-1">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
@@ -266,7 +266,7 @@
                             </label>
                             <input type="text" id="booking_date" name="booking_date"
                                 value="{{ $bookingDate->format('d/m/Y') }}"
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                                 required>
                         </div>
                         <div>
@@ -276,7 +276,7 @@
                             <div class="flex items-center gap-2">
                                 {{-- Quantity Control Card --}}
                                 <div
-                                    class="inline-flex items-center bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-1">
+                                    class="inline-flex items-center bg-neutral-50 border border-neutral-200 rounded-md p-1">
                                     <button type="button" id="decrease-quantity"
                                         class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm">
                                         <i class="fa-solid fa-minus text-sm"></i>
@@ -309,7 +309,7 @@
                 </section>
 
                 {{-- Step 2: Pickup & Dropoff --}}
-                <section class="bg-white border border-gray-100 rounded-2xl p-5 space-y-5" id="section-step-2">
+                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-2">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
@@ -326,7 +326,7 @@
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="pickup-stops-container">
                             @if ($trip->available_hotel_pickup)
-                                <div class="stop-card hotel-pickup-badge rounded-xl p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? 'selected' : '' }}"
+                                <div class="stop-card hotel-pickup-badge rounded-md p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? 'selected' : '' }}"
                                     data-stop-id="hotel_pickup" data-type="pickup">
                                     <div
                                         class="stop-radio {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? '' : '' }}">
@@ -342,7 +342,7 @@
                                 </div>
                             @endif
                             @foreach ($pickupStops as $stop)
-                                <div class="stop-card border border-gray-200 rounded-xl p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == $stop->id ? 'selected' : '' }}"
+                                <div class="stop-card border border-gray-200 rounded-md p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == $stop->id ? 'selected' : '' }}"
                                     data-stop-id="{{ $stop->id }}" data-type="pickup">
                                     <div class="stop-radio"></div>
                                     <div class="flex-1 min-w-0">
@@ -364,7 +364,7 @@
                         </label>
                         <input type="text" id="hotel_pickup_address" name="hotel_pickup_address"
                             value="{{ old('hotel_pickup_address', request('hotel_pickup_address')) }}"
-                            class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                            class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                             placeholder="{{ __('client.booking.create.hotel_address_placeholder') }}">
                     </div>
 
@@ -376,7 +376,7 @@
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="dropoff-stops-container">
                             @foreach ($dropoffStops as $stop)
-                                <div class="stop-card border border-gray-200 rounded-xl p-4 flex items-start gap-3 {{ old('dropoff_stop_id', request('dropoff_stop_id')) == $stop->id ? 'selected' : '' }}"
+                                <div class="stop-card border border-gray-200 rounded-md p-4 flex items-start gap-3 {{ old('dropoff_stop_id', request('dropoff_stop_id')) == $stop->id ? 'selected' : '' }}"
                                     data-stop-id="{{ $stop->id }}" data-type="dropoff">
                                     <div class="stop-radio"></div>
                                     <div class="flex-1 min-w-0">
@@ -393,7 +393,7 @@
                 </section>
 
                 {{-- Step 3: Passenger Info --}}
-                <section class="bg-white border border-gray-100 rounded-2xl p-5 space-y-5" id="section-step-3">
+                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-3">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
@@ -409,7 +409,7 @@
                             </label>
                             <input type="text" id="customer_name" name="customer_name"
                                 value="{{ old('customer_name', request('customer_name', $user->name ?? '')) }}"
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                                 required placeholder="{{ __('client.booking.create.name_placeholder') }}">
                         </div>
                         <div>
@@ -418,7 +418,7 @@
                             </label>
                             <input type="tel" id="customer_phone" name="customer_phone"
                                 value="{{ old('customer_phone', request('customer_phone', $user->phone ?? '')) }}"
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                                 required placeholder="{{ __('client.booking.create.phone_placeholder') }}">
                         </div>
                         <div>
@@ -427,7 +427,7 @@
                             </label>
                             <input type="email" id="customer_email" name="customer_email"
                                 value="{{ old('customer_email', request('customer_email', $user->email ?? '')) }}"
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                                 required placeholder="{{ __('client.booking.create.email_placeholder') }}">
                         </div>
                         <div>
@@ -435,7 +435,7 @@
                                 {{ __('client.booking.create.notes_label') }}
                             </label>
                             <textarea id="notes" name="notes" rows="1"
-                                class="w-full rounded-xl border-gray-200 bg-gray-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
                                 placeholder="{{ __('client.booking.create.notes_placeholder') }}">{{ old('notes', request('notes')) }}</textarea>
                         </div>
                     </div>
@@ -447,7 +447,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             @foreach ($paymentMethods as $method)
                                 <label
-                                    class="payment-method-label block border border-gray-200 rounded-xl p-4 {{ old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'] ? 'selected' : '' }}">
+                                    class="payment-method-label block border border-gray-200 rounded-md p-4 {{ old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'] ? 'selected' : '' }}">
                                     <input type="radio" name="payment_method" value="{{ $method['key'] }}"
                                         class="hidden payment-method-input" @checked(old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'])>
                                     <div class="flex items-start gap-3">
@@ -473,7 +473,7 @@
                         {!! __('client.booking.create.terms_agreement', ['link' => '#']) !!}
                     </div>
                     <button type="submit"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all transform hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed"
+                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-accent-500 text-white font-semibold rounded-md hover:bg-accent-600 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                         id="submit-booking">
                         <span id="submit-text">{{ __('client.booking.create.submit_button') }}</span>
                         <i id="submit-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
@@ -484,7 +484,7 @@
 
             {{-- Sidebar Summary --}}
             <aside class="space-y-5 sticky-summary">
-                <div class="bg-white border border-gray-100 rounded-2xl p-5 space-y-4">
+                <div class="bg-white border border-gray-100 rounded-lg p-5 space-y-4">
                     <h2 class="text-lg font-bold text-gray-900">{{ __('client.booking.create.summary_title') }}</h2>
 
                     {{-- Selected Locations --}}
@@ -538,7 +538,7 @@
                 </div>
 
                 {{-- Amenities --}}
-                <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-3 text-sm text-blue-800">
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-5 space-y-3 text-sm text-blue-800">
                     <h3 class="text-sm font-semibold text-blue-900">{{ __('client.booking.create.amenities_title') }}
                     </h3>
                     <ul class="grid grid-cols-2 gap-x-3 gap-y-2">
@@ -565,7 +565,7 @@
                 </div>
 
                 {{-- Support --}}
-                <div class="bg-white border border-gray-100 rounded-2xl p-5 space-y-3">
+                <div class="bg-white border border-gray-100 rounded-lg p-5 space-y-3">
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('client.booking.create.support_title') }}
                     </h3>
                     <div class="space-y-2">

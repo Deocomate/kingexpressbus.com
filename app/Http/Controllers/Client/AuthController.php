@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class AuthController extends Controller
@@ -118,6 +120,82 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('client.home')->with('success', 'Bạn đã đăng xuất.');
+    }
+
+    public function showForgotPasswordForm()
+    {
+        return view('client.auth.forgot-password');
+    }
+
+    public function sendResetLinkEmail(Request $request): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => ['required', 'email'],
+        ], [
+            'email.required' => 'Vui lòng nhập địa chỉ email.',
+            'email.email' => 'Email không đúng định dạng.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $status = Password::sendResetLink($request->only('email'));
+
+        if ($status === Password::RESET_LINK_SENT) {
+            return back()->with('status', 'Chúng tôi đã gửi liên kết đặt lại mật khẩu vào email của bạn.');
+        }
+
+        return back()->withErrors([
+            'email' => 'Không tìm thấy tài khoản với email này.',
+        ]);
+    }
+
+    public function showResetForm(Request $request, string $token)
+    {
+        return view('client.auth.reset-password', [
+            'token' => $token,
+            'email' => $request->query('email'),
+        ]);
+    }
+
+    public function resetPassword(Request $request): RedirectResponse
+    {
+        $validator = Validator::make($request->all(), [
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.required' => 'Vui lòng nhập địa chỉ email.',
+            'email.email' => 'Email không đúng định dạng.',
+            'password.required' => 'Vui lòng nhập mật khẩu.',
+            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
+            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->input('password')),
+                    'remember_token' => Str::random(60),
+                ])->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()
+                ->route('client.login')
+                ->with('success', 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.');
+        }
+
+        return back()->withErrors([
+            'email' => 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',
+        ]);
     }
 
     private function resolveRedirect(Request $request, string $fallback): string

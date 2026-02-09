@@ -100,8 +100,8 @@
 
     {{-- Additional SEO Meta --}}
     <meta name="format-detection" content="telephone=no">
-    <meta name="theme-color" content="#EAB308">
-    <meta name="msapplication-TileColor" content="#EAB308">
+    <meta name="theme-color" content="#1565C0">
+    <meta name="msapplication-TileColor" content="#1565C0">
     <link rel="alternate" hreflang="{{ app()->getLocale() }}" href="{{ $currentUrl }}">
 
     {{-- Favicon --}}
@@ -146,52 +146,82 @@
 
     {{-- External Resources --}}
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#e8f0fe', 100: '#c5d9fc', 200: '#9ebef9', 300: '#6fa0f5', 400: '#4a87f0', 500: '#1E88E5', 600: '#1565C0', 700: '#0d47a1', 800: '#0a3880', 900: '#072a60' },
+                        accent: { 50: '#fff8e1', 100: '#ffecb3', 200: '#ffe082', 300: '#ffd54f', 400: '#ffca28', 500: '#D97706', 600: '#B45309', 700: '#92400E', 800: '#78350F', 900: '#451a03' },
+                        neutral: { 50: '#F8F9FA', 100: '#F1F3F5', 200: '#E9ECEF', 300: '#DEE2E6', 400: '#ADB5BD', 500: '#636E72', 600: '#495057', 700: '#343A40', 800: '#2D3436', 900: '#1A1D1E' },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'sm': '4px',
+                        'DEFAULT': '6px',
+                        'md': '6px',
+                        'lg': '8px',
+                    },
+                    boxShadow: {
+                        'soft': '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+                        'card': '0 2px 8px rgba(0,0,0,0.06)',
+                        'dropdown': '0 4px 16px rgba(0,0,0,0.08)',
+                        'elevated': '0 8px 24px rgba(0,0,0,0.08)',
+                    },
+                }
+            }
+        }
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', 'Be Vietnam Pro', system-ui, sans-serif;
+            color: #2D3436;
+            -webkit-font-smoothing: antialiased;
         }
 
         #mobile-menu {
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.2s ease;
         }
 
         .social-float {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
+            bottom: 24px;
+            right: 24px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .social-icon {
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             text-decoration: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            transition: opacity 0.2s ease;
         }
 
         .social-icon:hover {
-            transform: scale(1.1);
+            opacity: 0.85;
         }
 
         .messenger {
-            background: linear-gradient(45deg, #0099ff, #a033ff);
+            background-color: #0099ff;
         }
 
         .zalo {
@@ -199,7 +229,7 @@
         }
 
         .hotline {
-            background-color: #d9534f;
+            background-color: #dc2626;
         }
 
         details[open]>summary i.fa-chevron-down {
@@ -213,37 +243,37 @@
         details>summary::-webkit-details-marker {
             display: none;
         }
+
+        /* Base transition for interactive elements */
+        a, button, [role="button"] {
+            transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+        }
     </style>
     @stack('styles')
 </head>
 
 <body class="{{ $bodyClassName }}">
-    <div x-data="{ show: true }" x-show="show" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2"
-        x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0 sm:translate-x-0"
-        x-transition:leave-end="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2"
+    <div x-data="{ show: true }" x-show="show"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-x-2"
+        x-transition:enter-end="opacity-100 translate-x-0"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-x-0"
+        x-transition:leave-end="opacity-0 translate-x-2"
         x-init="setTimeout(() => show = false, 10000)"
-        class="fixed top-20 right-4 z-50 w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-lg border border-yellow-200 pointer-events-auto"
+        class="fixed top-20 right-4 z-50 w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-card border border-neutral-200 pointer-events-auto"
         style="display: none;">
         <div class="p-4">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-xl"></i>
-                </div>
-                <div class="ml-3 w-0 flex-1 pt-0.5">
-                    <p class="text-sm font-medium text-gray-900">
-                        {{ __('client.layout.warning_holiday_ticket') }}
-                    </p>
-                </div>
-                <div class="ml-4 flex flex-shrink-0">
-                    <button type="button" @click="show = false"
-                        class="inline-flex rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <span class="sr-only">Close</span>
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-triangle-exclamation text-accent-500 text-lg mt-0.5"></i>
+                <p class="text-sm font-medium text-neutral-800 flex-1">
+                    {{ __('client.layout.warning_holiday_ticket') }}
+                </p>
+                <button type="button" @click="show = false"
+                    class="text-neutral-400 hover:text-neutral-600 focus:outline-none">
+                    <span class="sr-only">Close</span>
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-{{-- ===== resources/views/auth/login.blade.php ===== --}}
+{{-- ===== resources/views/admin/login.blade.php ===== --}}
 <!DOCTYPE html>
 <html lang="vi">
 <head>

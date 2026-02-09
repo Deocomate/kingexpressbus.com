@@ -9,9 +9,9 @@ use App\Http\Middleware\Roles\AdminAuthMiddleware;
 use App\Http\Middleware\Roles\CustomerAuthMiddleware;
 
 // Auth Controllers
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\AuthenticateController;
-use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Admin\Auth\AuthenticateController;
+use App\Http\Controllers\Admin\Auth\LogoutController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -83,6 +83,9 @@ Route::name('client.')->group(function () {
     Route::post('/dang-nhap', [ClientAuthController::class, 'login'])->name('login.submit');
     Route::get('/dang-ky', [ClientAuthController::class, 'showRegistrationForm'])->name('register');
     Route::post('/dang-ky', [ClientAuthController::class, 'register'])->name('register.submit');
+    Route::get('/quen-mat-khau', [ClientAuthController::class, 'showForgotPasswordForm'])->name('password.request');
+    Route::post('/quen-mat-khau', [ClientAuthController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::post('/dat-lai-mat-khau', [ClientAuthController::class, 'resetPassword'])->name('password.update');
     Route::post('/dang-xuat', [ClientAuthController::class, 'logout'])->name('logout');
 
     // Protected client routes
@@ -101,6 +104,7 @@ Route::get("/examples/{name}", [\App\Http\Controllers\Examples\ExamplesControlle
 Route::get('login', [LoginController::class, 'login'])->name('login');
 Route::post('authenticate', [AuthenticateController::class, 'authenticate'])->name('authenticate');
 Route::get('logout', [LogoutController::class, 'logout'])->name('logout');
+Route::get('/dat-lai-mat-khau/{token}', [ClientAuthController::class, 'showResetForm'])->name('password.reset');
 
 
 /*

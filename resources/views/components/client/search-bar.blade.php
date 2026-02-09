@@ -10,18 +10,16 @@
             .ksb-form {
                 width: 100%;
                 margin: 0 auto;
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                border-radius: 28px;
+                background: #ffffff;
+                border-radius: 8px;
                 padding: 1.5rem;
-                box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                border: 1px solid #E2E8F0;
+                transition: box-shadow 0.2s ease;
             }
 
             .ksb-form:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             }
 
             .ksb-shell {
@@ -38,9 +36,8 @@
                 grid-template-columns: minmax(240px, 1.2fr) 72px minmax(240px, 1.2fr) minmax(180px, 1fr) minmax(180px, 1fr);
                 align-items: stretch;
                 border: 1px solid #e2e8f0;
-                border-radius: 20px;
+                border-radius: 6px;
                 background: white;
-                box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
             }
 
             .ksb-field {
@@ -60,14 +57,14 @@
             }
 
             .ksb-field:first-child {
-                border-top-left-radius: 20px;
-                border-bottom-left-radius: 20px;
+                border-top-left-radius: 6px;
+                border-bottom-left-radius: 6px;
             }
 
             .ksb-field:last-child {
                 border-right: none;
-                border-top-right-radius: 20px;
-                border-bottom-right-radius: 20px;
+                border-top-right-radius: 6px;
+                border-bottom-right-radius: 6px;
             }
 
             .ksb-field.is-focused {
@@ -122,7 +119,7 @@
 
             .ksb-field.has-value .ksb-label,
             .ksb-field.is-focused .ksb-label {
-                color: #2563EB;
+                color: #1565C0;
             }
 
             .ksb-input,
@@ -165,11 +162,11 @@
                 position: absolute;
                 left: 0;
                 right: 0;
-                top: calc(100% + 12px);
+                top: calc(100% + 8px);
                 background: #ffffff;
-                border-radius: 18px;
+                border-radius: 8px;
                 border: 1px solid #E2E8F0;
-                box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
                 padding: 14px 0;
                 display: none;
                 z-index: 50;
@@ -223,7 +220,7 @@
             }
 
             .ksb-option:hover {
-                background: #EFF6FF;
+                background: #F8F9FA;
             }
 
             .ksb-option__info {
@@ -283,11 +280,9 @@
             }
 
             #ksb-swap-button:hover {
-                background: #EFF6FF;
-                color: #2563EB;
-                transform: rotate(180deg);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                border-color: #BFDBFE;
+                background: #F8F9FA;
+                color: #1565C0;
+                border-color: #CBD5E1;
             }
 
             .ksb-field--return {
@@ -347,10 +342,10 @@
 
             .ksb-submit {
                 border: none;
-                border-radius: 16px;
-                background: linear-gradient(135deg, #FACC15, #EAB308);
-                color: #0F172A;
-                font-weight: 800;
+                border-radius: 6px;
+                background: #D97706;
+                color: #ffffff;
+                font-weight: 600;
                 font-size: 16px;
                 padding: 0 48px;
                 min-width: 200px;
@@ -366,13 +361,11 @@
             }
 
             .ksb-submit:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 20px 25px -5px rgba(234, 179, 8, 0.5);
-                background: linear-gradient(135deg, #FDE047, #EAB308);
+                background: #B45309;
             }
 
             .ksb-submit:active {
-                transform: translateY(0);
+                background: #92400E;
             }
 
             .ksb-submit:disabled {
@@ -391,7 +384,7 @@
             @media (max-width: 1023px) {
                 .ksb-form {
                     padding: 1rem;
-                    border-radius: 24px;
+                    border-radius: 8px;
                 }
 
                 .ksb-shell {
@@ -401,7 +394,7 @@
 
                 .ksb-fields {
                     grid-template-columns: 1fr;
-                    border-radius: 16px;
+                    border-radius: 6px;
                     position: relative;
                 }
 
@@ -458,7 +451,7 @@
                 .ksb-submit {
                     width: 100%;
                     min-height: 56px;
-                    border-radius: 16px;
+                    border-radius: 6px;
                     font-size: 18px;
                 }
             }

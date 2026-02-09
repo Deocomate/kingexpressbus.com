@@ -35,12 +35,12 @@
             <div class="flex items-center gap-3">
                 <input type="number" name="price_min" value="{{ $filterState['price_min'] ?? '' }}"
                     placeholder="{{ $priceRange['min'] ?? 0 ? number_format($priceRange['min']) : __('client.route_show.filters.price_from') }}"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    class="w-full px-4 py-3 rounded-md border border-neutral-200 bg-neutral-50 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
-                <span class="text-gray-300">-</span>
+                <span class="text-neutral-300">-</span>
                 <input type="number" name="price_max" value="{{ $filterState['price_max'] ?? '' }}"
                     placeholder="{{ $priceRange['max'] ?? 0 ? number_format($priceRange['max']) : __('client.route_show.filters.price_to') }}"
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    class="w-full px-4 py-3 rounded-md border border-neutral-200 bg-neutral-50 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
             </div>
         </div>
@@ -121,12 +121,12 @@
 {{-- Sticky Action Buttons --}}
 <div class="filters-sticky-footer">
     <button type="submit"
-        class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition flex items-center justify-center gap-2 text-sm shadow-sm">
+        class="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold transition-colors duration-200 flex items-center justify-center gap-2 text-sm">
         <i class="fa-solid fa-check"></i>
         {{ __('client.route_show.filters.apply_button') }}
     </button>
     <a href="{{ $clearFiltersUrl }}"
-        class="w-full mt-2 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-xl font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2 text-sm">
+        class="w-full mt-2 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-md font-medium hover:bg-neutral-50 transition-colors duration-200 flex items-center justify-center gap-2 text-sm">
         <i class="fa-solid fa-rotate-left"></i>
         {{ __('client.route_show.filters.clear_button') }}
     </a>
