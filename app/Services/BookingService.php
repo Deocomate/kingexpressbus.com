@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\SystemHelper;
+use App\Mail\BookingCancelledMail;
 use App\Mail\BookingConfirmMail;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -211,7 +212,48 @@ class BookingService
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
 
+        // Auto gửi mail thông báo hủy vé cho khách
+        $this->sendCancellationEmail($bookingId, $reason);
+
         return ['success' => true, 'message' => 'Hủy đặt vé thành công.'];
+    }
+
+    /**
+     * Send booking cancellation email to customer.
+     */
+    public function sendCancellationEmail(int $bookingId, ?string $reason = null): bool
+    {
+        try {
+            $mailDetails = $this->prepareMailDetails($bookingId);
+
+            if (!$mailDetails) {
+                Log::error('Không thể chuẩn bị dữ liệu mail hủy vé cho booking ID: ' . $bookingId);
+                return false;
+            }
+
+            $mailDetails['cancel_reason'] = $reason ?: 'Không có lý do cụ thể';
+
+            // Gửi mail thông báo hủy cho khách hàng
+            Mail::to($mailDetails['customer_email'])->queue(new BookingCancelledMail($mailDetails));
+
+            // Gửi mail thông báo cho admin
+            $adminEmail = config('mail.admin_email', 'kingexpressbus@gmail.com');
+            Mail::to($adminEmail)->queue(new BookingCancelledMail($mailDetails));
+
+            Log::info('Đã gửi mail hủy vé thành công', [
+                'booking_id' => $bookingId,
+                'booking_code' => $mailDetails['booking_code'] ?? 'N/A',
+                'customer_email' => $mailDetails['customer_email'] ?? 'N/A',
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Lỗi khi gửi email hủy vé', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -239,6 +281,11 @@ class BookingService
         }
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
+
+        // Auto gửi mail thông báo hủy vé khi chuyển trạng thái sang cancelled
+        if ($status === 'cancelled') {
+            $this->sendCancellationEmail($bookingId, $notes);
+        }
 
         return ['success' => true, 'message' => 'Cập nhật trạng thái thành công.'];
     }

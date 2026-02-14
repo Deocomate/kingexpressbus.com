@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Services\RouteService;
 use App\Services\TripService;
-use App\Support\Client\SearchDataBuilder;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -83,7 +82,7 @@ class TripController extends Controller
         $quickRouteSuggestions = $this->routeService->getPopularRoutes(6);
 
         return view('client.routes.index', [
-            'searchData' => SearchDataBuilder::make(['defaults' => $searchDefaults]),
+            'searchData' => ['defaults' => $searchDefaults],
             'popularRoutes' => $popularRoutes,
             'provinces' => $provinces,
             'selectedProvince' => $selectedProvince,
@@ -251,7 +250,7 @@ class TripController extends Controller
         return view('client.routes.show', [
             'route' => $route,
             'trips' => $trips,
-            'searchData' => SearchDataBuilder::make(['defaults' => $searchDefaults]),
+            'searchData' => ['defaults' => $searchDefaults],
             'filters' => $filters,
             'filterState' => $filterState,
             'tripStats' => $tripStats,

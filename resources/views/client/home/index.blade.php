@@ -36,7 +36,7 @@
 
             {{-- Search Component --}}
             <div class="mt-8 md:mt-10 w-full text-left">
-                <x-client.search-bar :search-data="$searchData" submit-label="Tìm chuyến xe ngay" />
+                <x-client.search-bar submit-label="Tìm chuyến xe ngay" />
             </div>
         </div>
     </section>

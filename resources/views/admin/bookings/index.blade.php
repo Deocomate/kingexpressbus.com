@@ -426,13 +426,50 @@
                         swalConfig.confirmButtonColor = '#28a745';
                         swalConfig.confirmButtonText = 'Xác nhận';
                     } else if (newStatus === 'cancelled') {
-                        swalConfig.text = "Hủy đặt vé này?";
+                        swalConfig.title = 'Hủy vé & Gửi mail thông báo';
+                        swalConfig.html = `
+                            <p class="mb-3">Chọn lý do hủy vé (sẽ tự động gửi email thông báo cho khách hàng):</p>
+                            <div class="form-group text-left mb-2">
+                                <select id="swal-cancel-reason" class="form-control">
+                                    <option value="">-- Chọn lý do hủy --</option>
+                                    <option value="Hết chỗ trống cho chuyến xe này">Hết chỗ</option>
+                                    <option value="Chuyến xe tạm ngưng hoạt động trong dịp lễ tết">Lễ tết / Ngày lễ</option>
+                                    <option value="Chuyến xe bị hủy do thời tiết xấu">Thời tiết xấu</option>
+                                    <option value="Chuyến xe bị hủy do sự cố kỹ thuật">Sự cố kỹ thuật</option>
+                                    <option value="Thay đổi lịch trình chuyến xe">Thay đổi lịch trình</option>
+                                    <option value="custom">Lý do khác...</option>
+                                </select>
+                            </div>
+                            <div id="swal-custom-reason-wrapper" class="form-group text-left" style="display: none;">
+                                <textarea id="swal-custom-reason" class="form-control" rows="3" placeholder="Nhập lý do hủy cụ thể..."></textarea>
+                            </div>
+                        `;
                         swalConfig.icon = 'warning';
                         swalConfig.confirmButtonColor = '#dc3545';
-                        swalConfig.confirmButtonText = 'Hủy vé';
-                        swalConfig.input = 'textarea';
-                        swalConfig.inputPlaceholder = 'Nhập lý do hủy (không bắt buộc)...';
-                        swalConfig.inputAttributes = {'aria-label': 'Nhập lý do hủy'};
+                        swalConfig.confirmButtonText = '<i class="fas fa-envelope mr-1"></i> Hủy vé & Gửi mail';
+                        swalConfig.didOpen = () => {
+                            const selectEl = document.getElementById('swal-cancel-reason');
+                            const customWrapper = document.getElementById('swal-custom-reason-wrapper');
+                            selectEl.addEventListener('change', function() {
+                                customWrapper.style.display = this.value === 'custom' ? 'block' : 'none';
+                            });
+                        };
+                        swalConfig.preConfirm = () => {
+                            const selectVal = document.getElementById('swal-cancel-reason').value;
+                            if (!selectVal) {
+                                Swal.showValidationMessage('Vui lòng chọn lý do hủy vé');
+                                return false;
+                            }
+                            if (selectVal === 'custom') {
+                                const customVal = document.getElementById('swal-custom-reason').value.trim();
+                                if (!customVal) {
+                                    Swal.showValidationMessage('Vui lòng nhập lý do hủy cụ thể');
+                                    return false;
+                                }
+                                return customVal;
+                            }
+                            return selectVal;
+                        };
                     } else if (newStatus === 'completed') {
                         swalConfig.text = "Đánh dấu đặt vé này là hoàn thành?";
                         swalConfig.confirmButtonColor = '#007bff';
@@ -442,8 +479,8 @@
 
                     Swal.fire(swalConfig).then((result) => {
                         if (result.isConfirmed) {
-                            if (newStatus === 'cancelled' && result.value !== undefined) {
-                                ajaxData.notes = result.value || '';
+                            if (newStatus === 'cancelled' && result.value) {
+                                ajaxData.notes = result.value;
                             }
 
                             // Add loading state to button
