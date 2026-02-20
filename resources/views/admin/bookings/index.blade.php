@@ -420,8 +420,8 @@
                                 }
                                 $('#modal-status').html(getStatusBadgeHtml(data.status));
                                 const paymentStatusHtml = data.payment_status === 'paid'
-                                    ? '<span class="badge status-badge badge-success">'Đã thanh toán</span>'
-                                    : '<span class="badge status-badge badge-warning">Chưa thanh toán</span>';
+                                    ? `<span class="badge status-badge badge-success">Đã thanh toán</span>`
+                                    : `<span class="badge status-badge badge-warning">Chưa thanh toán</span>`;
                                 $('#modal-payment-status').html(paymentStatusHtml);
                                 $('#modal-total-price').text(data.total_price ? new Intl.NumberFormat('vi-VN').format(data.total_price) + 'đ' : 'N/A');
 
