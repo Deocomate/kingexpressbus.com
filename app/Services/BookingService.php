@@ -359,9 +359,11 @@ class BookingService
                 'b.customer_name',
                 'b.customer_phone',
                 'b.booking_date',
+                'b.created_at',
                 'b.total_price',
                 'b.status',
                 'r.name as route_name',
+                't.start_time',
             ]);
 
         // Apply filters
@@ -387,5 +389,28 @@ class BookingService
         }
 
         return $query->orderByDesc('b.created_at')->paginate(15)->withQueryString();
+    }
+
+    /**
+     * Get booking statistics for admin dashboard (today's stats).
+     */
+    public function getAdminBookingStats(): array
+    {
+        $today = Carbon::today();
+
+        $totalToday = DB::table('bookings')
+            ->whereDate('created_at', $today)
+            ->count();
+
+        $pendingTotal = DB::table('bookings')
+            ->where('status', 'pending')
+            ->count();
+
+        $revenueToday = (int) DB::table('bookings')
+            ->whereDate('created_at', $today)
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->sum('total_price');
+
+        return compact('totalToday', 'pendingTotal', 'revenueToday');
     }
 }

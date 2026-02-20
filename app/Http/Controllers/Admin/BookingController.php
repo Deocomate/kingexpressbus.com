@@ -31,8 +31,9 @@ class BookingController extends Controller
         ];
 
         $bookings = $this->bookingService->getBookingsForAdmin($filters);
+        $stats = $this->bookingService->getAdminBookingStats();
 
-        return view('admin.bookings.index', compact('bookings'));
+        return view('admin.bookings.index', compact('bookings', 'stats'));
     }
 
     /**

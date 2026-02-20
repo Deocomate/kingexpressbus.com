@@ -58,6 +58,37 @@
         </style>
     @endpush
 
+    {{-- Stats Cards --}}
+    <div class="row mb-3">
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>{{ $stats['totalToday'] }}</h3>
+                    <p>Vé đặt hôm nay</p>
+                </div>
+                <div class="icon"><i class="fas fa-ticket-alt"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>{{ $stats['pendingTotal'] }}</h3>
+                    <p>Chờ xác nhận</p>
+                </div>
+                <div class="icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>{{ number_format($stats['revenueToday'], 0, ',', '.') }}đ</h3>
+                    <p>Doanh thu hôm nay</p>
+                </div>
+                <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+            </div>
+        </div>
+    </div>
+
     {{-- Main Content Card --}}
     <div class="card">
         <div class="card-header">
@@ -125,14 +156,13 @@
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
                     <tr>
-                        <th style="width: 50px">#</th>
+                        <th style="width: 40px">#</th>
                         <th>Mã vé</th>
-                        <th>Khách hàng</th>
-                        <th>Tuyến đường</th>
-                        <th>Ngày đi</th>
-                        <th>Tổng tiền</th>
+                        <th>Khách hàng & SĐT</th>
+                        <th>Ngày đặt vé</th>
+                        <th>Chuyến đi</th>
                         <th class="text-center">Trạng thái</th>
-                        <th style="width: 150px" class="text-center">Hành động</th>
+                        <th style="width: 130px" class="text-center">Hành động</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -159,15 +189,22 @@
                     @forelse($bookings as $booking)
                         <tr id="booking-row-{{ $booking->id }}">
                             <td>{{ $loop->iteration + ($bookings->currentPage() - 1) * $bookings->perPage() }}</td>
-                            <td><strong>#{{ $booking->booking_code }}</strong></td>
                             <td>
-                                <div>{{ $booking->customer_name }}</div>
-                                <small class="text-muted">{{ $booking->customer_phone }}</small>
+                                <strong>#{{ $booking->booking_code }}</strong>
+                                <div><small class="text-muted">{{ number_format($booking->total_price, 0, ',', '.') }}đ</small></div>
                             </td>
-                            <td>{{ $booking->route_name }}</td>
-                            <td>{{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</td>
-                            <td class="text-right"><strong>{{ number_format($booking->total_price, 0, ',', '.') }}
-                                    đ</strong></td>
+                            <td>
+                                <div class="font-weight-bold">{{ $booking->customer_name }}</div>
+                                <small class="text-muted"><i class="fas fa-phone-alt mr-1"></i>{{ $booking->customer_phone }}</small>
+                            </td>
+                            <td>
+                                <div class="font-weight-bold">{{ \Carbon\Carbon::parse($booking->created_at)->format('H:i') }}</div>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($booking->created_at)->format('d/m/Y') }}</small>
+                            </td>
+                            <td>
+                                <div>{{ $booking->route_name }}</div>
+                                <small class="text-muted"><i class="fas fa-clock mr-1"></i>{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} &bull; {{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</small>
+                            </td>
                             <td class="text-center status-cell">{!! getStatusBadge($booking->status) !!}</td>
                             <td class="text-center action-buttons">
                                 <div class="btn-group">
@@ -206,7 +243,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center">Không có dữ liệu đặt vé nào.</td>
+                            <td colspan="7" class="text-center">Không có dữ liệu đặt vé nào.</td>
                         </tr>
                     @endforelse
                     </tbody>
@@ -242,49 +279,60 @@
                             class="fas fa-spinner fa-spin fa-2x text-muted"></i>
                         <p class="mt-2">Đang tải...</p></div>
                     <div id="modal-content-details" style="display: none;">
-                        <h6><i class="fas fa-user text-muted mr-2"></i>Thông tin Khách hàng</h6>
+
+                        {{-- Khối 1: Trạng thái & Lịch sử --}}
+                        <h6><i class="fas fa-info-circle text-muted mr-2"></i>Trạng thái & Lịch sử</h6>
                         <dl class="row mb-3">
-                            <dt class="col-sm-4">Họ tên</dt>
-                            <dd class="col-sm-8" id="modal-customer-name"></dd>
-                            <dt class="col-sm-4">Số điện thoại</dt>
-                            <dd class="col-sm-8" id="modal-customer-phone"></dd>
-                            <dt class="col-sm-4">Email</dt>
-                            <dd class="col-sm-8" id="modal-customer-email"></dd>
+                            <dt class="col-sm-5">Mã vé</dt>
+                            <dd class="col-sm-7 font-weight-bold" id="modal-code-detail"></dd>
+                            <dt class="col-sm-5">Thời gian đặt vé</dt>
+                            <dd class="col-sm-7" id="modal-created-at"></dd>
+                            <dt class="col-sm-5">Trạng thái vé</dt>
+                            <dd class="col-sm-7" id="modal-status"></dd>
+                            <dt class="col-sm-5">Thanh toán</dt>
+                            <dd class="col-sm-7" id="modal-payment-status"></dd>
+                            <dt class="col-sm-5">Tổng tiền</dt>
+                            <dd class="col-sm-7 font-weight-bold text-success" id="modal-total-price"></dd>
                         </dl>
+
+                        {{-- Khối 2: Thông tin Chuyến đi --}}
                         <h6><i class="fas fa-route text-muted mr-2"></i>Thông tin Chuyến đi</h6>
                         <dl class="row mb-3">
-                            <dt class="col-sm-4">Tuyến đường</dt>
-                            <dd class="col-sm-8" id="modal-route-name"></dd>
-                            <dt class="col-sm-4">Xe</dt>
-                            <dd class="col-sm-8" id="modal-bus-name"></dd>
-                            <dt class="col-sm-4">Ngày đi</dt>
-                            <dd class="col-sm-8" id="modal-booking-date"></dd>
-                            <dt class="col-sm-4">Giờ khởi hành</dt>
-                            <dd class="col-sm-8" id="modal-start-time"></dd>
-                            <dt class="col-sm-4">Giờ đến (dự kiến)</dt>
-                            <dd class="col-sm-8" id="modal-end-time"></dd>
-                            <dt class="col-sm-4">Điểm đón</dt>
-                            <dd class="col-sm-8" id="modal-pickup-stop"></dd>
-                            <dt class="col-sm-4">Điểm trả</dt>
-                            <dd class="col-sm-8" id="modal-dropoff-stop"></dd>
-                            <dt class="col-sm-4">Số lượng vé</dt>
-                            <dd class="col-sm-8" id="modal-quantity"></dd>
+                            <dt class="col-sm-5">Tuyến đường</dt>
+                            <dd class="col-sm-7" id="modal-route-name"></dd>
+                            <dt class="col-sm-5">Xe</dt>
+                            <dd class="col-sm-7" id="modal-bus-name"></dd>
+                            <dt class="col-sm-5">Ngày đi</dt>
+                            <dd class="col-sm-7" id="modal-booking-date"></dd>
+                            <dt class="col-sm-5">Giờ khởi hành</dt>
+                            <dd class="col-sm-7 font-weight-bold" id="modal-start-time"></dd>
+                            <dt class="col-sm-5">Giờ đến (dự kiến)</dt>
+                            <dd class="col-sm-7" id="modal-end-time"></dd>
+                            <dt class="col-sm-5">Điểm đón</dt>
+                            <dd class="col-sm-7" id="modal-pickup-stop"></dd>
+                            <dt class="col-sm-5">Điểm trả</dt>
+                            <dd class="col-sm-7" id="modal-dropoff-stop"></dd>
+                            <dt class="col-sm-5">Số lượng vé</dt>
+                            <dd class="col-sm-7" id="modal-quantity"></dd>
                         </dl>
-                        <h6><i class="fas fa-dollar-sign text-muted mr-2"></i>Thanh toán & Trạng thái</h6>
+
+                        {{-- Khối 3: Thông tin Khách hàng --}}
+                        <h6><i class="fas fa-user text-muted mr-2"></i>Thông tin Khách hàng</h6>
                         <dl class="row mb-0">
-                            <dt class="col-sm-4">Tổng tiền</dt>
-                            <dd class="col-sm-8 font-weight-bold text-success" id="modal-total-price"></dd>
-                            <dt class="col-sm-4">Phương thức</dt>
-                            <dd class="col-sm-8" id="modal-payment-method"></dd>
-                            <dt class="col-sm-4">Thanh toán</dt>
-                            <dd class="col-sm-8" id="modal-payment-status"></dd>
-                            <dt class="col-sm-4">Trạng thái vé</dt>
-                            <dd class="col-sm-8" id="modal-status"></dd>
-                            <dt class="col-sm-4">Ghi chú</dt>
-                            <dd class="col-sm-8">
+                            <dt class="col-sm-5">Họ tên</dt>
+                            <dd class="col-sm-7 font-weight-bold" id="modal-customer-name"></dd>
+                            <dt class="col-sm-5">Số điện thoại</dt>
+                            <dd class="col-sm-7" id="modal-customer-phone"></dd>
+                            <dt class="col-sm-5">Email</dt>
+                            <dd class="col-sm-7" id="modal-customer-email"></dd>
+                            <dt class="col-sm-5">Phương thức TT</dt>
+                            <dd class="col-sm-7" id="modal-payment-method"></dd>
+                            <dt class="col-sm-5">Ghi chú</dt>
+                            <dd class="col-sm-7">
                                 <pre id="modal-notes"></pre>
                             </dd>
                         </dl>
+
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -360,34 +408,41 @@
                             if (response.success && response.data) {
                                 const data = response.data;
                                 codeSpan.text(data.booking_code);
-                                $('#modal-customer-name').text(data.customer_name || 'N/A');
-                                $('#modal-customer-phone').text(data.customer_phone || 'N/A');
-                                $('#modal-customer-email').text(data.customer_email || 'N/A');
+                                $('#modal-code-detail').text('#' + (data.booking_code || 'N/A'));
+
+                                // Block 1: Trạng thái & Lịch sử
+                                if (data.created_at) {
+                                    const createdDate = new Date(data.created_at);
+                                    const formattedCreated = createdDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) + ' - ' + createdDate.toLocaleDateString('vi-VN');
+                                    $('#modal-created-at').text(formattedCreated);
+                                } else {
+                                    $('#modal-created-at').text('N/A');
+                                }
+                                $('#modal-status').html(getStatusBadgeHtml(data.status));
+                                const paymentStatusHtml = data.payment_status === 'paid'
+                                    ? '<span class="badge status-badge badge-success">'Đã thanh toán</span>'
+                                    : '<span class="badge status-badge badge-warning">Chưa thanh toán</span>';
+                                $('#modal-payment-status').html(paymentStatusHtml);
+                                $('#modal-total-price').text(data.total_price ? new Intl.NumberFormat('vi-VN').format(data.total_price) + 'đ' : 'N/A');
+
+                                // Block 2: Thông tin Chuyến đi
                                 $('#modal-route-name').text(data.route_name || 'N/A');
                                 $('#modal-bus-name').text((data.bus_name || 'N/A') + ' - ' + (data.bus_model || ''));
                                 $('#modal-booking-date').text(data.booking_date ? new Date(data.booking_date).toLocaleDateString('vi-VN') : 'N/A');
                                 $('#modal-start-time').text(data.start_time ? data.start_time.substring(0, 5) : 'N/A');
                                 $('#modal-end-time').text(data.end_time ? data.end_time.substring(0, 5) : 'N/A');
-
-                                // Use pre-processed pickup_display
                                 $('#modal-pickup-stop').text(data.pickup_display || 'N/A');
-
                                 let dropoffStop = data.dropoff_stop_name || 'N/A';
                                 if (data.dropoff_stop_address) dropoffStop += ` - ${data.dropoff_stop_address}`;
                                 $('#modal-dropoff-stop').text(dropoffStop);
-
                                 $('#modal-quantity').text(data.quantity || 'N/A');
-                                $('#modal-total-price').text(data.total_price ? new Intl.NumberFormat('vi-VN').format(data.total_price) + 'đ' : 'N/A');
 
-                                let paymentMethod = data.payment_method === 'online_banking' ? 'Chuyển khoản' : (data.payment_method === 'cash_on_pickup' ? 'Tiền mặt khi lên xe' : 'N/A');
+                                // Block 3: Thông tin Khách hàng
+                                $('#modal-customer-name').text(data.customer_name || 'N/A');
+                                $('#modal-customer-phone').text(data.customer_phone || 'N/A');
+                                $('#modal-customer-email').text(data.customer_email || 'N/A');
+                                const paymentMethod = data.payment_method === 'online_banking' ? 'Chuyển khoản' : (data.payment_method === 'cash_on_pickup' ? 'Tiền mặt khi lên xe' : 'N/A');
                                 $('#modal-payment-method').text(paymentMethod);
-
-                                let paymentStatus = data.payment_status === 'paid' ? '<span class="badge status-badge badge-success">Đã thanh toán</span>' : '<span class="badge status-badge badge-warning">Chưa thanh toán</span>';
-                                $('#modal-payment-status').html(paymentStatus);
-
-                                $('#modal-status').html(getStatusBadgeHtml(data.status));
-
-                                // Use pre-processed notes_display
                                 $('#modal-notes').text(data.notes_display || 'Không có');
 
                                 content.show();
