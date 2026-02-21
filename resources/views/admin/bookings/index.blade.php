@@ -128,19 +128,19 @@
                         <div class="form-group mr-sm-2 mb-2">
                             <label for="filter-start-date" class="mr-2">Từ ngày:</label>
                             <input type="date" name="start_date" id="filter-start-date"
-                                   class="form-control form-control-sm" value="{{ request('start_date') }}">
+                                class="form-control form-control-sm" value="{{ request('start_date') }}">
                         </div>
                         <div class="form-group mr-sm-2 mb-2">
                             <label for="filter-end-date" class="mr-2">Đến ngày:</label>
                             <input type="date" name="end_date" id="filter-end-date" class="form-control form-control-sm"
-                                   value="{{ request('end_date') }}">
+                                value="{{ request('end_date') }}">
                         </div>
                         {{-- Search Filter --}}
                         <div class="form-group mr-sm-2 mb-2 flex-grow-1">
                             <label for="filter-search" class="mr-2 sr-only">Tìm kiếm:</label>
                             <input type="text" name="search" id="filter-search"
-                                   class="form-control form-control-sm w-100" placeholder="Mã vé, tên, SĐT..."
-                                   value="{{ request('search') }}">
+                                class="form-control form-control-sm w-100" placeholder="Mã vé, tên, SĐT..."
+                                value="{{ request('search') }}">
                         </div>
                         {{-- Action Buttons --}}
                         <button type="submit" class="btn btn-primary btn-sm mr-2 mb-2"><i class="fas fa-search"></i> Lọc
@@ -155,97 +155,108 @@
             <div class="table-responsive">
                 <table class="table table-bordered table-striped table-hover">
                     <thead>
-                    <tr>
-                        <th style="width: 40px">#</th>
-                        <th>Mã vé</th>
-                        <th>Khách hàng & SĐT</th>
-                        <th>Ngày đặt vé</th>
-                        <th>Chuyến đi</th>
-                        <th class="text-center">Trạng thái</th>
-                        <th style="width: 130px" class="text-center">Hành động</th>
-                    </tr>
+                        <tr>
+                            <th style="width: 40px">#</th>
+                            <th>Mã vé</th>
+                            <th>Khách hàng & SĐT</th>
+                            <th>Ngày đặt vé</th>
+                            <th>Chuyến đi</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th style="width: 130px" class="text-center">Hành động</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    @php
-                        // Helper function to generate status badge HTML
-                        function getStatusBadge($status) {
-                            $statusClasses = [
-                                'pending' => 'badge-warning',
-                                'confirmed' => 'badge-success',
-                                'cancelled' => 'badge-danger',
-                                'completed' => 'badge-primary',
-                            ];
-                            $statusTexts = [
-                                'pending' => 'Chờ xác nhận',
-                                'confirmed' => 'Đã xác nhận',
-                                'cancelled' => 'Đã hủy',
-                                'completed' => 'Hoàn thành',
-                            ];
-                            $class = $statusClasses[$status] ?? 'badge-secondary';
-                            $text = $statusTexts[$status] ?? ucfirst($status);
-                            return '<span class="badge status-badge ' . $class . '">' . $text . '</span>';
-                        }
-                    @endphp
-                    @forelse($bookings as $booking)
-                        <tr id="booking-row-{{ $booking->id }}">
-                            <td>{{ $loop->iteration + ($bookings->currentPage() - 1) * $bookings->perPage() }}</td>
-                            <td>
-                                <strong>#{{ $booking->booking_code }}</strong>
-                                <div><small class="text-muted">{{ number_format($booking->total_price, 0, ',', '.') }}đ</small></div>
-                            </td>
-                            <td>
-                                <div class="font-weight-bold">{{ $booking->customer_name }}</div>
-                                <small class="text-muted"><i class="fas fa-phone-alt mr-1"></i>{{ $booking->customer_phone }}</small>
-                            </td>
-                            <td>
-                                <div class="font-weight-bold">{{ \Carbon\Carbon::parse($booking->created_at)->format('H:i') }}</div>
-                                <small class="text-muted">{{ \Carbon\Carbon::parse($booking->created_at)->format('d/m/Y') }}</small>
-                            </td>
-                            <td>
-                                <div>{{ $booking->route_name }}</div>
-                                <small class="text-muted"><i class="fas fa-clock mr-1"></i>{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }} &bull; {{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</small>
-                            </td>
-                            <td class="text-center status-cell">{!! getStatusBadge($booking->status) !!}</td>
-                            <td class="text-center action-buttons">
-                                <div class="btn-group">
-                                    {{-- Nút xem chi tiết --}}
-                                    <button type="button" class="btn btn-sm btn-info btn-show-details"
+                        @php
+                            // Helper function to generate status badge HTML
+                            function getStatusBadge($status)
+                            {
+                                $statusClasses = [
+                                    'pending' => 'badge-warning',
+                                    'confirmed' => 'badge-success',
+                                    'cancelled' => 'badge-danger',
+                                    'completed' => 'badge-primary',
+                                ];
+                                $statusTexts = [
+                                    'pending' => 'Chờ xác nhận',
+                                    'confirmed' => 'Đã xác nhận',
+                                    'cancelled' => 'Đã hủy',
+                                    'completed' => 'Hoàn thành',
+                                ];
+                                $class = $statusClasses[$status] ?? 'badge-secondary';
+                                $text = $statusTexts[$status] ?? ucfirst($status);
+                                return '<span class="badge status-badge ' . $class . '">' . $text . '</span>';
+                            }
+                        @endphp
+                        @forelse($bookings as $booking)
+                            <tr id="booking-row-{{ $booking->id }}">
+                                <td>{{ $loop->iteration + ($bookings->currentPage() - 1) * $bookings->perPage() }}</td>
+                                <td>
+                                    <strong>#{{ $booking->booking_code }}</strong>
+                                    <div><small
+                                            class="text-muted">{{ number_format($booking->total_price, 0, ',', '.') }}đ</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold">{{ $booking->customer_name }}</div>
+                                    <small class="text-muted"><i
+                                            class="fas fa-phone-alt mr-1"></i>{{ $booking->customer_phone }}</small>
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold">
+                                        {{ \Carbon\Carbon::parse($booking->created_at)->format('H:i') }}
+                                    </div>
+                                    <small
+                                        class="text-muted">{{ \Carbon\Carbon::parse($booking->created_at)->format('d/m/Y') }}</small>
+                                </td>
+                                <td>
+                                    <div>{{ $booking->route_name }}</div>
+                                    <small class="text-muted"><i
+                                            class="fas fa-clock mr-1"></i>{{ \Carbon\Carbon::parse($booking->start_time)->format('H:i') }}
+                                        &bull; {{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</small>
+                                </td>
+                                <td class="text-center status-cell">{!! getStatusBadge($booking->status) !!}</td>
+                                <td class="text-center action-buttons">
+                                    <div class="btn-group">
+                                        {{-- Nút xem chi tiết --}}
+                                        <button type="button" class="btn btn-sm btn-info btn-show-details"
                                             data-id="{{ $booking->id }}" title="Chi tiết"><i class="fas fa-eye"></i>
-                                    </button>
+                                        </button>
 
-                                    {{-- Nút xác nhận --}}
-                                    @if($booking->status === 'pending')
-                                        <button type="button" class="btn btn-sm btn-success btn-update-status"
+                                        {{-- Nút xác nhận --}}
+                                        @if($booking->status === 'pending')
+                                            <button type="button" class="btn btn-sm btn-success btn-update-status"
                                                 data-id="{{ $booking->id }}" data-status="confirmed" title="Xác nhận"><i
-                                                class="fas fa-check"></i></button>
-                                    @endif
+                                                    class="fas fa-check"></i></button>
+                                        @endif
 
-                                    {{-- Nút hủy --}}
-                                    @if(in_array($booking->status, ['pending', 'confirmed']))
-                                        <button type="button" class="btn btn-sm btn-danger btn-update-status"
+                                        {{-- Nút hủy --}}
+                                        @if(in_array($booking->status, ['pending', 'confirmed']))
+                                            <button type="button" class="btn btn-sm btn-danger btn-update-status"
                                                 data-id="{{ $booking->id }}" data-status="cancelled" title="Hủy vé"><i
-                                                class="fas fa-times"></i></button>
-                                    @endif
+                                                    class="fas fa-times"></i></button>
+                                        @endif
 
-                                    {{-- Nút hoàn thành --}}
-                                    @if($booking->status === 'confirmed')
-                                        <button type="button" class="btn btn-sm btn-primary btn-update-status"
+                                        {{-- Nút hoàn thành --}}
+                                        @if($booking->status === 'confirmed')
+                                            <button type="button" class="btn btn-sm btn-primary btn-update-status"
                                                 data-id="{{ $booking->id }}" data-status="completed" title="Hoàn thành">
-                                            <i class="fas fa-check-double"></i></button>
-                                    @endif
+                                                <i class="fas fa-check-double"></i></button>
+                                        @endif
 
-                                    {{-- Nút Xóa (thêm nếu cần) --}}
-                                    {{--
-                                    <button type="button" class="btn btn-sm btn-danger btn-delete-booking" data-id="{{ $booking->id }}" title="Xóa đặt vé"><i class="fas fa-trash"></i></button>
-                                    --}}
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center">Không có dữ liệu đặt vé nào.</td>
-                        </tr>
-                    @endforelse
+                                        {{-- Nút Xóa (thêm nếu cần) --}}
+                                        {{--
+                                        <button type="button" class="btn btn-sm btn-danger btn-delete-booking"
+                                            data-id="{{ $booking->id }}" title="Xóa đặt vé"><i
+                                                class="fas fa-trash"></i></button>
+                                        --}}
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu đặt vé nào.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -265,7 +276,7 @@
 
     {{-- Booking Detail Modal --}}
     <div class="modal fade" id="bookingDetailModal" tabindex="-1" role="dialog"
-         aria-labelledby="bookingDetailModalLabel" aria-hidden="true">
+        aria-labelledby="bookingDetailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -277,7 +288,8 @@
                 <div class="modal-body">
                     <div id="modal-loading" class="text-center py-5"><i
                             class="fas fa-spinner fa-spin fa-2x text-muted"></i>
-                        <p class="mt-2">Đang tải...</p></div>
+                        <p class="mt-2">Đang tải...</p>
+                    </div>
                     <div id="modal-content-details" style="display: none;">
 
                         {{-- Khối 1: Trạng thái & Lịch sử --}}
@@ -336,6 +348,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="btn-copy-info"><i class="fas fa-copy"></i> Copy
+                        thông tin</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 </div>
             </div>
@@ -413,7 +427,7 @@
                                 // Block 1: Trạng thái & Lịch sử
                                 if (data.created_at) {
                                     const createdDate = new Date(data.created_at);
-                                    const formattedCreated = createdDate.toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) + ' - ' + createdDate.toLocaleDateString('vi-VN');
+                                    const formattedCreated = createdDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + createdDate.toLocaleDateString('vi-VN');
                                     $('#modal-created-at').text(formattedCreated);
                                 } else {
                                     $('#modal-created-at').text('N/A');
@@ -474,7 +488,7 @@
                         cancelButtonColor: '#d33',
                         cancelButtonText: 'Hủy'
                     };
-                    let ajaxData = {status: newStatus};
+                    let ajaxData = { status: newStatus };
 
                     if (newStatus === 'confirmed') {
                         swalConfig.text = "Xác nhận đặt vé này?";
@@ -483,29 +497,29 @@
                     } else if (newStatus === 'cancelled') {
                         swalConfig.title = 'Hủy vé & Gửi mail thông báo';
                         swalConfig.html = `
-                            <p class="mb-3">Chọn lý do hủy vé (sẽ tự động gửi email thông báo cho khách hàng):</p>
-                            <div class="form-group text-left mb-2">
-                                <select id="swal-cancel-reason" class="form-control">
-                                    <option value="">-- Chọn lý do hủy --</option>
-                                    <option value="Hết chỗ trống cho chuyến xe này">Hết chỗ</option>
-                                    <option value="Chuyến xe tạm ngưng hoạt động trong dịp lễ tết">Lễ tết / Ngày lễ</option>
-                                    <option value="Chuyến xe bị hủy do thời tiết xấu">Thời tiết xấu</option>
-                                    <option value="Chuyến xe bị hủy do sự cố kỹ thuật">Sự cố kỹ thuật</option>
-                                    <option value="Thay đổi lịch trình chuyến xe">Thay đổi lịch trình</option>
-                                    <option value="custom">Lý do khác...</option>
-                                </select>
-                            </div>
-                            <div id="swal-custom-reason-wrapper" class="form-group text-left" style="display: none;">
-                                <textarea id="swal-custom-reason" class="form-control" rows="3" placeholder="Nhập lý do hủy cụ thể..."></textarea>
-                            </div>
-                        `;
+                                                                        <p class="mb-3">Chọn lý do hủy vé (sẽ tự động gửi email thông báo cho khách hàng):</p>
+                                                                        <div class="form-group text-left mb-2">
+                                                                            <select id="swal-cancel-reason" class="form-control">
+                                                                                <option value="">-- Chọn lý do hủy --</option>
+                                                                                <option value="Hết chỗ trống cho chuyến xe này">Hết chỗ</option>
+                                                                                <option value="Chuyến xe tạm ngưng hoạt động trong dịp lễ tết">Lễ tết / Ngày lễ</option>
+                                                                                <option value="Chuyến xe bị hủy do thời tiết xấu">Thời tiết xấu</option>
+                                                                                <option value="Chuyến xe bị hủy do sự cố kỹ thuật">Sự cố kỹ thuật</option>
+                                                                                <option value="Thay đổi lịch trình chuyến xe">Thay đổi lịch trình</option>
+                                                                                <option value="custom">Lý do khác...</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <div id="swal-custom-reason-wrapper" class="form-group text-left" style="display: none;">
+                                                                            <textarea id="swal-custom-reason" class="form-control" rows="3" placeholder="Nhập lý do hủy cụ thể..."></textarea>
+                                                                        </div>
+                                                                    `;
                         swalConfig.icon = 'warning';
                         swalConfig.confirmButtonColor = '#dc3545';
                         swalConfig.confirmButtonText = '<i class="fas fa-envelope mr-1"></i> Hủy vé & Gửi mail';
                         swalConfig.didOpen = () => {
                             const selectEl = document.getElementById('swal-cancel-reason');
                             const customWrapper = document.getElementById('swal-custom-reason-wrapper');
-                            selectEl.addEventListener('change', function() {
+                            selectEl.addEventListener('change', function () {
                                 customWrapper.style.display = this.value === 'custom' ? 'block' : 'none';
                             });
                         };
@@ -578,8 +592,56 @@
                     });
                 });
 
+                // --- Copy Booking Info ---
+                $('#btn-copy-info').on('click', function () {
+                    const name = $('#modal-customer-name').text();
+                    const email = $('#modal-customer-email').text();
+                    const phone = $('#modal-customer-phone').text();
+                    const route = $('#modal-route-name').text();
+                    const bus = $('#modal-bus-name').text();
+                    const quantity = $('#modal-quantity').text();
+                    const pickup = $('#modal-pickup-stop').text();
+                    const dropoff = $('#modal-dropoff-stop').text();
+
+                    const copyText = `${name} - ${email}\n${phone}\n${route}\n${bus}\n${quantity}\n${pickup} - ${dropoff}`;
+
+                    // Fallback copy cho trình duyệt không hỗ trợ Clipboard API
+                    const fallbackCopyTextToClipboard = (text) => {
+                        var textArea = document.createElement("textarea");
+                        textArea.value = text;
+                        textArea.style.top = "0";
+                        textArea.style.left = "0";
+                        textArea.style.position = "fixed";
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+
+                        try {
+                            var successful = document.execCommand('copy');
+                            if (successful) {
+                                toastr.success('Đã copy thông tin vé!');
+                            } else {
+                                toastr.error('Lỗi khi copy thông tin.');
+                            }
+                        } catch (err) {
+                            toastr.error('Lỗi khi copy thông tin.');
+                        }
+                        document.body.removeChild(textArea);
+                    };
+
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(copyText).then(function () {
+                            toastr.success('Đã copy thông tin vé!');
+                        }, function (err) {
+                            fallbackCopyTextToClipboard(copyText);
+                        });
+                    } else {
+                        fallbackCopyTextToClipboard(copyText);
+                    }
+                });
+
                 // Optional: Delete Booking Logic (if needed)
-                /*
+
                 $('.table').on('click', '.btn-delete-booking', function () {
                     const bookingId = $(this).data('id');
                     const url = deleteUrlTemplate.replace(':id', bookingId);
@@ -600,7 +662,7 @@
                                 type: 'DELETE',
                                 success: function (response) {
                                     if (response.success) {
-                                        $(`#booking-row-${bookingId}`).fadeOut(500, function() { $(this).remove(); });
+                                        $(`#booking-row-${bookingId}`).fadeOut(500, function () { $(this).remove(); });
                                         Swal.fire('Đã xóa!', response.message, 'success');
                                     } else {
                                         Swal.fire('Lỗi!', response.message || 'Không thể xóa.', 'error');
@@ -611,8 +673,6 @@
                         }
                     });
                 });
-                */
-
             });
         </script>
     @endpush
