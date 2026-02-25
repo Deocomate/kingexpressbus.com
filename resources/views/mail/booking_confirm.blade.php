@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Xác nhận đặt vé - {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}</title>
+    <title>Tiếp nhận yêu cầu đặt vé - {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}</title>
 </head>
 <body
     style="font-family: Arial, Helvetica, sans-serif; line-height: 1.6; color: #333333; margin: 0; padding: 0; background-color: #f4f7f6;">
@@ -26,16 +26,18 @@
                 </tr>
                 <tr>
                     <td style="padding: 25px 30px;">
-                        <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #1e88e5; text-align: center;">Xác nhận
+                        <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #1e88e5; text-align: center;">Tiếp nhận
                             yêu cầu đặt vé</h2>
                         <p style="margin: 10px 0; font-size: 15px;">
                             Kính gửi Quý khách <strong>{{ $bookingDetails['customer_name'] ?? 'N/A' }}</strong> (SĐT:
                             <strong>{{ $bookingDetails['customer_phone'] ?? 'N/A' }}</strong>),
                         </p>
                         <p style="margin: 10px 0; font-size: 15px;">
-                            Cảm ơn Quý khách đã tin tưởng và sử dụng dịch vụ
-                            của {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}. Chúng tôi xác nhận thông tin
-                            yêu cầu đặt vé của Quý khách như sau:
+                            Chúng tôi đã tiếp nhận yêu cầu đặt vé của bạn. Nhân viên của chúng tôi sẽ sớm liên hệ qua số điện thoại để xác nhận chuyến đi cho bạn.
+                        </p>
+                        <p style="margin: 10px 0; font-size: 15px;">
+                            Cảm ơn Quý khách đã tin tưởng và sử dụng dịch vụ của {{ $bookingDetails['web_title'] ?? 'King Express Bus' }}.
+                            Thông tin yêu cầu đặt vé hiện tại của Quý khách như sau:
                         </p>
 
                         <table width="100%" border="0" cellpadding="10" cellspacing="0"

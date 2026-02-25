@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class BookingConfirmMail extends Mailable implements ShouldQueue
+class BookingApprovedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -21,11 +21,14 @@ class BookingConfirmMail extends Mailable implements ShouldQueue
         $this->bookingDetails = $bookingDetails;
     }
 
+    /**
+     * Get the message envelope.
+     */
     public function envelope(): Envelope
     {
         $subject = sprintf(
-            'Tiếp nhận yêu cầu đặt vé #%s - %s đi %s ngày %s',
-            $this->bookingDetails['booking_code'] ?? 'Mới',
+            'Xác nhận vé thành công #%s - %s đi %s ngày %s',
+            $this->bookingDetails['booking_code'] ?? 'N/A',
             $this->bookingDetails['start_province'] ?? 'N/A',
             $this->bookingDetails['end_province'] ?? 'N/A',
             $this->bookingDetails['departure_date'] ?? 'N/A'
@@ -36,13 +39,21 @@ class BookingConfirmMail extends Mailable implements ShouldQueue
         );
     }
 
+    /**
+     * Get the message content definition.
+     */
     public function content(): Content
     {
         return new Content(
-            view: 'mail.booking_confirm',
+            view: 'mail.booking_approved',
         );
     }
 
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
     public function attachments(): array
     {
         return [];
@@ -50,9 +61,9 @@ class BookingConfirmMail extends Mailable implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('Job gửi mail thất bại', [
+        Log::error('Job gửi mail xác nhận vé thất bại', [
             'booking_code' => $this->bookingDetails['booking_code'] ?? 'N/A',
-            'error' => $exception->getMessage()
+            'error' => $exception->getMessage(),
         ]);
     }
 }

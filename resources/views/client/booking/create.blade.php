@@ -233,11 +233,7 @@
                 @if ($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg" role="alert">
                         <strong class="font-bold">{{ __('client.booking.create.validation_error_title') }}</strong>
-                        <ul class="mt-2 list-disc list-inside">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                        <p class="mt-2">{{ __('client.booking.create.general_validation_error') }}</p>
                     </div>
                 @endif
 
@@ -419,6 +415,7 @@
                             <input type="tel" id="customer_phone" name="customer_phone"
                                 value="{{ old('customer_phone', request('customer_phone', $user->phone ?? '')) }}"
                                 class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                pattern="(0|\+84)[0-9]{9,10}" inputmode="tel"
                                 required placeholder="{{ __('client.booking.create.phone_placeholder') }}">
                         </div>
                         <div>
@@ -597,13 +594,128 @@
                 const submitButton = document.getElementById('submit-booking');
                 const submitText = document.getElementById('submit-text');
                 const submitSpinner = document.getElementById('submit-spinner');
+                const validationMessages = {
+                    generalValidationError: @json(__('client.booking.create.general_validation_error')),
+                    pickupRequired: @json(__('client.booking.create.frontend_pickup_required')),
+                    dropoffRequired: @json(__('client.booking.create.frontend_dropoff_required')),
+                    hotelAddressRequired: @json(__('client.booking.create.frontend_hotel_address_required')),
+                    nameRequired: @json(__('client.booking.create.frontend_name_required')),
+                    phoneRequired: @json(__('client.booking.create.frontend_phone_required')),
+                    phoneInvalid: @json(__('client.booking.create.frontend_phone_invalid')),
+                    emailRequired: @json(__('client.booking.create.frontend_email_required')),
+                    emailInvalid: @json(__('client.booking.create.frontend_email_invalid')),
+                };
 
-                bookingForm.addEventListener('submit', function() {
-                    if (document.getElementById('quantity').value > 0) {
-                        submitButton.disabled = true;
-                        submitText.classList.add('hidden');
-                        submitSpinner.classList.remove('hidden');
+                const pickupHiddenInput = document.getElementById('pickup_stop_id_hidden');
+                const dropoffHiddenInput = document.getElementById('dropoff_stop_id_hidden');
+                const hotelPickupInput = document.getElementById('hotel_pickup_address');
+                const customerNameInput = document.getElementById('customer_name');
+                const customerPhoneInput = document.getElementById('customer_phone');
+                const customerEmailInput = document.getElementById('customer_email');
+
+                const resetSubmitButtonState = () => {
+                    submitButton.disabled = false;
+                    submitText.classList.remove('hidden');
+                    submitSpinner.classList.add('hidden');
+                };
+
+                const showValidationError = (message) => {
+                    if (window.Swal && typeof window.Swal.fire === 'function') {
+                        window.Swal.fire({
+                            icon: 'warning',
+                            title: validationMessages.generalValidationError,
+                            text: message,
+                            confirmButtonText: 'OK',
+                        });
+                        return;
                     }
+
+                    if (window.toastr && typeof window.toastr.warning === 'function') {
+                        window.toastr.warning(message);
+                        return;
+                    }
+
+                    alert(message);
+                };
+
+                const getFrontendValidationError = () => {
+                    const pickupValue = (pickupHiddenInput?.value || '').trim();
+                    const dropoffValue = (dropoffHiddenInput?.value || '').trim();
+                    const customerName = (customerNameInput?.value || '').trim();
+                    const customerPhone = (customerPhoneInput?.value || '').trim();
+                    const customerEmail = (customerEmailInput?.value || '').trim();
+                    const hotelAddress = (hotelPickupInput?.value || '').trim();
+                    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (!pickupValue) {
+                        return validationMessages.pickupRequired;
+                    }
+
+                    if (!dropoffValue) {
+                        return validationMessages.dropoffRequired;
+                    }
+
+                    if (pickupValue === 'hotel_pickup' && !hotelAddress) {
+                        return validationMessages.hotelAddressRequired;
+                    }
+
+                    if (!customerName) {
+                        return validationMessages.nameRequired;
+                    }
+
+                    if (!customerPhone) {
+                        return validationMessages.phoneRequired;
+                    }
+
+                    if (!phoneRegex.test(customerPhone)) {
+                        return validationMessages.phoneInvalid;
+                    }
+
+                    if (!customerEmail) {
+                        return validationMessages.emailRequired;
+                    }
+
+                    if (!emailRegex.test(customerEmail)) {
+                        return validationMessages.emailInvalid;
+                    }
+
+                    return null;
+                };
+
+                let isSubmitting = false;
+
+                bookingForm.addEventListener('submit', function(e) {
+                    if (isSubmitting) {
+                        return;
+                    }
+
+                    e.preventDefault();
+                    resetSubmitButtonState();
+
+                    const frontendError = getFrontendValidationError();
+
+                    if (frontendError) {
+                        showValidationError(frontendError);
+                        return;
+                    }
+
+                    if (!bookingForm.checkValidity()) {
+                        bookingForm.reportValidity();
+                        showValidationError(validationMessages.generalValidationError);
+                        return;
+                    }
+
+                    if (document.getElementById('quantity').value <= 0) {
+                        showValidationError(validationMessages.generalValidationError);
+                        return;
+                    }
+
+                    isSubmitting = true;
+                    submitButton.disabled = true;
+                    submitText.classList.add('hidden');
+                    submitSpinner.classList.remove('hidden');
+                    bookingForm.submit();
                 });
 
                 // Quantity controls
@@ -660,10 +772,7 @@
                 });
 
                 // Stop card selection
-                const pickupHiddenInput = document.getElementById('pickup_stop_id_hidden');
-                const dropoffHiddenInput = document.getElementById('dropoff_stop_id_hidden');
                 const hotelPickupWrapper = document.getElementById('hotel-pickup-address-wrapper');
-                const hotelPickupInput = document.getElementById('hotel_pickup_address');
                 const summaryPickup = document.getElementById('summary-pickup');
                 const summaryDropoff = document.getElementById('summary-dropoff');
 

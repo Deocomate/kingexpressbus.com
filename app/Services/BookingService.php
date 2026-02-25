@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Helpers\SystemHelper;
+use App\Mail\BookingApprovedMail;
 use App\Mail\BookingCancelledMail;
 use App\Mail\BookingConfirmMail;
 use Carbon\Carbon;
@@ -82,7 +83,7 @@ class BookingService
                 'total_price' => $data['total_price'],
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'unpaid',
-                'status' => $data['payment_method'] === 'online_banking' ? 'pending' : 'confirmed',
+                'status' => 'pending',
                 'notes' => $bookingNotes,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -257,6 +258,40 @@ class BookingService
     }
 
     /**
+     * Send booking approval email to customer.
+     */
+    public function sendApprovalEmail(int $bookingId): bool
+    {
+        try {
+            $mailDetails = $this->prepareMailDetails($bookingId);
+
+            if (!$mailDetails) {
+                Log::error('Không thể chuẩn bị dữ liệu mail xác nhận vé cho booking ID: ' . $bookingId);
+                return false;
+            }
+
+            Mail::to($mailDetails['customer_email'])->queue(new BookingApprovedMail($mailDetails));
+
+            $adminEmail = config('mail.admin_email', 'kingexpressbus@gmail.com');
+            Mail::to($adminEmail)->queue(new BookingApprovedMail($mailDetails));
+
+            Log::info('Đã gửi mail xác nhận vé thành công', [
+                'booking_id' => $bookingId,
+                'booking_code' => $mailDetails['booking_code'] ?? 'N/A',
+                'customer_email' => $mailDetails['customer_email'] ?? 'N/A',
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Lỗi khi gửi email xác nhận vé', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
+    }
+
+    /**
      * Update booking status.
      */
     public function updateStatus(int $bookingId, string $status, ?string $notes = null): array
@@ -281,6 +316,11 @@ class BookingService
         }
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
+
+        // Auto gửi mail xác nhận vé khi chuyển từ pending sang confirmed
+        if ($status === 'confirmed' && $booking->status === 'pending') {
+            $this->sendApprovalEmail($bookingId);
+        }
 
         // Auto gửi mail thông báo hủy vé khi chuyển trạng thái sang cancelled
         if ($status === 'cancelled') {

@@ -491,7 +491,7 @@
                     let ajaxData = { status: newStatus };
 
                     if (newStatus === 'confirmed') {
-                        swalConfig.text = "Xác nhận đặt vé này?";
+                        swalConfig.text = "Xác nhận đặt vé này? Một email thông báo xác nhận thành công sẽ tự động được gửi đến khách hàng.";
                         swalConfig.confirmButtonColor = '#28a745';
                         swalConfig.confirmButtonText = 'Xác nhận';
                     } else if (newStatus === 'cancelled') {
