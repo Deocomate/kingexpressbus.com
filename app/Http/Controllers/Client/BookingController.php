@@ -87,7 +87,7 @@ class BookingController extends Controller
             'booking_date' => 'required|date_format:d/m/Y',
             'quantity' => 'required|integer|min:1',
             'customer_name' => 'required|string|max:255',
-            'customer_phone' => ['required', 'string', 'max:20', 'regex:/^(0|\+84)[0-9]{9,10}$/'],
+            'customer_phone' => ['required', 'string', 'max:20', 'regex:/^\+?[0-9]{7,15}$/'],
             'customer_email' => 'required|email|max:255',
             'pickup_stop_id' => 'required|string',
             'dropoff_stop_id' => 'required|integer|exists:stops,id',

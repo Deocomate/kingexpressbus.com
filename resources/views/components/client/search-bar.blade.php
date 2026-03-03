@@ -7,92 +7,94 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round">
         <style>
+            /* ===== ROOT CONTAINER ===== */
             .ksb-form {
                 width: 100%;
                 margin: 0 auto;
-                background: #ffffff;
+                background: #FFFFFF;
                 border-radius: 8px;
-                padding: 1.5rem;
+                padding: 0;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-                border: 1px solid #E2E8F0;
+                border: 1px solid #E0E0E0;
                 transition: box-shadow 0.2s ease;
+                box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
             }
 
             .ksb-form:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
             }
 
+            /* ===== MAIN FLEX LAYOUT ===== */
             .ksb-shell {
                 display: flex;
-                justify-content: flex-end;
-                flex-wrap: wrap;
-                gap: 1.25rem;
-                align-items: stretch;
+                flex-direction: row;
+                align-items: center;
+                gap: 14px;
+                padding: 15px;
             }
 
+            /* ===== INPUT GROUP CONTAINER ===== */
             .ksb-fields {
                 flex: 1 1 auto;
                 display: grid;
-                grid-template-columns: minmax(240px, 1.2fr) 72px minmax(240px, 1.2fr) minmax(180px, 1fr) minmax(180px, 1fr);
+                grid-template-columns: 1fr 1fr 1fr 1fr;
                 align-items: stretch;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                background: white;
+                border: 1px solid #E0E0E0;
+                border-radius: 8px;
+                background: #FFFFFF;
+                min-height: 56px;
+                position: relative;
             }
 
+            /* ===== FIELD (each input zone) ===== */
             .ksb-field {
                 position: relative;
                 display: flex;
                 align-items: center;
-                padding: 16px 20px;
-                gap: 16px;
-                border-right: 1px solid #E4E7EC;
+                padding: 8px 16px;
+                gap: 12px;
+                border-right: 1px solid #EEEEEE;
                 min-width: 0;
                 background: transparent;
-                transition: background-color 0.2s ease;
+                transition: background-color 0.15s ease;
             }
 
             .ksb-field:hover {
-                background-color: #fafbfd;
+                background-color: #FAFAFA;
             }
 
             .ksb-field:first-child {
-                border-top-left-radius: 6px;
-                border-bottom-left-radius: 6px;
+                border-top-left-radius: 8px;
+                border-bottom-left-radius: 8px;
             }
 
             .ksb-field:last-child {
                 border-right: none;
-                border-top-right-radius: 6px;
-                border-bottom-right-radius: 6px;
+                border-top-right-radius: 8px;
+                border-bottom-right-radius: 8px;
             }
 
             .ksb-field.is-focused {
-                background-color: #f0f7ff;
+                background-color: #F0F7FF;
             }
 
+            /* ===== FIELD BODY ===== */
             .ksb-field__body {
                 display: flex;
                 align-items: center;
-                gap: 16px;
+                gap: 12px;
                 min-width: 0;
                 width: 100%;
             }
 
+            /* ===== ICON ===== */
             .ksb-icon {
-                width: 28px;
-                height: 28px;
+                width: 24px;
+                height: 24px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
-                opacity: 0.7;
-                transition: opacity 0.2s ease;
-            }
-
-            .ksb-field:hover .ksb-icon,
-            .ksb-field.is-focused .ksb-icon {
-                opacity: 1;
             }
 
             .ksb-icon img {
@@ -100,74 +102,82 @@
                 height: 24px;
             }
 
+            /* ===== CONTENT (label + value) ===== */
             .ksb-content {
                 flex: 1;
                 min-width: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 4px;
+                gap: 2px;
             }
 
+            /* ===== LABEL ===== */
             .ksb-label {
-                font-size: 11px;
-                font-weight: 700;
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-                color: #64748B;
-                transition: color 0.2s ease;
+                font-size: 12px;
+                font-weight: 400;
+                letter-spacing: 0;
+                text-transform: none;
+                color: #9E9E9E;
+                line-height: 1.3;
+                transition: color 0.15s ease;
             }
 
             .ksb-field.has-value .ksb-label,
             .ksb-field.is-focused .ksb-label {
-                color: #1565C0;
+                color: #9E9E9E;
             }
 
+            /* ===== INPUT / VALUE ===== */
             .ksb-input,
             .ksb-value-input {
                 border: none;
                 background: transparent;
                 padding: 0;
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 600;
-                color: #0F172A;
+                color: #333333;
                 outline: none;
                 width: 100%;
                 text-overflow: ellipsis;
+                line-height: 1.4;
             }
 
             .ksb-input::placeholder,
             .ksb-value-input::placeholder {
-                color: #94A3B8;
-                font-weight: 500;
+                color: #BDBDBD;
+                font-weight: 400;
             }
 
             .ksb-value-input {
                 cursor: pointer;
             }
 
+            /* ===== CAPTION (sub-text) ===== */
             .ksb-caption {
-                font-size: 12px;
-                color: #94A3B8;
+                font-size: 11px;
+                color: #9E9E9E;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                font-weight: 500;
+                font-weight: 400;
+                display: none;
             }
 
             .ksb-field.has-value .ksb-caption {
-                color: #64748B;
+                color: #757575;
             }
 
+            /* ===== DROPDOWN ===== */
             .ksb-dropdown {
                 position: absolute;
                 left: 0;
                 right: 0;
-                top: calc(100% + 8px);
-                background: #ffffff;
+                top: calc(100% + 6px);
+                background: #FFFFFF;
                 border-radius: 8px;
-                border: 1px solid #E2E8F0;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-                padding: 14px 0;
+                border: 1px solid #E0E0E0;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                padding: 8px 0;
                 display: none;
                 z-index: 50;
                 max-height: 360px;
@@ -178,7 +188,7 @@
             @keyframes fadeIn {
                 from {
                     opacity: 0;
-                    transform: translateY(-5px);
+                    transform: translateY(-4px);
                 }
 
                 to {
@@ -198,13 +208,13 @@
             }
 
             .ksb-option-header {
-                padding: 12px 24px 6px;
-                font-size: 12px;
-                color: #64748B;
+                padding: 10px 16px 4px;
+                font-size: 11px;
+                color: #757575;
                 text-transform: uppercase;
                 font-weight: 600;
                 letter-spacing: 0.04em;
-                background-color: #f8f9fa;
+                background-color: #FAFAFA;
                 position: sticky;
                 top: 0;
             }
@@ -213,14 +223,14 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
-                gap: 12px;
-                padding: 12px 24px;
+                gap: 10px;
+                padding: 10px 16px;
                 cursor: pointer;
-                transition: background-color 0.2s ease;
+                transition: background-color 0.15s ease;
             }
 
             .ksb-option:hover {
-                background: #F8F9FA;
+                background: #F5F5F5;
             }
 
             .ksb-option__info {
@@ -229,15 +239,15 @@
             }
 
             .ksb-option__name {
-                font-size: 15px;
-                font-weight: 600;
-                color: #0F172A;
+                font-size: 14px;
+                font-weight: 500;
+                color: #333333;
                 line-height: 1.4;
             }
 
             .ksb-option__context {
-                font-size: 13px;
-                color: #64748B;
+                font-size: 12px;
+                color: #757575;
                 margin-top: 2px;
                 line-height: 1.3;
                 white-space: nowrap;
@@ -246,45 +256,50 @@
             }
 
             .ksb-dropdown-empty {
-                padding: 16px 24px;
+                padding: 14px 16px;
                 font-size: 14px;
-                color: #94A3B8;
+                color: #9E9E9E;
             }
 
             .ksb-option mark {
-                background-color: #FEF3C7;
-                color: #B45309;
+                background-color: #FFF3E0;
+                color: #E65100;
                 padding: 0 2px;
-                border-radius: 3px;
+                border-radius: 2px;
             }
 
-            .ksb-field--swap {
-                padding: 0;
-                align-items: center;
-                justify-content: center;
-                z-index: 2;
-            }
+            /* ===== SWAP BUTTON ===== */
 
             #ksb-swap-button {
-                width: 44px;
-                height: 44px;
+                width: 36px;
+                height: 36px;
                 border-radius: 50%;
-                border: 1px solid #E2E8F0;
-                background: #FFFFFF;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                color: #3B82F6;
+                border: 1px solid #EEEEEE;
+                background: #F5F5F5;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+                color: #616161;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 transition: all 0.2s ease;
+                cursor: pointer;
+                position: absolute;
+                top: 50%;
+                left: 25%;
+                z-index: 5;
+                transform: translate(-50%, -50%);
+            }
+
+            #ksb-swap-button .material-icons-outlined {
+                font-size: 18px;
             }
 
             #ksb-swap-button:hover {
-                background: #F8F9FA;
-                color: #1565C0;
-                border-color: #CBD5E1;
+                background: #EEEEEE;
+                color: #333333;
             }
 
+            /* ===== RETURN DATE FIELD ===== */
             .ksb-field--return {
                 position: relative;
             }
@@ -292,10 +307,15 @@
             .ksb-return-empty {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                color: #2563EB;
+                gap: 6px;
+                color: #1890FF;
                 font-weight: 600;
-                font-size: 15px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .ksb-return-empty .material-icons-round {
+                font-size: 20px;
             }
 
             .ksb-return-add {
@@ -310,7 +330,7 @@
             .ksb-return-selected {
                 display: none;
                 align-items: center;
-                gap: 12px;
+                gap: 10px;
                 width: 100%;
             }
 
@@ -325,11 +345,11 @@
             .ksb-return-clear {
                 border: none;
                 background: transparent;
-                color: #94A3B8;
+                color: #9E9E9E;
                 cursor: pointer;
                 border-radius: 50%;
                 padding: 4px;
-                transition: all 0.2s ease;
+                transition: all 0.15s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -340,129 +360,175 @@
                 color: #EF4444;
             }
 
+            /* ===== SEARCH BUTTON ===== */
             .ksb-submit {
                 border: none;
-                border-radius: 6px;
-                background: #D97706;
-                color: #ffffff;
+                border-radius: 8px;
+                background: #FFC107;
+                color: #000000;
                 font-weight: 600;
-                font-size: 16px;
-                padding: 0 48px;
-                min-width: 200px;
-                min-height: 60px;
+                font-size: 17px;
+                padding: 0 32px;
+                min-height: 56px;
+                min-width: 140px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                box-shadow: 0 10px 15px -3px rgba(234, 179, 8, 0.4);
-                transition: all 0.3s ease;
+                transition: all 0.2s ease;
                 flex-shrink: 0;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
+                cursor: pointer;
+                white-space: nowrap;
+                letter-spacing: 0.01em;
             }
 
             .ksb-submit:hover {
-                background: #B45309;
+                background: #FFB300;
+                box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
             }
 
             .ksb-submit:active {
-                background: #92400E;
+                background: #FFA000;
             }
 
             .ksb-submit:disabled {
-                opacity: 0.7;
+                opacity: 0.6;
                 cursor: not-allowed;
-                transform: none;
                 box-shadow: none;
             }
 
+            /* ===== RESPONSIVE: 1280px ===== */
             @media (max-width: 1280px) {
-                .ksb-fields {
-                    grid-template-columns: minmax(200px, 1fr) 64px minmax(200px, 1fr) minmax(160px, 0.9fr) minmax(160px, 0.9fr);
+                .ksb-field {
+                    padding: 8px 12px;
+                }
+
+                .ksb-submit {
+                    padding: 0 24px;
+                    min-width: 120px;
+                    font-size: 16px;
                 }
             }
 
+            /* ===== RESPONSIVE: Tablet ===== */
             @media (max-width: 1023px) {
                 .ksb-form {
-                    padding: 1rem;
                     border-radius: 8px;
                 }
 
                 .ksb-shell {
                     flex-direction: column;
-                    gap: 1rem;
+                    padding: 12px;
+                    gap: 10px;
                 }
 
                 .ksb-fields {
-                    grid-template-columns: 1fr;
-                    border-radius: 6px;
-                    position: relative;
+                    grid-template-columns: 1fr 1fr;
+                    min-height: auto;
                 }
 
                 .ksb-field {
+                    border-right: 1px solid #EEEEEE;
+                    border-bottom: 1px solid #EEEEEE;
+                    padding: 10px 14px;
+                    border-radius: 0;
+                }
+
+                .ksb-field.ksb-field--origin {
+                    border-top-left-radius: 8px;
+                }
+
+                .ksb-field.ksb-field--destination {
+                    border-top-right-radius: 8px;
                     border-right: none;
-                    border-bottom: 1px solid #E4E7EC;
-                    padding: 16px 20px;
                 }
 
-                .ksb-field:first-child {
-                    border-top-left-radius: 16px;
-                    border-top-right-radius: 16px;
-                    border-bottom-left-radius: 0;
-                }
-
-                .ksb-field:last-child {
+                .ksb-field.ksb-field--date {
+                    border-bottom-left-radius: 8px;
                     border-bottom: none;
-                    border-bottom-left-radius: 16px;
-                    border-bottom-right-radius: 16px;
-                    border-top-right-radius: 0;
                 }
 
-                .ksb-field--swap {
-                    display: none;
+                .ksb-field.ksb-field--return {
+                    border-bottom-right-radius: 8px;
+                    border-right: none;
+                    border-bottom: none;
                 }
 
                 #ksb-swap-button {
-                    position: absolute;
-                    top: 54px;
-                    right: 24px;
+                    left: 50%;
+                    top: 25%;
+                    transform: translate(-50%, -50%);
                     z-index: 10;
-                    width: 42px;
-                    height: 42px;
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                    transform: none;
+                    width: 34px;
+                    height: 34px;
+                    background: #FFFFFF;
+                    border: 1px solid #E0E0E0;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
                 }
 
                 #ksb-swap-button:hover {
-                    transform: scale(1.1);
-                }
-
-                .ksb-field--destination {
-                    order: 2;
-                }
-
-                .ksb-field--date {
-                    order: 3;
-                }
-
-                .ksb-field--return {
-                    order: 4;
+                    transform: translate(-50%, -50%) scale(1.05);
                 }
 
                 .ksb-submit {
                     width: 100%;
-                    min-height: 56px;
-                    border-radius: 6px;
-                    font-size: 18px;
+                    min-height: 50px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    padding: 0 24px;
                 }
             }
 
+            /* ===== RESPONSIVE: Mobile ===== */
             @media (max-width: 640px) {
+                .ksb-shell {
+                    padding: 10px;
+                }
+
+                .ksb-fields {
+                    grid-template-columns: 1fr;
+                    border-radius: 8px;
+                }
+
                 .ksb-field {
-                    padding: 14px 16px;
+                    padding: 10px 14px;
+                    border-right: none;
+                    border-radius: 0;
+                }
+
+                .ksb-field.ksb-field--origin {
+                    border-top-left-radius: 8px;
+                    border-top-right-radius: 8px;
+                    border-bottom-left-radius: 0;
+                }
+
+                .ksb-field.ksb-field--destination {
+                    border-top-right-radius: 0;
+                    border-right: none;
+                }
+
+                .ksb-field.ksb-field--date {
+                    border-bottom-left-radius: 0;
+                    border-right: none;
+                }
+
+                .ksb-field.ksb-field--return {
+                    border-bottom-left-radius: 8px;
+                    border-bottom-right-radius: 8px;
+                    border-right: none;
+                }
+
+                #ksb-swap-button {
+                    display: none;
                 }
 
                 .ksb-dropdown {
-                    top: calc(100% + 8px);
+                    top: calc(100% + 4px);
+                    left: -14px;
+                    right: -14px;
+                }
+
+                .ksb-submit {
+                    min-height: 48px;
                 }
             }
         </style>
@@ -494,6 +560,10 @@
 
     <div class="ksb-shell">
         <div class="ksb-fields">
+            {{-- Swap button: absolute positioned between origin & destination --}}
+            <button type="button" id="ksb-swap-button" aria-label="{{ __('client.search.swap_aria') }}">
+                <span class="material-icons-outlined">import_export</span>
+            </button>
             <div class="ksb-field ksb-field--origin {{ data_get($defaults, 'origin.id') ? 'has-value' : '' }}"
                 data-role="origin">
                 <div class="ksb-field__body">
@@ -512,11 +582,6 @@
                     </div>
                 </div>
                 <div class="ksb-dropdown" data-dropdown="origin"></div>
-            </div>
-            <div class="ksb-field ksb-field--swap">
-                <button type="button" id="ksb-swap-button" aria-label="{{ __('client.search.swap_aria') }}">
-                    <span class="material-icons-outlined">import_export</span>
-                </button>
             </div>
             <div class="ksb-field ksb-field--destination {{ data_get($defaults, 'destination.id') ? 'has-value' : '' }}"
                 data-role="destination">

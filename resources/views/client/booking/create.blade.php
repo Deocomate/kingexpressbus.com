@@ -415,7 +415,7 @@
                             <input type="tel" id="customer_phone" name="customer_phone"
                                 value="{{ old('customer_phone', request('customer_phone', $user->phone ?? '')) }}"
                                 class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
-                                pattern="(0|\+84)[0-9]{9,10}" inputmode="tel"
+                                pattern="\+?[0-9]{7,15}" inputmode="tel"
                                 required placeholder="{{ __('client.booking.create.phone_placeholder') }}">
                         </div>
                         <div>
@@ -645,7 +645,7 @@
                     const customerPhone = (customerPhoneInput?.value || '').trim();
                     const customerEmail = (customerEmailInput?.value || '').trim();
                     const hotelAddress = (hotelPickupInput?.value || '').trim();
-                    const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
+                    const phoneRegex = /^\+?[0-9]{7,15}$/;
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
                     if (!pickupValue) {
