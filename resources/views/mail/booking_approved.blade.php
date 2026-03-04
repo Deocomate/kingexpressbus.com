@@ -64,6 +64,10 @@
                                 <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ $bookingDetails['quantity'] ?? 'N/A' }} vé</td>
                             </tr>
                             <tr>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">Email</td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ $bookingDetails['customer_email'] ?? 'N/A' }}</td>
+                            </tr>
+                            <tr style="background-color:#f1f8e9;">
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">Tổng tiền</td>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #2e7d32;">{{ isset($bookingDetails['total_price']) ? number_format($bookingDetails['total_price']) . 'đ' : 'Liên hệ' }}</td>
                             </tr>

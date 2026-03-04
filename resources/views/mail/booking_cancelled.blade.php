@@ -105,6 +105,14 @@
                             </tr>
                             <tr style="background-color:#fff5f5;">
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
+                                    Email
+                                </td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">
+                                    {{ $bookingDetails['customer_email'] ?? 'N/A' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
                                     Tổng tiền (Price)
                                 </td>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">

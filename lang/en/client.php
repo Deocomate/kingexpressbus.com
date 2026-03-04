@@ -433,6 +433,7 @@ return [
             'name_placeholder' => 'e.g., John Doe',
             'phone_label' => 'Phone Number',
             'phone_placeholder' => 'Phone to receive ticket info',
+            'search_country_placeholder' => 'Search country...',
             'email_label' => 'Email',
             'email_placeholder' => 'Email to receive booking confirmation',
             'notes_label' => 'Additional Notes',

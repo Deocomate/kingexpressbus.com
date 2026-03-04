@@ -80,6 +80,12 @@
                                 <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ $bookingDetails['customer_phone'] ?? 'N/A' }}</td>
                             </tr>
                             <tr style="background-color:#f5faff;">
+                                <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
+                                    Email
+                                </td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ $bookingDetails['customer_email'] ?? 'N/A' }}</td>
+                            </tr>
+                            <tr>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">Số
                                     lượng (Quantity)
                                 </td>

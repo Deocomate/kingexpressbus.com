@@ -433,6 +433,7 @@ return [
             'name_placeholder' => 'Ví dụ: Nguyễn Văn An',
             'phone_label' => 'Số điện thoại',
             'phone_placeholder' => 'Số điện thoại nhận thông tin vé',
+            'search_country_placeholder' => 'Tìm quốc gia...',
             'email_label' => 'Email nhận vé',
             'email_placeholder' => 'Email để nhận xác nhận đặt vé',
             'notes_label' => 'Ghi chú bổ sung',

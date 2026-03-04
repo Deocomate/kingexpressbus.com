@@ -2,6 +2,158 @@
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
         <style>
+            /* Custom phone input with searchable country dropdown */
+            .phone-input-wrapper {
+                display: flex;
+                align-items: stretch;
+                border: 1px solid #d4d4d4;
+                border-radius: 0.375rem;
+                background-color: #fafafa;
+                overflow: visible;
+                transition: border-color 0.15s ease;
+                position: relative;
+            }
+            .phone-input-wrapper:focus-within {
+                border-color: #60a5fa;
+                background-color: #fff;
+                box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.3);
+            }
+            .phone-country-btn {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                border: none;
+                background: #f5f5f5;
+                padding: 0 10px;
+                cursor: pointer;
+                border-right: 1px solid #d4d4d4;
+                border-radius: 0.375rem 0 0 0.375rem;
+                outline: none;
+                white-space: nowrap;
+                transition: background 0.15s;
+            }
+            .phone-country-btn:hover {
+                background: #e5e5e5;
+            }
+            .phone-country-btn img {
+                width: 24px;
+                height: 18px;
+                object-fit: cover;
+                border-radius: 2px;
+                box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+            }
+            .phone-country-btn .arrow {
+                font-size: 0.55rem;
+                color: #6b7280;
+                margin-left: 2px;
+            }
+            .phone-dial-code {
+                display: flex;
+                align-items: center;
+                width: auto;
+                min-width: 48px;
+                max-width: 72px;
+                border: none;
+                background: #f5f5f5;
+                padding: 0 8px;
+                font-size: 0.9375rem;
+                font-weight: 600;
+                color: #1f2937;
+                border-right: 1px solid #d4d4d4;
+                outline: none;
+                text-align: center;
+                font-family: inherit;
+            }
+            .phone-dial-code::placeholder {
+                color: #9ca3af;
+            }
+            .phone-number-input {
+                flex: 1;
+                border: none;
+                background: transparent;
+                padding: 0.75rem;
+                font-size: 1rem;
+                outline: none;
+                min-width: 0;
+            }
+            .phone-number-input::placeholder {
+                color: #9ca3af;
+            }
+            /* Dropdown */
+            .phone-dropdown {
+                display: none;
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                z-index: 50;
+                background: #fff;
+                border: 1px solid #d4d4d4;
+                border-radius: 0.5rem;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+                width: 300px;
+                max-height: 320px;
+                overflow: hidden;
+                flex-direction: column;
+            }
+            .phone-dropdown.open {
+                display: flex;
+            }
+            .phone-dropdown-search {
+                padding: 8px 10px;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            .phone-dropdown-search input {
+                width: 100%;
+                border: 1px solid #d4d4d4;
+                border-radius: 0.375rem;
+                padding: 6px 10px;
+                font-size: 0.875rem;
+                outline: none;
+            }
+            .phone-dropdown-search input:focus {
+                border-color: #60a5fa;
+            }
+            .phone-dropdown-list {
+                overflow-y: auto;
+                flex: 1;
+            }
+            .phone-dropdown-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 12px;
+                cursor: pointer;
+                font-size: 0.875rem;
+                color: #374151;
+                transition: background 0.1s;
+            }
+            .phone-dropdown-item:hover,
+            .phone-dropdown-item.highlighted {
+                background: #eff6ff;
+            }
+            .phone-dropdown-item.selected {
+                background: #dbeafe;
+                font-weight: 600;
+            }
+            .phone-dropdown-item img {
+                width: 24px;
+                height: 18px;
+                object-fit: cover;
+                border-radius: 2px;
+                box-shadow: 0 0 0 1px rgba(0,0,0,0.08);
+                flex-shrink: 0;
+            }
+            .phone-dropdown-item .country-name {
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .phone-dropdown-item .dial-code {
+                color: #6b7280;
+                font-size: 0.8125rem;
+                flex-shrink: 0;
+            }
             .litepicker {
                 font-family: 'Inter', sans-serif;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -409,14 +561,30 @@
                                 required placeholder="{{ __('client.booking.create.name_placeholder') }}">
                         </div>
                         <div>
-                            <label for="customer_phone" class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label for="phone_number" class="block text-sm font-semibold text-gray-700 mb-2">
                                 {{ __('client.booking.create.phone_label') }}
                             </label>
-                            <input type="tel" id="customer_phone" name="customer_phone"
-                                value="{{ old('customer_phone', request('customer_phone', $user->phone ?? '')) }}"
-                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
-                                pattern="\+?[0-9]{7,15}" inputmode="tel"
-                                required placeholder="{{ __('client.booking.create.phone_placeholder') }}">
+                            <div class="phone-input-wrapper" id="phone-input-wrapper">
+                                <button type="button" id="phone_country_btn" class="phone-country-btn" aria-haspopup="listbox" aria-expanded="false">
+                                    <img id="phone_flag_img" src="https://flagcdn.com/w40/vn.png" alt="VN">
+                                    <span class="arrow">&#9660;</span>
+                                </button>
+                                <div id="phone_dropdown" class="phone-dropdown">
+                                    <div class="phone-dropdown-search">
+                                        <input type="text" id="phone_search" placeholder="{{ __('client.booking.create.search_country_placeholder') }}" autocomplete="off">
+                                    </div>
+                                    <div class="phone-dropdown-list" id="phone_dropdown_list"></div>
+                                </div>
+                                <input type="text" id="phone_dial_code" class="phone-dial-code" value="+84" maxlength="5" placeholder="+84" autocomplete="off">
+                                <input type="tel" id="phone_number"
+                                    value=""
+                                    class="phone-number-input"
+                                    inputmode="tel"
+                                    required
+                                    placeholder="{{ __('client.booking.create.phone_placeholder') }}">
+                            </div>
+                            <input type="hidden" id="customer_phone_full" name="customer_phone" value="{{ old('customer_phone', request('customer_phone', $user->phone ?? '')) }}">
+                            <p id="phone-error-msg" class="text-xs text-red-500 mt-1 hidden"></p>
                         </div>
                         <div>
                             <label for="customer_email" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -610,8 +778,254 @@
                 const dropoffHiddenInput = document.getElementById('dropoff_stop_id_hidden');
                 const hotelPickupInput = document.getElementById('hotel_pickup_address');
                 const customerNameInput = document.getElementById('customer_name');
-                const customerPhoneInput = document.getElementById('customer_phone');
+                const phoneNumberInput = document.getElementById('phone_number');
+                const phoneCountryBtn = document.getElementById('phone_country_btn');
+                const phoneFlagImg = document.getElementById('phone_flag_img');
+                const phoneDropdown = document.getElementById('phone_dropdown');
+                const phoneDropdownList = document.getElementById('phone_dropdown_list');
+                const phoneSearchInput = document.getElementById('phone_search');
+                const phoneDialCodeEl = document.getElementById('phone_dial_code');
+                const customerPhoneFullInput = document.getElementById('customer_phone_full');
+                const phoneErrorMsg = document.getElementById('phone-error-msg');
                 const customerEmailInput = document.getElementById('customer_email');
+
+                // Country data: [dial_code, iso2, name] — comprehensive list
+                const countries = [
+                    ['+84','vn','Việt Nam'],['+1','us','United States'],['+44','gb','United Kingdom'],
+                    ['+82','kr','South Korea'],['+81','jp','Japan'],['+86','cn','China'],
+                    ['+66','th','Thailand'],['+856','la','Laos'],['+855','kh','Cambodia'],
+                    ['+61','au','Australia'],['+33','fr','France'],['+49','de','Germany'],
+                    ['+91','in','India'],['+65','sg','Singapore'],['+60','my','Malaysia'],
+                    ['+63','ph','Philippines'],['+62','id','Indonesia'],['+886','tw','Taiwan'],
+                    ['+852','hk','Hong Kong'],['+853','mo','Macau'],['+7','ru','Russia'],
+                    ['+39','it','Italy'],['+34','es','Spain'],['+31','nl','Netherlands'],
+                    ['+46','se','Sweden'],['+41','ch','Switzerland'],['+64','nz','New Zealand'],
+                    ['+353','ie','Ireland'],['+48','pl','Poland'],['+380','ua','Ukraine'],
+                    ['+90','tr','Türkiye'],['+966','sa','Saudi Arabia'],['+971','ae','UAE'],
+                    ['+972','il','Israel'],['+55','br','Brazil'],['+52','mx','Mexico'],
+                    ['+54','ar','Argentina'],['+57','co','Colombia'],['+234','ng','Nigeria'],
+                    ['+27','za','South Africa'],['+20','eg','Egypt'],
+                    // Europe
+                    ['+43','at','Austria'],['+32','be','Belgium'],['+359','bg','Bulgaria'],
+                    ['+385','hr','Croatia'],['+357','cy','Cyprus'],['+420','cz','Czech Republic'],
+                    ['+45','dk','Denmark'],['+372','ee','Estonia'],['+358','fi','Finland'],
+                    ['+30','gr','Greece'],['+36','hu','Hungary'],['+354','is','Iceland'],
+                    ['+371','lv','Latvia'],['+370','lt','Lithuania'],['+352','lu','Luxembourg'],
+                    ['+356','mt','Malta'],['+373','md','Moldova'],['+382','me','Montenegro'],
+                    ['+389','mk','North Macedonia'],['+47','no','Norway'],['+351','pt','Portugal'],
+                    ['+40','ro','Romania'],['+381','rs','Serbia'],['+421','sk','Slovakia'],
+                    ['+386','si','Slovenia'],['+375','by','Belarus'],['+995','ge','Georgia'],
+                    ['+374','am','Armenia'],['+994','az','Azerbaijan'],
+                    // Asia & Oceania
+                    ['+93','af','Afghanistan'],['+880','bd','Bangladesh'],['+975','bt','Bhutan'],
+                    ['+673','bn','Brunei'],['+95','mm','Myanmar'],['+670','tl','Timor-Leste'],
+                    ['+679','fj','Fiji'],['+992','tj','Tajikistan'],['+993','tm','Turkmenistan'],
+                    ['+998','uz','Uzbekistan'],['+996','kg','Kyrgyzstan'],['+976','mn','Mongolia'],
+                    ['+977','np','Nepal'],['+92','pk','Pakistan'],['+94','lk','Sri Lanka'],
+                    ['+960','mv','Maldives'],['+675','pg','Papua New Guinea'],
+                    ['+685','ws','Samoa'],['+676','to','Tonga'],['+678','vu','Vanuatu'],
+                    ['+682','ck','Cook Islands'],['+691','fm','Micronesia'],
+                    ['+680','pw','Palau'],['+677','sb','Solomon Islands'],
+                    ['+688','tv','Tuvalu'],['+674','nr','Nauru'],['+686','ki','Kiribati'],
+                    ['+692','mh','Marshall Islands'],
+                    // Middle East
+                    ['+973','bh','Bahrain'],['+964','iq','Iraq'],['+962','jo','Jordan'],
+                    ['+965','kw','Kuwait'],['+961','lb','Lebanon'],['+968','om','Oman'],
+                    ['+974','qa','Qatar'],['+963','sy','Syria'],['+967','ye','Yemen'],
+                    ['+970','ps','Palestine'],
+                    // Africa
+                    ['+213','dz','Algeria'],['+244','ao','Angola'],['+229','bj','Benin'],
+                    ['+267','bw','Botswana'],['+226','bf','Burkina Faso'],['+257','bi','Burundi'],
+                    ['+237','cm','Cameroon'],['+238','cv','Cape Verde'],['+236','cf','Central African Republic'],
+                    ['+235','td','Chad'],['+269','km','Comoros'],['+242','cg','Congo'],
+                    ['+243','cd','DR Congo'],['+253','dj','Djibouti'],
+                    ['+240','gq','Equatorial Guinea'],['+291','er','Eritrea'],
+                    ['+268','sz','Eswatini'],['+251','et','Ethiopia'],['+241','ga','Gabon'],
+                    ['+220','gm','Gambia'],['+233','gh','Ghana'],['+224','gn','Guinea'],
+                    ['+245','gw','Guinea-Bissau'],['+225','ci','Ivory Coast'],
+                    ['+254','ke','Kenya'],['+266','ls','Lesotho'],['+231','lr','Liberia'],
+                    ['+218','ly','Libya'],['+261','mg','Madagascar'],['+265','mw','Malawi'],
+                    ['+223','ml','Mali'],['+222','mr','Mauritania'],['+230','mu','Mauritius'],
+                    ['+212','ma','Morocco'],['+258','mz','Mozambique'],['+264','na','Namibia'],
+                    ['+227','ne','Niger'],['+250','rw','Rwanda'],
+                    ['+239','st','São Tomé and Príncipe'],['+221','sn','Senegal'],
+                    ['+248','sc','Seychelles'],['+232','sl','Sierra Leone'],
+                    ['+252','so','Somalia'],['+211','ss','South Sudan'],['+249','sd','Sudan'],
+                    ['+255','tz','Tanzania'],['+228','tg','Togo'],['+216','tn','Tunisia'],
+                    ['+256','ug','Uganda'],['+260','zm','Zambia'],['+263','zw','Zimbabwe'],
+                    // Americas
+                    ['+591','bo','Bolivia'],['+56','cl','Chile'],['+593','ec','Ecuador'],
+                    ['+595','py','Paraguay'],['+51','pe','Peru'],['+598','uy','Uruguay'],
+                    ['+58','ve','Venezuela'],['+592','gy','Guyana'],['+597','sr','Suriname'],
+                    ['+501','bz','Belize'],['+506','cr','Costa Rica'],['+53','cu','Cuba'],
+                    ['+1','do','Dominican Republic'],['+503','sv','El Salvador'],
+                    ['+502','gt','Guatemala'],['+509','ht','Haiti'],['+504','hn','Honduras'],
+                    ['+876','jm','Jamaica'],['+505','ni','Nicaragua'],['+507','pa','Panama'],
+                    ['+868','tt','Trinidad and Tobago'],['+1','ca','Canada'],
+                    ['+297','aw','Aruba'],['+1','bs','Bahamas'],['+1','bb','Barbados'],
+                ];
+
+                let selectedDialCode = '+84';
+                let selectedIso2 = 'vn';
+
+                // Render dropdown items
+                const renderDropdownItems = (filter = '') => {
+                    phoneDropdownList.innerHTML = '';
+                    const lowerFilter = filter.toLowerCase();
+                    const filtered = countries.filter(([dialCode, iso2, name]) =>
+                        !filter || name.toLowerCase().includes(lowerFilter) || dialCode.includes(filter) || iso2.includes(lowerFilter)
+                    );
+                    filtered.forEach(([dialCode, iso2, name]) => {
+                        const item = document.createElement('div');
+                        item.className = 'phone-dropdown-item' + (dialCode === selectedDialCode ? ' selected' : '');
+                        item.dataset.dialCode = dialCode;
+                        item.dataset.iso2 = iso2;
+                        item.innerHTML = `<img src="https://flagcdn.com/w40/${iso2}.png" alt="${iso2}" loading="lazy"><span class="country-name">${name}</span><span class="dial-code">${dialCode}</span>`;
+                        item.addEventListener('click', () => selectCountry(dialCode, iso2));
+                        phoneDropdownList.appendChild(item);
+                    });
+                };
+
+                const selectCountry = (dialCode, iso2, focusNumber = true) => {
+                    selectedDialCode = dialCode;
+                    selectedIso2 = iso2;
+                    phoneFlagImg.src = `https://flagcdn.com/w40/${iso2}.png`;
+                    phoneFlagImg.alt = iso2.toUpperCase();
+                    phoneDialCodeEl.value = dialCode;
+                    closeDropdown();
+                    syncFullPhone();
+                    if (focusNumber) phoneNumberInput.focus();
+                };
+
+                const openDropdown = () => {
+                    phoneDropdown.classList.add('open');
+                    phoneCountryBtn.setAttribute('aria-expanded', 'true');
+                    phoneSearchInput.value = '';
+                    renderDropdownItems();
+                    setTimeout(() => phoneSearchInput.focus(), 50);
+                };
+
+                const closeDropdown = () => {
+                    phoneDropdown.classList.remove('open');
+                    phoneCountryBtn.setAttribute('aria-expanded', 'false');
+                };
+
+                phoneCountryBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    phoneDropdown.classList.contains('open') ? closeDropdown() : openDropdown();
+                });
+
+                phoneSearchInput.addEventListener('input', () => {
+                    renderDropdownItems(phoneSearchInput.value);
+                });
+
+                // Close on click outside
+                document.addEventListener('click', (e) => {
+                    if (!document.getElementById('phone-input-wrapper').contains(e.target)) {
+                        closeDropdown();
+                    }
+                });
+
+                // Sync full phone to hidden input
+                const syncFullPhone = () => {
+                    const number = phoneNumberInput.value.replace(/[^\d]/g, '');
+                    const dialCode = phoneDialCodeEl.value.startsWith('+') ? phoneDialCodeEl.value : '+' + phoneDialCodeEl.value;
+                    customerPhoneFullInput.value = number ? dialCode + number : '';
+                };
+
+                // Editable dial code: auto-detect country when user types
+                phoneDialCodeEl.addEventListener('input', () => {
+                    let val = phoneDialCodeEl.value.replace(/[^\d+]/g, '');
+                    if (!val.startsWith('+')) val = '+' + val;
+                    phoneDialCodeEl.value = val;
+                    selectedDialCode = val;
+
+                    // Match longest dial code first
+                    const sortedCountries = [...countries].sort((a, b) => b[0].length - a[0].length);
+                    for (const [dialCode, iso2] of sortedCountries) {
+                        if (val === dialCode) {
+                            selectedIso2 = iso2;
+                            phoneFlagImg.src = `https://flagcdn.com/w40/${iso2}.png`;
+                            phoneFlagImg.alt = iso2.toUpperCase();
+                            break;
+                        }
+                    }
+                    syncFullPhone();
+                });
+
+                phoneDialCodeEl.addEventListener('keypress', (e) => {
+                    const char = String.fromCharCode(e.which || e.keyCode);
+                    if (/[a-zA-Z]/.test(char)) e.preventDefault();
+                });
+
+                phoneDialCodeEl.addEventListener('blur', () => {
+                    if (!phoneDialCodeEl.value || phoneDialCodeEl.value === '+') {
+                        phoneDialCodeEl.value = '+84';
+                        selectedDialCode = '+84';
+                        selectedIso2 = 'vn';
+                        phoneFlagImg.src = 'https://flagcdn.com/w40/vn.png';
+                        phoneFlagImg.alt = 'VN';
+                    }
+                    syncFullPhone();
+                });
+
+                // Block letters
+                phoneNumberInput.addEventListener('keypress', (e) => {
+                    const char = String.fromCharCode(e.which || e.keyCode);
+                    if (/[a-zA-Z]/.test(char)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // On input: strip letters, detect +XX auto-switch, sync
+                phoneNumberInput.addEventListener('input', () => {
+                    let val = phoneNumberInput.value.replace(/[a-zA-Z]/g, '');
+
+                    // Auto-detect country code from +XX
+                    if (val.startsWith('+')) {
+                        const sortedCountries = [...countries].sort((a, b) => b[0].length - a[0].length);
+                        for (const [dialCode, iso2] of sortedCountries) {
+                            if (val.startsWith(dialCode)) {
+                                selectCountry(dialCode, iso2);
+                                val = val.substring(dialCode.length);
+                                phoneNumberInput.value = val;
+                                return;
+                            }
+                        }
+                        if (val.startsWith('+')) {
+                            val = val.substring(1);
+                            phoneNumberInput.value = val;
+                        }
+                    }
+
+                    syncFullPhone();
+                    phoneErrorMsg.classList.add('hidden');
+                });
+
+                phoneNumberInput.addEventListener('blur', syncFullPhone);
+
+                // Pre-fill from old value
+                const oldPhone = @json(old('customer_phone', request('customer_phone', $user->phone ?? '')));
+                if (oldPhone) {
+                    if (oldPhone.startsWith('+')) {
+                        const sortedCountries = [...countries].sort((a, b) => b[0].length - a[0].length);
+                        let matched = false;
+                        for (const [dialCode, iso2] of sortedCountries) {
+                            if (oldPhone.startsWith(dialCode)) {
+                                selectCountry(dialCode, iso2);
+                                phoneNumberInput.value = oldPhone.substring(dialCode.length);
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (!matched) {
+                            phoneNumberInput.value = oldPhone.substring(1);
+                        }
+                    } else {
+                        phoneNumberInput.value = oldPhone;
+                    }
+                    syncFullPhone();
+                }
 
                 const resetSubmitButtonState = () => {
                     submitButton.disabled = false;
@@ -642,10 +1056,9 @@
                     const pickupValue = (pickupHiddenInput?.value || '').trim();
                     const dropoffValue = (dropoffHiddenInput?.value || '').trim();
                     const customerName = (customerNameInput?.value || '').trim();
-                    const customerPhone = (customerPhoneInput?.value || '').trim();
+                    const customerPhone = (phoneNumberInput?.value || '').trim();
                     const customerEmail = (customerEmailInput?.value || '').trim();
                     const hotelAddress = (hotelPickupInput?.value || '').trim();
-                    const phoneRegex = /^\+?[0-9]{7,15}$/;
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
                     if (!pickupValue) {
@@ -668,9 +1081,8 @@
                         return validationMessages.phoneRequired;
                     }
 
-                    if (!phoneRegex.test(customerPhone)) {
-                        return validationMessages.phoneInvalid;
-                    }
+                    // Sync final full number before submit
+                    syncFullPhone();
 
                     if (!customerEmail) {
                         return validationMessages.emailRequired;
