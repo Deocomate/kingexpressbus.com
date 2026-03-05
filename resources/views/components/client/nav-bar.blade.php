@@ -79,15 +79,17 @@
                         <i class="fa-solid fa-chevron-down text-xs text-neutral-400"></i>
                     </button>
                     <div
-                        class="absolute right-0 mt-2 w-40 bg-white border border-neutral-200 rounded-lg shadow-dropdown py-1.5 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                        @foreach ($languageOptions as $language)
-                            <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
-                                class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-neutral-100 transition-colors duration-200 {{ $currentLocale === $language['code'] ? 'font-semibold text-primary-600' : 'text-neutral-700' }}">
-                                <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}"
-                                    class="w-5 h-5 rounded-full object-cover">
-                                <span>{{ $language['label'] }}</span>
-                            </a>
-                        @endforeach
+                        class="absolute right-0 mt-0 pt-2 w-40 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
+                        <div class="bg-white border border-neutral-200 rounded-lg shadow-dropdown py-1.5">
+                            @foreach ($languageOptions as $language)
+                                <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
+                                    class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-neutral-100 transition-colors duration-200 {{ $currentLocale === $language['code'] ? 'font-semibold text-primary-600' : 'text-neutral-700' }}">
+                                    <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}"
+                                        class="w-5 h-5 rounded-full object-cover">
+                                    <span>{{ $language['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 
@@ -111,7 +113,8 @@
                             <i class="fa-solid fa-chevron-down text-xs text-neutral-400"></i>
                         </button>
                         <div
-                            class="absolute right-0 mt-2 w-56 bg-white border border-neutral-200 rounded-lg shadow-dropdown py-2 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
+                            class="absolute right-0 mt-0 pt-2 w-56 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
+                          <div class="bg-white border border-neutral-200 rounded-lg shadow-dropdown py-2">
                             <div class="px-4 py-3 border-b border-neutral-100">
                                 <p class="font-semibold text-neutral-800">{{ $authUser->name }}</p>
                                 <p class="text-sm text-neutral-500 truncate">{{ $authUser->email ?? $authUser->phone }}</p>
@@ -134,6 +137,7 @@
                                     <span>{{ __('client.nav.logout') }}</span>
                                 </button>
                             </form>
+                          </div>
                         </div>
                     </div>
                 @else
