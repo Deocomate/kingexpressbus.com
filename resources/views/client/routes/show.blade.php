@@ -259,8 +259,7 @@
             .trip-card {
                 background: #ffffff;
                 border: 1px solid #e5e7eb;
-                border-radius: 8px;
-                overflow: hidden;
+                border-radius: 12px;
                 transition: box-shadow 0.2s ease, border-color 0.2s ease;
             }
 
@@ -273,107 +272,142 @@
                 display: flex;
                 flex-direction: row;
                 align-items: stretch;
+                padding: 12px;
+                gap: 14px;
             }
 
             .trip-image-wrapper {
                 position: relative;
-                width: 180px;
-                min-height: 180px;
+                width: 130px;
                 flex-shrink: 0;
                 overflow: hidden;
+                border-radius: 8px;
+                aspect-ratio: 1 / 1;
+                align-self: center;
             }
 
             .trip-image-wrapper img {
                 width: 100%;
                 height: 100%;
                 object-fit: cover;
+                border-radius: 8px;
             }
 
             .trip-body {
                 flex: 1;
-                padding: 16px 20px;
                 display: flex;
                 flex-direction: column;
                 min-width: 0;
+                gap: 6px;
             }
 
-            /* Compact Time Display */
+            /* Horizontal Time Display */
             .trip-time-route {
                 display: flex;
-                flex-direction: column;
-                gap: 4px;
-                margin: 8px 0;
+                align-items: center;
+                gap: 0;
+                margin: 2px 0;
+                padding: 8px 12px;
+                background: #f8fafc;
+                border-radius: 8px;
+                border: 1px solid #f1f5f9;
             }
 
-            .trip-time-row {
+            .trip-time-block {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                font-size: 14px;
+                min-width: 0;
             }
 
-            .trip-time-row .time-val {
-                font-size: 18px;
+            .trip-time-block .time-val {
+                font-size: 17px;
                 font-weight: 800;
                 color: #0f172a;
-                min-width: 50px;
+                white-space: nowrap;
+                line-height: 1;
             }
 
-            .trip-time-row .time-dot {
-                width: 10px;
-                height: 10px;
+            .trip-time-block .time-dot {
+                width: 9px;
+                height: 9px;
                 border-radius: 50%;
                 flex-shrink: 0;
             }
 
-            .trip-time-row .time-dot.departure {
+            .trip-time-block .time-dot.departure {
                 background: #3b82f6;
                 border: 2px solid #93c5fd;
             }
 
-            .trip-time-row .time-dot.arrival {
+            .trip-time-block .time-dot.arrival {
                 background: #10b981;
                 border: 2px solid #6ee7b7;
             }
 
-            .trip-time-row .time-location {
+            .trip-time-block .time-location {
                 color: #475569;
-                font-size: 13px;
+                font-size: 12px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                max-width: 200px;
+                max-width: 140px;
+                line-height: 1.2;
             }
 
-            .trip-duration-line {
+            .trip-duration-connector {
                 display: flex;
+                flex-direction: column;
                 align-items: center;
-                gap: 0;
-                margin-left: 23px;
-                padding-left: 27px;
-                border-left: 2px dashed #cbd5e1;
-                height: 20px;
+                flex: 1;
+                min-width: 60px;
+                padding: 0 8px;
             }
 
-            .trip-duration-line .duration-text {
+            .trip-duration-connector .duration-text {
                 font-size: 11px;
                 font-weight: 600;
                 color: #64748b;
-                background: #f1f5f9;
-                padding: 2px 8px;
-                border-radius: 9999px;
+                white-space: nowrap;
+                margin-bottom: 3px;
+            }
+
+            .trip-duration-connector .duration-line {
+                width: 100%;
+                height: 0;
+                border-top: 2px dashed #cbd5e1;
+                position: relative;
+            }
+
+            .trip-duration-connector .duration-line::before,
+            .trip-duration-connector .duration-line::after {
+                content: '';
+                position: absolute;
+                top: -4px;
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: #cbd5e1;
+            }
+
+            .trip-duration-connector .duration-line::before {
+                left: -3px;
+            }
+
+            .trip-duration-connector .duration-line::after {
+                right: -3px;
             }
 
             /* Price Display - Compact */
             .price-tag {
-                font-size: 22px;
+                font-size: 20px;
                 font-weight: 800;
                 color: #D97706;
                 line-height: 1.1;
             }
 
             .price-tag small {
-                font-size: 13px;
+                font-size: 12px;
                 font-weight: 500;
                 color: #64748b;
             }
@@ -383,9 +417,9 @@
                 display: inline-flex;
                 align-items: center;
                 gap: 5px;
-                padding: 4px 10px;
+                padding: 3px 8px;
                 border-radius: 9999px;
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 600;
             }
 
@@ -422,12 +456,12 @@
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                padding: 10px 20px;
+                gap: 6px;
+                padding: 8px 18px;
                 background: #D97706;
                 color: #ffffff;
                 font-weight: 600;
-                font-size: 14px;
+                font-size: 13px;
                 border-radius: 6px;
                 transition: background 0.2s ease;
                 white-space: nowrap;
@@ -445,13 +479,13 @@
             .btn-details-toggle {
                 display: inline-flex;
                 align-items: center;
-                gap: 6px;
-                padding: 8px 14px;
+                gap: 5px;
+                padding: 7px 12px;
                 background: transparent;
                 color: #1565C0;
                 border: 1px solid #bfdbfe;
                 font-weight: 600;
-                font-size: 13px;
+                font-size: 12px;
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
@@ -476,18 +510,71 @@
             .trip-card-details {
                 max-height: 0;
                 overflow: hidden;
-                transition: max-height 0.4s ease, padding 0.3s ease;
-                border-top: 0 solid #e5e7eb;
+                transition: max-height 0.4s ease;
                 background: #fafbfc;
             }
 
             .trip-card-details.is-open {
-                max-height: 600px;
-                border-top-width: 1px;
+                max-height: 800px;
+                border-top: 1px solid #e5e7eb;
             }
 
             .trip-card-details-inner {
-                padding: 20px;
+                padding: 16px;
+            }
+
+            /* Route Timeline in Details */
+            .route-timeline {
+                position: relative;
+                padding-left: 24px;
+            }
+
+            .route-timeline::before {
+                content: '';
+                position: absolute;
+                left: 7px;
+                top: 8px;
+                bottom: 8px;
+                width: 2px;
+                background: linear-gradient(to bottom, #3b82f6, #10b981);
+                border-radius: 1px;
+            }
+
+            .route-timeline-stop {
+                position: relative;
+                padding: 6px 0;
+            }
+
+            .route-timeline-stop::before {
+                content: '';
+                position: absolute;
+                left: -20px;
+                top: 12px;
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                border: 2px solid;
+            }
+
+            .route-timeline-stop.is-origin::before {
+                background: #3b82f6;
+                border-color: #93c5fd;
+            }
+
+            .route-timeline-stop.is-destination::before {
+                background: #10b981;
+                border-color: #6ee7b7;
+            }
+
+            .route-timeline-stop .stop-time {
+                font-size: 14px;
+                font-weight: 700;
+                color: #0f172a;
+            }
+
+            .route-timeline-stop .stop-name {
+                font-size: 13px;
+                color: #475569;
             }
 
             /* Points Display in Details */
@@ -581,21 +668,54 @@
             @media (max-width: 639px) {
                 .trip-card-inner {
                     flex-direction: column;
+                    padding: 10px;
+                    gap: 10px;
                 }
 
                 .trip-image-wrapper {
                     width: 100%;
-                    height: 160px;
-                    min-height: auto;
+                    height: auto;
+                    aspect-ratio: 16 / 9;
                 }
 
                 .trip-card-header {
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 4px;
                 }
 
                 .trip-card-header .text-right {
                     text-align: left;
+                }
+
+                .trip-time-route {
+                    flex-direction: column;
+                    align-items: stretch;
+                    gap: 4px;
+                    padding: 8px 10px;
+                }
+
+                .trip-time-block {
+                    justify-content: flex-start;
+                }
+
+                .trip-time-block .time-location {
+                    max-width: none;
+                }
+
+                .trip-duration-connector {
+                    flex-direction: row;
+                    align-items: center;
+                    min-width: auto;
+                    padding: 4px 0;
+                    gap: 8px;
+                }
+
+                .trip-duration-connector .duration-line {
+                    flex: 1;
+                }
+
+                .trip-duration-connector .duration-text {
+                    margin-bottom: 0;
                 }
 
                 .points-grid {
@@ -826,6 +946,127 @@
 
             .modal-thumb.is-active {
                 border-color: #3b82f6;
+            }
+
+            /* Fullscreen Image Lightbox */
+            .image-lightbox {
+                position: fixed;
+                inset: 0;
+                z-index: 200;
+                background: rgba(0, 0, 0, 0.92);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+
+            .image-lightbox.is-visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .image-lightbox__close {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: #ffffff;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s ease;
+                z-index: 210;
+            }
+
+            .image-lightbox__close:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .image-lightbox__img {
+                max-width: 90vw;
+                max-height: 85vh;
+                object-fit: contain;
+                border-radius: 8px;
+                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+                transform: scale(0.92);
+                transition: transform 0.3s ease;
+            }
+
+            .image-lightbox.is-visible .image-lightbox__img {
+                transform: scale(1);
+            }
+
+            .image-lightbox__nav {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(8px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: #ffffff;
+                font-size: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background 0.2s ease;
+                z-index: 210;
+            }
+
+            .image-lightbox__nav:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            .image-lightbox__nav--prev {
+                left: 16px;
+            }
+
+            .image-lightbox__nav--next {
+                right: 16px;
+            }
+
+            .image-lightbox__counter {
+                position: absolute;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 13px;
+                font-weight: 600;
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(8px);
+                padding: 6px 16px;
+                border-radius: 9999px;
+            }
+
+            .detail-gallery-thumb {
+                position: relative;
+            }
+
+            .detail-gallery-thumb::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: rgba(0, 0, 0, 0);
+                transition: background 0.2s ease;
+                border-radius: 4px;
+                pointer-events: none;
+            }
+
+            .detail-gallery-thumb:hover::after {
+                background: rgba(0, 0, 0, 0.1);
             }
         </style>
     @endpush
@@ -1072,13 +1313,13 @@
                             <article class="trip-card" id="trip-card-{{ $trip->trip_id }}">
                                 {{-- Main Card Row --}}
                                 <div class="trip-card-inner">
-                                    {{-- Square Image --}}
+                                    {{-- Square Image with padding --}}
                                     <div class="trip-image-wrapper">
                                         <img id="trip-image-{{ $trip->trip_id }}" src="{{ $primaryImage }}"
                                             alt="{{ $trip->bus_name }}" loading="lazy">
                                         @if ($hasSeats && ($trip->seats_available ?? 0) <= 5 && ($trip->seats_available ?? 0) > 0)
-                                            <div class="absolute top-2 right-2">
-                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-500/90 text-white rounded text-[10px] font-bold">
+                                            <div class="absolute top-1.5 right-1.5">
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-500/90 text-white rounded text-[10px] font-bold">
                                                     <i class="fa-solid fa-fire"></i>
                                                     {{ __('client.route_show.trip_card.seats_left', ['count' => $trip->seats_available, 'default' => 'Còn ' . $trip->seats_available . ' chỗ']) }}
                                                 </span>
@@ -1088,45 +1329,18 @@
 
                                     {{-- Content --}}
                                     <div class="trip-body">
-                                        {{-- Header: Bus info + Price --}}
+                                        {{-- Header: Bus info + Price + Availability --}}
                                         <div class="flex items-start justify-between gap-3 trip-card-header">
                                             <div class="min-w-0">
-                                                <h3 class="text-base font-bold text-gray-900 truncate">{{ $trip->bus_name }}</h3>
-                                                <p class="text-xs text-gray-500">{{ $trip->bus_model ?? 'N/A' }}</p>
+                                                <h3 class="text-sm font-bold text-gray-900 truncate leading-tight">{{ $trip->bus_name }}</h3>
+                                                <p class="text-xs text-gray-400 mt-0.5">{{ $trip->bus_model ?? 'N/A' }}</p>
                                             </div>
-                                            <div class="text-right flex-shrink-0">
+                                            <div class="text-right shrink-0 flex flex-col items-end gap-1">
                                                 @if ($trip->has_price)
                                                     <p class="price-tag">{{ number_format($trip->price) }}<small>đ</small></p>
                                                 @else
                                                     <p class="text-sm font-bold text-blue-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
-                                            </div>
-                                        </div>
-
-                                        {{-- Time & Route - Compact --}}
-                                        <div class="trip-time-route">
-                                            <div class="trip-time-row">
-                                                <span class="time-val">{{ $tripStart->format('H:i') }}</span>
-                                                <span class="time-dot departure"></span>
-                                                <span class="time-location" title="{{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}">
-                                                    {{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}
-                                                </span>
-                                            </div>
-                                            <div class="trip-duration-line">
-                                                <span class="duration-text">{{ $durationLabel }}</span>
-                                            </div>
-                                            <div class="trip-time-row">
-                                                <span class="time-val">{{ $tripEnd->format('H:i') }}</span>
-                                                <span class="time-dot arrival"></span>
-                                                <span class="time-location" title="{{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}">
-                                                    {{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {{-- Footer: Availability + Services + Actions --}}
-                                        <div class="flex items-center justify-between gap-3 mt-auto pt-3 border-t border-gray-100">
-                                            <div class="flex items-center gap-2 flex-wrap min-w-0">
                                                 <span class="availability-badge {{ $hasSeats ? 'available' : 'unavailable' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
                                                     @if ($hasSeats)
@@ -1136,6 +1350,38 @@
                                                         {{ __('client.route_show.trip_card.seats_full') }}
                                                     @endif
                                                 </span>
+                                            </div>
+                                        </div>
+
+                                        {{-- Time & Route - Horizontal --}}
+                                        <div class="trip-time-route">
+                                            <div class="trip-time-block">
+                                                <span class="time-dot departure"></span>
+                                                <div>
+                                                    <span class="time-val">{{ $tripStart->format('H:i') }}</span>
+                                                    <span class="time-location block" title="{{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}">
+                                                        {{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="trip-duration-connector">
+                                                <span class="duration-text">{{ $durationLabel }}</span>
+                                                <div class="duration-line"></div>
+                                            </div>
+                                            <div class="trip-time-block">
+                                                <span class="time-dot arrival"></span>
+                                                <div>
+                                                    <span class="time-val">{{ $tripEnd->format('H:i') }}</span>
+                                                    <span class="time-location block" title="{{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}">
+                                                        {{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Footer: Services + Actions --}}
+                                        <div class="flex items-center justify-between gap-2 mt-auto">
+                                            <div class="flex items-center gap-1.5 flex-wrap min-w-0">
                                                 @foreach ($serviceList->take(3) as $service)
                                                     <span class="service-chip hidden sm:inline-flex">
                                                         <i class="fa-solid fa-check-circle"></i>
@@ -1146,7 +1392,7 @@
                                                     <span class="service-chip hidden sm:inline-flex">+{{ $serviceList->count() - 3 }}</span>
                                                 @endif
                                             </div>
-                                            <div class="flex items-center gap-2 flex-shrink-0 trip-card-actions">
+                                            <div class="flex items-center gap-2 shrink-0 trip-card-actions">
                                                 <button type="button"
                                                     class="btn-details-toggle"
                                                     data-toggle-details="#trip-details-{{ $trip->trip_id }}">
@@ -1167,38 +1413,58 @@
                                 {{-- Expandable Details Section --}}
                                 <div class="trip-card-details" id="trip-details-{{ $trip->trip_id }}">
                                     <div class="trip-card-details-inner">
-                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            {{-- Pickup & Dropoff Points --}}
-                                            <div class="md:col-span-2">
-                                                <div class="points-grid">
-                                                    <div class="point-card pickup">
-                                                        <h4 class="point-title">
-                                                            <i class="fa-solid fa-location-dot"></i>
-                                                            {{ __('client.route_show.trip_card.pickup_point', ['default' => 'Điểm đón']) }}
-                                                        </h4>
-                                                        @forelse ($pickupPoints as $pickup)
-                                                            <p class="point-item">{{ $pickup->name }}</p>
-                                                        @empty
-                                                            <p class="text-xs text-gray-400">Chưa cập nhật</p>
-                                                        @endforelse
-                                                    </div>
-                                                    <div class="point-card dropoff">
-                                                        <h4 class="point-title">
-                                                            <i class="fa-solid fa-flag-checkered"></i>
-                                                            {{ __('client.route_show.trip_card.dropoff_point', ['default' => 'Điểm trả']) }}
-                                                        </h4>
-                                                        @forelse ($dropoffPoints as $dropoff)
-                                                            <p class="point-item">{{ $dropoff->name }}</p>
-                                                        @empty
-                                                            <p class="text-xs text-gray-400">Chưa cập nhật</p>
-                                                        @endforelse
-                                                    </div>
+                                        {{-- Route Timeline --}}
+                                        <div class="mb-4">
+                                            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-route text-blue-500"></i>
+                                                Lộ trình chuyến xe
+                                            </h4>
+                                            <div class="route-timeline">
+                                                <div class="route-timeline-stop is-origin">
+                                                    <span class="stop-time">{{ $tripStart->format('H:i') }}</span>
+                                                    <span class="stop-name">{{ $firstPickup->name ?? 'Điểm xuất phát' }}</span>
+                                                </div>
+                                                <div class="route-timeline-stop is-destination">
+                                                    <span class="stop-time">{{ $tripEnd->format('H:i') }}</span>
+                                                    <span class="stop-name">{{ $firstDropoff->name ?? 'Điểm đến' }}</span>
+                                                    <span class="text-xs text-gray-400 ml-1">({{ $durationLabel }})</span>
                                                 </div>
                                             </div>
+                                        </div>
 
-                                            {{-- Services & Info --}}
+                                        {{-- Pickup & Dropoff Points --}}
+                                        <div class="points-grid mb-4">
+                                            <div class="point-card pickup">
+                                                <h4 class="point-title">
+                                                    <i class="fa-solid fa-location-dot"></i>
+                                                    {{ __('client.route_show.trip_card.pickup_point', ['default' => 'Điểm đón']) }}
+                                                    <span class="text-[10px] font-normal text-blue-400">({{ $pickupPoints->count() }} điểm)</span>
+                                                </h4>
+                                                @forelse ($pickupPoints as $pickup)
+                                                    <p class="point-item">{{ $pickup->name }}</p>
+                                                @empty
+                                                    <p class="text-xs text-gray-400">Chưa cập nhật</p>
+                                                @endforelse
+                                            </div>
+                                            <div class="point-card dropoff">
+                                                <h4 class="point-title">
+                                                    <i class="fa-solid fa-flag-checkered"></i>
+                                                    {{ __('client.route_show.trip_card.dropoff_point', ['default' => 'Điểm trả']) }}
+                                                    <span class="text-[10px] font-normal text-green-500">({{ $dropoffPoints->count() }} điểm)</span>
+                                                </h4>
+                                                @forelse ($dropoffPoints as $dropoff)
+                                                    <p class="point-item">{{ $dropoff->name }}</p>
+                                                @empty
+                                                    <p class="text-xs text-gray-400">Chưa cập nhật</p>
+                                                @endforelse
+                                            </div>
+                                        </div>
+
+                                        {{-- Services & Bus Info Row --}}
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
+                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-star text-amber-400"></i>
                                                     {{ __('client.route_show.details_modal.services_title', ['default' => 'Tiện ích']) }}
                                                 </h4>
                                                 <div class="flex flex-wrap gap-1.5">
@@ -1211,11 +1477,15 @@
                                                         <span class="text-xs text-gray-400">Chưa có tiện ích</span>
                                                     @endforelse
                                                 </div>
-
-                                                {{-- Bus Info --}}
-                                                <div class="mt-3 text-xs text-gray-500 space-y-1">
+                                            </div>
+                                            <div>
+                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
+                                                    <i class="fa-solid fa-bus text-blue-400"></i>
+                                                    Thông tin xe
+                                                </h4>
+                                                <div class="text-xs text-gray-500 space-y-1">
                                                     <p><span class="font-semibold text-gray-600">{{ __('client.route_show.details_modal.bus_type', ['default' => 'Loại xe']) }}:</span> {{ $trip->bus_model ?? 'N/A' }}</p>
-                                                    <p><span class="font-semibold text-gray-600">Mã chuyến:</span> {{ $trip->trip_id }}</p>
+                                                    <p><span class="font-semibold text-gray-600">Mã chuyến:</span> #{{ $trip->trip_id }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1225,17 +1495,24 @@
                                             <div class="mt-4">
                                                 <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Hình ảnh</h4>
                                                 <div class="detail-gallery scrollbar-thin">
-                                                    @foreach ($imageGallery->take(6) as $image)
-                                                        <button type="button" class="detail-gallery-thumb" data-image-trigger
+                                                    @foreach ($imageGallery->take(6) as $idx => $image)
+                                                        <button type="button" class="detail-gallery-thumb"
+                                                            data-image-trigger
                                                             data-target="#trip-image-{{ $trip->trip_id }}"
-                                                            data-image="{{ $image }}">
+                                                            data-image="{{ $image }}"
+                                                            data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
+                                                            data-lightbox-index="{{ $idx }}"
+                                                            data-lightbox-images='@json($imageGallery->take(6)->values())'>
                                                             <img src="{{ $image }}" alt="Bus image" loading="lazy">
                                                         </button>
                                                     @endforeach
                                                     @if ($imageGallery->count() > 6)
-                                                        <div class="detail-gallery-thumb bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500">
+                                                        <button type="button" class="detail-gallery-thumb bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500"
+                                                            data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
+                                                            data-lightbox-index="6"
+                                                            data-lightbox-images='@json($imageGallery->values())'>
                                                             +{{ $imageGallery->count() - 6 }}
-                                                        </div>
+                                                        </button>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1592,6 +1869,112 @@
                 });
             });
 
+            // Fullscreen Image Lightbox
+            (function() {
+                const lightbox = document.getElementById('image-lightbox');
+                if (!lightbox) return;
+
+                const lightboxImg = lightbox.querySelector('.image-lightbox__img');
+                const lightboxClose = lightbox.querySelector('.image-lightbox__close');
+                const lightboxPrev = lightbox.querySelector('.image-lightbox__nav--prev');
+                const lightboxNext = lightbox.querySelector('.image-lightbox__nav--next');
+                const lightboxCounter = lightbox.querySelector('.image-lightbox__counter');
+
+                let currentImages = [];
+                let currentIndex = 0;
+
+                function showLightbox(images, index) {
+                    currentImages = images;
+                    currentIndex = index;
+                    updateLightboxImage();
+                    lightbox.classList.add('is-visible');
+                    document.body.classList.add('overflow-hidden');
+                }
+
+                function hideLightbox() {
+                    lightbox.classList.remove('is-visible');
+                    document.body.classList.remove('overflow-hidden');
+                }
+
+                function updateLightboxImage() {
+                    if (currentImages.length === 0) return;
+                    lightboxImg.src = currentImages[currentIndex];
+                    lightboxCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length;
+                    lightboxPrev.style.display = currentImages.length > 1 ? 'flex' : 'none';
+                    lightboxNext.style.display = currentImages.length > 1 ? 'flex' : 'none';
+                }
+
+                function nextImage() {
+                    currentIndex = (currentIndex + 1) % currentImages.length;
+                    updateLightboxImage();
+                }
+
+                function prevImage() {
+                    currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
+                    updateLightboxImage();
+                }
+
+                // Click gallery thumbnails to open lightbox
+                document.addEventListener('click', function(e) {
+                    const trigger = e.target.closest('[data-lightbox-gallery]');
+                    if (!trigger) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    try {
+                        const images = JSON.parse(trigger.getAttribute('data-lightbox-images'));
+                        const index = parseInt(trigger.getAttribute('data-lightbox-index'), 10) || 0;
+                        if (images && images.length > 0) {
+                            showLightbox(images, Math.min(index, images.length - 1));
+                        }
+                    } catch (err) {
+                        console.error('Lightbox parse error:', err);
+                    }
+                });
+
+                // Also allow clicking the main trip image to open lightbox
+                document.querySelectorAll('.trip-image-wrapper img').forEach(function(img) {
+                    img.style.cursor = 'pointer';
+                    img.addEventListener('click', function() {
+                        const card = img.closest('.trip-card');
+                        if (!card) return;
+                        const galleryBtn = card.querySelector('[data-lightbox-images]');
+                        if (galleryBtn) {
+                            try {
+                                const images = JSON.parse(galleryBtn.getAttribute('data-lightbox-images'));
+                                if (images && images.length > 0) {
+                                    // Find current image index
+                                    const currentSrc = img.src;
+                                    let idx = images.findIndex(function(s) { return currentSrc.includes(s) || s.includes(currentSrc.split('/').pop()); });
+                                    showLightbox(images, idx >= 0 ? idx : 0);
+                                }
+                            } catch (err) {
+                                // Fallback: show just this image
+                                showLightbox([img.src], 0);
+                            }
+                        } else {
+                            showLightbox([img.src], 0);
+                        }
+                    });
+                });
+
+                lightboxClose.addEventListener('click', hideLightbox);
+                lightboxPrev.addEventListener('click', prevImage);
+                lightboxNext.addEventListener('click', nextImage);
+
+                lightbox.addEventListener('click', function(e) {
+                    if (e.target === lightbox) hideLightbox();
+                });
+
+                document.addEventListener('keydown', function(e) {
+                    if (!lightbox.classList.contains('is-visible')) return;
+                    if (e.key === 'Escape') hideLightbox();
+                    if (e.key === 'ArrowRight') nextImage();
+                    if (e.key === 'ArrowLeft') prevImage();
+                });
+            })();
+
             // Mobile Filter Panel Toggle
             (function() {
                 const filterToggle = document.getElementById('mobile-filter-toggle');
@@ -1632,6 +2015,21 @@
             })();
         </script>
     @endpush
+
+    {{-- Fullscreen Image Lightbox --}}
+    <div id="image-lightbox" class="image-lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
+        <button type="button" class="image-lightbox__close" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <button type="button" class="image-lightbox__nav image-lightbox__nav--prev" aria-label="Previous image">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <img class="image-lightbox__img" src="" alt="Preview">
+        <button type="button" class="image-lightbox__nav image-lightbox__nav--next" aria-label="Next image">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+        <div class="image-lightbox__counter"></div>
+    </div>
 
     {{-- Mobile Sticky Booking Bar --}}
     @if ($trips->isNotEmpty())
