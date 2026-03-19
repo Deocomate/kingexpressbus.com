@@ -104,7 +104,7 @@
                                 </td>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0;">
                                     @if ($bookingDetails['payment_method'] === 'cash_on_pickup')
-                                        Thanh toán khi lên xe
+                                        Thanh toán tại văn phòng nhà xe
                                     @elseif($bookingDetails['payment_method'] === 'online_banking')
                                         @if ($bookingDetails['payment_status'] === 'paid')
                                             Đã thanh toán chuyển khoản

@@ -75,6 +75,22 @@
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">Tổng tiền</td>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #2e7d32;">{{ isset($bookingDetails['total_price']) ? number_format($bookingDetails['total_price']) . 'đ' : 'Liên hệ' }}</td>
                             </tr>
+                            <tr>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">Thanh toán</td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">
+                                    @if (($bookingDetails['payment_method'] ?? null) === 'cash_on_pickup')
+                                        Thanh toán tại văn phòng nhà xe
+                                    @elseif(($bookingDetails['payment_method'] ?? null) === 'online_banking')
+                                        @if (($bookingDetails['payment_status'] ?? null) === 'paid')
+                                            Đã thanh toán chuyển khoản
+                                        @else
+                                            Chuyển khoản ngân hàng
+                                        @endif
+                                    @else
+                                        {{ ucfirst($bookingDetails['payment_method'] ?? 'N/A') }}
+                                    @endif
+                                </td>
+                            </tr>
                         </table>
 
                         <div style="padding: 15px 20px; background-color: #e3f2fd; border: 1px solid #bbdefb; border-radius: 5px; margin: 20px 0;">
