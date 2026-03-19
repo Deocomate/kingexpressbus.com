@@ -56,6 +56,12 @@
                             </tr>
                             <tr style="background-color:#f5faff;">
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
+                                    Loại vé (Ticket Type)
+                                </td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ $bookingDetails['bus_type_name'] ?? $bookingDetails['bus_model_name'] ?? $bookingDetails['bus_name'] ?? 'N/A' }}</td>
+                            </tr>
+                            <tr style="background-color:#f5faff;">
+                                <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
                                     Ngày đi (Date)
                                 </td>
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold;">{{ $bookingDetails['departure_date'] ?? 'N/A' }}</td>
