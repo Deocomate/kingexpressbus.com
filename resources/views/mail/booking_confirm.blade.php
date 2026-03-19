@@ -29,7 +29,7 @@
                         <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #1e88e5; text-align: center;">Tiếp nhận
                             yêu cầu đặt vé</h2>
                         <p style="margin: 10px 0; font-size: 15px;">
-                            Kính gửi Quý khách <strong>{{ ($bookingDetails['customer_name'] ?? 'N/A') . ' (' . ($bookingDetails['customer_phone'] ?? 'N/A') . ')' }}</strong>,
+                            Kính gửi Quý khách <strong>{{ ($bookingDetails['customer_name'] ?? 'N/A') . ' ' . ($bookingDetails['customer_phone'] ?? 'N/A') . '' }}</strong>,
                         </p>
                         <p style="margin: 10px 0; font-size: 15px;">
                             Chúng tôi đã tiếp nhận yêu cầu đặt vé của bạn. Nhân viên của chúng tôi sẽ sớm liên hệ qua số điện thoại để xác nhận chuyến đi cho bạn.
@@ -76,7 +76,7 @@
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
                                     Khách hàng (Customer)
                                 </td>
-                                <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ ($bookingDetails['customer_name'] ?? 'N/A') . ' (' . ($bookingDetails['customer_phone'] ?? 'N/A') . ')' }}</td>
+                                <td style="padding: 12px; border: 1px solid #e0e0e0;">{{ ($bookingDetails['customer_name'] ?? 'N/A') . ' ' . ($bookingDetails['customer_phone'] ?? 'N/A') . '' }}</td>
                             </tr>
                             <tr style="background-color:#f5faff;">
                                 <td style="padding: 12px; border: 1px solid #e0e0e0; font-weight: bold; color: #555;">
