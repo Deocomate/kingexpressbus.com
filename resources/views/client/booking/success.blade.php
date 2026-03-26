@@ -1,185 +1,222 @@
 {{-- ===== resources\views\client\booking\success.blade.php ===== --}}
-<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.success.meta_title')" :description="$description ?? ''">
-    {{-- Success Banner --}}
-    <section class="bg-green-50 border-b border-green-100">
-        <div class="container mx-auto px-4 py-12 text-center space-y-5">
-            <div
-                class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-600 text-white text-3xl">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <h1 class="text-2xl md:text-3xl font-semibold text-green-700">{{ __('client.booking.success.title') }}</h1>
-            <p class="text-gray-600 max-w-xl mx-auto text-sm">{!! __('client.booking.success.thank_you_message', [
-                'email' => $booking->customer_email ?? __('client.booking.success.your_email'),
-            ]) !!}</p>
+<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.success.meta_title')" :description="$description ?? ''" body-class="bg-[#F8FAFC]">
+    @php
+        $isPaid = $booking->payment_status === 'paid';
+    @endphp
 
-            {{-- Booking Code Card --}}
-            <div
-                class="inline-flex items-center gap-4 bg-white border-2 border-green-200 rounded-lg px-6 py-4 shadow-soft">
-                <div class="w-12 h-12 bg-green-100 rounded-md flex items-center justify-center">
-                    <i class="fa-solid fa-ticket text-green-600 text-xl"></i>
+    <section class="border-b border-amber-100 bg-amber-50">
+        <div class="mx-auto max-w-7xl px-4 py-12 lg:py-14">
+            <div class="mx-auto max-w-3xl text-center">
+                <span
+                    class="inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-green-700">
+                    <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                    {{ __('client.booking.success.title') }}
+                </span>
+
+                <div class="mx-auto mt-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-600 text-3xl text-white shadow-soft">
+                    <i class="fa-solid fa-ticket" aria-hidden="true"></i>
                 </div>
-                <div class="text-left">
+
+                <p class="mx-auto mt-5 max-w-2xl text-sm leading-relaxed text-gray-600 sm:text-base">
+                    {!! __('client.booking.success.thank_you_message', [
+                        'email' => $booking->customer_email ?? __('client.booking.success.your_email'),
+                    ]) !!}
+                </p>
+            </div>
+
+            <div class="mx-auto mt-8 max-w-2xl rounded-3xl border border-amber-200 bg-white p-6 shadow-soft">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
+                            {{ __('client.booking.success.booking_code_label') }}
+                        </p>
+                        <p class="mt-2 text-2xl font-extrabold tracking-[0.16em] text-gray-900">
+                            {{ $booking->booking_code ?? __('client.booking.common.updating') }}
+                        </p>
+                    </div>
                     <span
-                        class="text-xs text-gray-500 uppercase tracking-wide">{{ __('client.booking.success.booking_code_label') }}</span>
-                    <p class="text-xl font-bold text-gray-900 tracking-wider">
-                        {{ $booking->booking_code ?? __('client.booking.common.updating') }}</p>
+                        class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold {{ $isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                        <i class="fa-solid {{ $isPaid ? 'fa-check' : 'fa-clock' }}" aria-hidden="true"></i>
+                        {{ $isPaid ? __('client.booking.success.paid') : __('client.booking.success.unpaid') }}
+                    </span>
                 </div>
             </div>
         </div>
     </section>
 
-    {{-- Main Content --}}
-    <section class="py-10 bg-gray-50">
-        <div class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <article class="lg:col-span-2 space-y-6">
-                {{-- Trip Info Card --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-                    <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                        <i class="fa-solid fa-bus text-blue-600"></i>
+    <section class="py-10 lg:py-12">
+        <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 lg:grid-cols-3 lg:gap-7">
+            <article class="space-y-6 lg:col-span-2">
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                        <span
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
+                            <i class="fa-solid fa-bus" aria-hidden="true"></i>
+                        </span>
                         {{ __('client.booking.success.trip_info_title') }}
                     </h2>
 
-                    {{-- Route Timeline --}}
-                    <div class="flex items-center gap-4 mb-6 p-4 bg-neutral-50 rounded-md">
-                        <div class="text-center">
-                            <p class="text-2xl font-bold text-gray-900">
-                                {{ isset($booking->start_time) ? \Carbon\Carbon::parse($booking->start_time)->format('H:i') : '--:--' }}
-                            </p>
-                            <p class="text-xs text-gray-500">{{ __('client.booking.success.departure_time') }}</p>
-                        </div>
-                        <div class="flex-1 border-t-2 border-dashed border-blue-300 relative">
-                            <div class="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full">
+                    <div class="mb-6 rounded-2xl border border-amber-100 bg-amber-50/60 p-4 sm:p-5">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="min-w-[72px] text-center">
+                                <p class="text-2xl font-extrabold text-gray-900">
+                                    {{ isset($booking->start_time) ? \Carbon\Carbon::parse($booking->start_time)->format('H:i') : '--:--' }}
+                                </p>
+                                <p class="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    {{ __('client.booking.success.departure_time') }}
+                                </p>
                             </div>
-                            <div class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full">
+
+                            <div class="relative flex-1 border-t-2 border-dashed border-primary-300">
+                                <span
+                                    class="absolute -left-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-primary-500"></span>
+                                <span
+                                    class="absolute -right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-primary-500"></span>
                             </div>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-2xl font-bold text-gray-900">
-                                {{ isset($booking->end_time) ? \Carbon\Carbon::parse($booking->end_time)->format('H:i') : '--:--' }}
-                            </p>
-                            <p class="text-xs text-gray-500">{{ __('client.booking.success.arrival_time') }}</p>
+
+                            <div class="min-w-[72px] text-center">
+                                <p class="text-2xl font-extrabold text-gray-900">
+                                    {{ isset($booking->end_time) ? \Carbon\Carbon::parse($booking->end_time)->format('H:i') : '--:--' }}
+                                </p>
+                                <p class="mt-1 text-xs font-medium uppercase tracking-wider text-gray-500">
+                                    {{ __('client.booking.success.arrival_time') }}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.route') }}</p>
-                            <p class="text-gray-900 font-semibold">
+                    <div class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.route') }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">
                                 {{ $booking->route_name ?? __('client.booking.common.updating') }}</p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.departure_date') }}</p>
-                            <p class="text-gray-900 font-semibold">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.departure_date') }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">
                                 {{ isset($booking->booking_date) ? \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') : __('client.booking.common.updating') }}
                             </p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.quantity') }}</p>
-                            <p class="text-gray-900 font-semibold">{{ $booking->quantity ?? 1 }}
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.quantity') }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">{{ $booking->quantity ?? 1 }}
                                 {{ __('client.booking.success.tickets') }}</p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-xs">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
                                 {{ __('client.booking.success.bus', ['default' => 'Xe']) }}</p>
-                            <p class="text-gray-900 font-semibold">{{ $booking->bus_name ?? 'King Express' }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">{{ $booking->bus_name ?? 'King Express' }}</p>
                         </div>
                     </div>
                 </section>
 
-                {{-- Pickup & Dropoff --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-                    <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                        <i class="fa-solid fa-location-dot text-green-600"></i>
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                        <span
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                        </span>
                         {{ __('client.booking.success.locations_title') }}
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-green-50 border border-green-100 rounded-xl p-4">
-                            <div class="flex items-center gap-2 mb-2">
+
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <div class="rounded-2xl border border-green-100 bg-green-50/80 p-4">
+                            <div class="mb-2 flex items-center gap-2">
                                 <span
-                                    class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs">
-                                    <i class="fa-solid fa-arrow-up"></i>
+                                    class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-500 text-xs text-white">
+                                    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
                                 </span>
-                                <span
-                                    class="text-xs font-semibold text-green-700 uppercase">{{ __('client.booking.success.pickup_point') }}</span>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-green-700">
+                                    {{ __('client.booking.success.pickup_point') }}
+                                </span>
                             </div>
                             <p class="font-semibold text-gray-900">
                                 {{ $booking->pickup_name ?? __('client.booking.common.updating') }}</p>
-                            <p class="text-sm text-gray-600 mt-1">{{ $booking->pickup_address ?? '' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">{{ $booking->pickup_address ?? '' }}</p>
                         </div>
-                        <div class="bg-red-50 border border-red-100 rounded-xl p-4">
-                            <div class="flex items-center gap-2 mb-2">
+
+                        <div class="rounded-2xl border border-rose-100 bg-rose-50/80 p-4">
+                            <div class="mb-2 flex items-center gap-2">
                                 <span
-                                    class="w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs">
-                                    <i class="fa-solid fa-arrow-down"></i>
+                                    class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-500 text-xs text-white">
+                                    <i class="fa-solid fa-arrow-down" aria-hidden="true"></i>
                                 </span>
-                                <span
-                                    class="text-xs font-semibold text-red-700 uppercase">{{ __('client.booking.success.dropoff_point') }}</span>
+                                <span class="text-xs font-semibold uppercase tracking-wider text-rose-700">
+                                    {{ __('client.booking.success.dropoff_point') }}
+                                </span>
                             </div>
                             <p class="font-semibold text-gray-900">
                                 {{ $booking->dropoff_name ?? __('client.booking.common.updating') }}</p>
-                            <p class="text-sm text-gray-600 mt-1">{{ $booking->dropoff_address ?? '' }}</p>
+                            <p class="mt-1 text-sm text-gray-600">{{ $booking->dropoff_address ?? '' }}</p>
                         </div>
                     </div>
                 </section>
 
-                {{-- Passenger Info --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-                    <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                        <i class="fa-solid fa-user text-purple-600"></i>
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                        <span
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
+                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                        </span>
                         {{ __('client.booking.success.passenger_info_title') }}
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.passenger_name') }}</p>
-                            <p class="text-gray-900 font-semibold">
+
+                    <div class="grid grid-cols-1 gap-4 text-sm md:grid-cols-3">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.passenger_name') }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">
                                 {{ $booking->customer_name ?? __('client.booking.common.updating') }}</p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.passenger_phone') }}</p>
-                            <p class="text-gray-900 font-semibold">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.passenger_phone') }}</p>
+                            <p class="mt-2 font-semibold text-gray-900">
                                 {{ $booking->customer_phone ?? __('client.booking.common.updating') }}</p>
                         </div>
-                        <div>
-                            <p class="text-gray-500 text-xs">{{ __('client.booking.success.passenger_email') }}</p>
-                            <p class="text-gray-900 font-semibold">
+                        <div class="rounded-2xl border border-gray-100 bg-gray-50 p-3.5">
+                            <p class="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                {{ __('client.booking.success.passenger_email') }}</p>
+                            <p class="mt-2 break-all font-semibold text-gray-900">
                                 {{ $booking->customer_email ?? __('client.booking.common.updating') }}</p>
                         </div>
                     </div>
                 </section>
 
-                {{-- Next Steps --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-                    <h2 class="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-amber-600"></i>
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                        <span
+                            class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
+                            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+                        </span>
                         {{ __('client.booking.success.next_steps_title') }}
                     </h2>
+
                     <div class="space-y-4">
                         <div class="flex items-start gap-3">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm">1</span>
+                                class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">1</span>
                             <div>
-                                <p class="font-medium text-gray-900">
-                                    {{ __('client.booking.success.next_step_1_title') }}</p>
-                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_1_desc') }}
-                                </p>
+                                <p class="font-semibold text-gray-900">{{ __('client.booking.success.next_step_1_title') }}</p>
+                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_1_desc') }}</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm">2</span>
+                                class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">2</span>
                             <div>
-                                <p class="font-medium text-gray-900">
-                                    {{ __('client.booking.success.next_step_2_title') }}</p>
-                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_2_desc') }}
-                                </p>
+                                <p class="font-semibold text-gray-900">{{ __('client.booking.success.next_step_2_title') }}</p>
+                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_2_desc') }}</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm">3</span>
+                                class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">3</span>
                             <div>
-                                <p class="font-medium text-gray-900">
-                                    {{ __('client.booking.success.next_step_3_title') }}</p>
+                                <p class="font-semibold text-gray-900">{{ __('client.booking.success.next_step_3_title') }}</p>
                                 <p class="text-sm text-gray-600">{!! __('client.booking.success.next_step_3_desc', ['hotline' => $web_profile->hotline ?? '0865 095 066']) !!}</p>
                             </div>
                         </div>
@@ -187,67 +224,75 @@
                 </section>
             </article>
 
-            {{-- Sidebar --}}
-            <aside class="space-y-5">
-                {{-- Payment Summary --}}
-                <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm">
-                    <h2 class="text-lg font-bold text-gray-900 mb-4">
-                        {{ __('client.booking.success.payment_info_title') }}</h2>
+            <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h2 class="mb-4 text-lg font-bold text-gray-900">{{ __('client.booking.success.payment_info_title') }}</h2>
+
                     <div class="space-y-3 text-sm">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span class="text-gray-600">{{ __('client.booking.success.total_price') }}</span>
-                            <span
-                                class="text-xl font-bold text-blue-600">{{ $booking->total_price ? number_format($booking->total_price) . 'đ' : __('client.booking.create.summary_contact_price') }}</span>
+                            <span class="text-xl font-extrabold text-primary-700">
+                                {{ $booking->total_price ? number_format($booking->total_price) . 'đ' : __('client.booking.create.summary_contact_price') }}
+                            </span>
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span class="text-gray-600">{{ __('client.booking.success.payment_method') }}</span>
-                            <span
-                                class="font-semibold text-gray-900">{{ $booking->payment_method === 'online_banking' ? __('client.booking.success.payment_method_online') : __('client.booking.success.payment_method_cash') }}</span>
+                            <span class="font-semibold text-gray-900">
+                                {{ $booking->payment_method === 'online_banking' ? __('client.booking.success.payment_method_online') : __('client.booking.success.payment_method_cash') }}
+                            </span>
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between gap-3">
                             <span class="text-gray-600">{{ __('client.booking.success.payment_status') }}</span>
                             <span
-                                class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold {{ $booking->payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
-                                <i
-                                    class="fa-solid {{ $booking->payment_status === 'paid' ? 'fa-check' : 'fa-clock' }}"></i>
-                                {{ $booking->payment_status === 'paid' ? __('client.booking.success.paid') : __('client.booking.success.unpaid') }}
+                                class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold {{ $isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                <i class="fa-solid {{ $isPaid ? 'fa-check' : 'fa-clock' }}" aria-hidden="true"></i>
+                                {{ $isPaid ? __('client.booking.success.paid') : __('client.booking.success.unpaid') }}
                             </span>
                         </div>
                     </div>
-                    @if ($booking->payment_method === 'online_banking' && $booking->payment_status !== 'paid')
-                        <div class="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3 text-xs text-blue-700">
-                            <i class="fa-solid fa-info-circle mr-1"></i>
+
+                    @if ($booking->payment_method === 'online_banking' && !$isPaid)
+                        <div class="mt-4 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-xs text-primary-700">
+                            <i class="fa-solid fa-info-circle mr-1" aria-hidden="true"></i>
                             {{ __('client.booking.success.online_payment_note') }}
                         </div>
                     @endif
-                </div>
+                </section>
 
-                {{-- Support Card --}}
-                <div class="bg-neutral-800 text-white rounded-lg p-5 space-y-4">
+                <section
+                    class="rounded-3xl bg-slate-900 p-5 text-white shadow-soft sm:p-6">
                     <h3 class="text-lg font-bold">{{ __('client.booking.success.support_title') }}</h3>
-                    <p class="text-sm text-white/70">{{ __('client.booking.success.support_description') }}</p>
+                    <p class="mt-2 text-sm text-white/75">{{ __('client.booking.success.support_description') }}</p>
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', $web_profile->hotline ?? '0865095066') }}"
-                        class="inline-flex items-center gap-2 w-full justify-center px-4 py-3 bg-accent-500 text-white font-semibold rounded-md hover:bg-accent-600 transition-colors duration-200">
-                        <i class="fa-solid fa-phone"></i>
+                        class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-primary-700">
+                        <i class="fa-solid fa-phone" aria-hidden="true"></i>
                         {{ __('client.booking.success.call_button') }}
                     </a>
-                </div>
+                </section>
 
-                {{-- Other Routes --}}
-                <div class="bg-white border border-gray-100 rounded-lg p-5 space-y-3 text-sm">
-                    <h3 class="font-bold text-gray-900">{{ __('client.booking.success.other_routes_title') }}</h3>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('client.routes.search', ['from' => 'ha-noi', 'to' => 'sapa']) }}"
-                                class="text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"><i
-                                    class="fa-solid fa-arrow-right text-xs"></i> Hà Nội ⇆ Sa Pa</a></li>
-                        <li><a href="{{ route('client.routes.search', ['from' => 'ha-noi', 'to' => 'ninh-binh']) }}"
-                                class="text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"><i
-                                    class="fa-solid fa-arrow-right text-xs"></i> Hà Nội ⇆ Ninh Bình</a></li>
-                        <li><a href="{{ route('client.routes.search', ['from' => 'hue', 'to' => 'hoi-an']) }}"
-                                class="text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-2"><i
-                                    class="fa-solid fa-arrow-right text-xs"></i> Huế ⇆ Hội An</a></li>
+                <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
+                    <h3 class="text-base font-bold text-gray-900">{{ __('client.booking.success.other_routes_title') }}</h3>
+                    <ul class="mt-3 space-y-2.5 text-sm">
+                        <li>
+                            <a href="{{ route('client.routes.search', ['from' => 'ha-noi', 'to' => 'sapa']) }}"
+                                class="inline-flex items-center gap-2 font-medium text-primary-700 transition-colors duration-200 hover:text-primary-800">
+                                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i> Hà Nội ⇆ Sa Pa
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('client.routes.search', ['from' => 'ha-noi', 'to' => 'ninh-binh']) }}"
+                                class="inline-flex items-center gap-2 font-medium text-primary-700 transition-colors duration-200 hover:text-primary-800">
+                                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i> Hà Nội ⇆ Ninh Bình
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('client.routes.search', ['from' => 'hue', 'to' => 'hoi-an']) }}"
+                                class="inline-flex items-center gap-2 font-medium text-primary-700 transition-colors duration-200 hover:text-primary-800">
+                                <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i> Huế ⇆ Hội An
+                            </a>
+                        </li>
                     </ul>
-                </div>
+                </section>
             </aside>
         </div>
     </section>

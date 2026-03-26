@@ -1,51 +1,110 @@
 # System Architecture
 
-## 1. High-Level Diagram
-The system relies on a monolithic Laravel application structure with a MySQL database.
+## 1. High-Level Architecture
+
+KingExpressBus uses a monolithic Laravel application with Blade-based server rendering and a MySQL database.
 
 ```mermaid
 graph TD
-    Client[Browser / Client] --> WebRoutes[Web Routes]
-    WebRoutes --> Middleware[Role Middleware]
-
-    Middleware --> AdminCtrl[Admin Controllers]
-    Middleware --> ClientCtrl[Client Controllers]
-
-    AdminCtrl --> Models
-    ClientCtrl --> Models
-
-    Models --> DB[(MySQL Database)]
+    Browser[Client Browser] --> Web[web.php routes]
+    Web --> MW[Middleware Layer]
+    MW --> Admin[Admin Controllers]
+    MW --> Client[Client Controllers]
+    Admin --> Services[Service Layer]
+    Client --> Services
+    Services --> Models[Eloquent Models]
+    Models --> DB[(MySQL)]
 ```
 
-## 2. Database Schema (Key Entities)
+## 2. Current Runtime Data Model
 
-### Core
--   `users`: Base user table.
--   `web_profiles`: Configuration for website branding (Logo, Contact, SEO).
--   `menus`: Dynamic menu management.
+### 2.1 Core Business Flow
 
-### Locations (Admin Managed)
--   `provinces`: Top-level locations (Cities/Provinces).
--   `districts`: Sub-level locations.
--   `stops`: Specific physical locations (Bus stations, offices).
--   `routes`: Generic connection between two Provinces (e.g., Hanoi -> Sapa).
--   `route_stops`: Ordered list of pickup/dropoff points per route.
+```mermaid
+graph LR
+    Provinces --> Routes
+    Routes --> RouteStops
+    Stops --> RouteStops
+    Routes --> Trips
+    Buses --> Trips
+    Trips --> Bookings
+    Users --> Bookings
+    Stops --> Bookings
+```
 
-### Transport (Admin Managed)
--   `buses`: Fleet vehicles owned by the system.
--   `bus_services`: Amenities (Wifi, AC, etc.).
--   `trips`: **Schedules** connecting a `bus` to a `route` with `start_time`, `end_time`, and `price`.
+### 2.2 Key Domain Notes
 
-### Booking
--   `bookings`: Connects `user` (optional) to `trips`.
-    -   Tracks `pickup_stop_id`, `dropoff_stop_id`.
-    -   Statuses: `pending`, `confirmed`, `cancelled`, `completed`.
+- `trips` is the active schedule table.
+- `bookings.trip_id` links booking to a trip.
+- `route_stops` is the active route-stop mapping.
+- Multi-tenant company-oriented tables were removed in the single-tenant refactor migration.
 
-## 3. Key Relationships
+## 3. Complete Database Table Catalog
 
--   **Route <-> Trip:** 1-to-Many. One route can have multiple trips (schedules).
--   **Bus <-> Trip:** 1-to-Many. One bus can serve multiple trips over time.
+This section lists all known tables from migration history, separated by active vs legacy state.
 
-## 4. Security & Access Control
--   **Admin Access:** Full CRUD on master data (`provinces`, `routes`, `buses`, `trips`) and oversight of all bookings.
--   **Customer Access:** Read-only on Routes/Schedules. Write access to `bookings` (creation) and `users` (own profile).
+### 3.1 Active Tables (Current Schema)
+
+Framework/system/auth:
+- `migrations`
+- `users`
+- `password_reset_tokens`
+- `sessions`
+- `cache`
+- `cache_locks`
+- `jobs`
+- `job_batches`
+- `failed_jobs`
+- `personal_access_tokens`
+
+Application/business:
+- `web_profiles`
+- `menus`
+- `provinces`
+- `district_types`
+- `districts`
+- `stops`
+- `routes`
+- `route_stops`
+- `bus_services`
+- `buses`
+- `trips`
+- `bookings`
+
+### 3.2 Legacy Tables (Historical / Dropped In Current Runtime)
+
+- `companies`
+- `company_routes`
+- `company_route_stops`
+- `bus_routes`
+
+## 4. Relationship Map (Active Tables)
+
+- `districts.province_id` -> `provinces.id`
+- `districts.district_type_id` -> `district_types.id`
+- `stops.district_id` -> `districts.id`
+- `routes.province_start_id` -> `provinces.id`
+- `routes.province_end_id` -> `provinces.id`
+- `route_stops.route_id` -> `routes.id`
+- `route_stops.stop_id` -> `stops.id`
+- `trips.bus_id` -> `buses.id`
+- `trips.route_id` -> `routes.id`
+- `bookings.user_id` -> `users.id` (nullable)
+- `bookings.trip_id` -> `trips.id`
+- `bookings.pickup_stop_id` -> `stops.id`
+- `bookings.dropoff_stop_id` -> `stops.id`
+
+## 5. Security & Access Boundaries
+
+- Admin area: full CRUD for business tables and operation management.
+- Client area: search/read for routes and trips, create bookings, update own profile.
+- Middleware gates:
+  - `AdminAuthMiddleware`
+  - `CustomerAuthMiddleware`
+
+## 6. Source-Of-Truth Priority
+
+When documentation conflicts are found:
+1. Prefer migration files in `database/migrations`.
+2. Then verify model fillable/casts and controller/service usage.
+3. Treat SQL dump snapshots as potentially stale.

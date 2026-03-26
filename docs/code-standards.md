@@ -1,39 +1,72 @@
 # Coding Standards & Conventions
 
-## 1. General Guidelines
-This project follows **PSR-12** coding standards and standard Laravel best practices.
+## 1. Baseline Standards
 
-### PHP Version
--   **Required:** PHP 8.2 or higher.
+- PHP version: 8.2+
+- Laravel conventions + PSR-12 style
+- Keep controllers thin and move business logic into service classes
 
 ## 2. Naming Conventions
 
-### Classes & Files
--   **Controllers:** `PascalCase` suffix with `Controller` (e.g., `BusRouteController`).
--   **Models:** `PascalCase` singular (e.g., `Bus`, `CompanyRoute`).
--   **Migrations:** `snake_case` timestamped (e.g., `2025_09_22_..._create_bookings_table`).
+### 2.1 PHP Classes And Files
 
-### Database
--   **Tables:** `snake_case` plural (e.g., `company_routes`, `bus_services`).
--   **Columns:** `snake_case` (e.g., `start_time`, `is_active`).
--   **Foreign Keys:** `singular_table_id` (e.g., `company_id`, `pickup_stop_id`).
+- Controllers: `PascalCase` + `Controller` suffix
+    - Example: `TripController`, `BookingController`
+- Models: singular `PascalCase`
+    - Example: `Route`, `Trip`, `Booking`
+- Services: `PascalCase` + `Service` suffix
+    - Example: `TripService`, `BookingService`
+- Migrations: timestamp + `snake_case`
+    - Example: `2026_01_29_000001_refactor_database_to_single_tenant.php`
 
-### Routes
--   **Names:** `kebab-case` with dot notation for nesting (e.g., `admin.bus-services.index`).
--   **URIs:** `kebab-case` (e.g., `/tuyen-duong`, `/company-routes`).
+### 2.2 Database
 
-## 3. Architectural Patterns
+- Table names: plural `snake_case`
+    - Example: `route_stops`, `bus_services`, `personal_access_tokens`
+- Column names: `snake_case`
+    - Example: `start_time`, `price_default`, `available_hotel_pickup`
+- Foreign keys: `singular_table_id`
+    - Example: `trip_id`, `pickup_stop_id`, `province_start_id`
 
-### Controller Responsibility
--   Controllers should be thin. Business logic should be delegated to Services or Models where appropriate.
--   **Resource Controllers:** Use standard resource methods (`index`, `create`, `store`, `show`, `edit`, `update`, `destroy`) where possible.
+### 2.3 Routes
 
-### View Structure (Inferred)
--   Views should be organized by module:
-    -   `resources/views/admin/`
-    -   `resources/views/company/`
-    -   `resources/views/client/`
+- Route names: dot notation with kebab-like resource segments
+    - Example: `admin.trips.index`, `client.routes.search`
+- URI paths: lowercase/kebab style where applicable
+    - Example: `/tuyen-duong`, `/dat-ve`, `/admin/trips`
 
-## 4. Git & Version Control
--   **Commit Messages:** Descriptive, imperative mood (e.g., "Add booking validation", "Fix route calculation").
--   **Branches:** Feature branch workflow (`feature/name`, `fix/issue`).
+## 3. Architecture Conventions
+
+### 3.1 Layers
+
+- Controller layer: request validation + orchestration only
+- Service layer: business rules and workflow orchestration
+- Model layer: relationships, casting, query scopes
+
+### 3.2 Current Domain Conventions
+
+- Active scheduling table is `trips` (not `bus_routes`)
+- Active route-stop mapping is `route_stops` (not `company_route_stops`)
+- Booking foreign key is `bookings.trip_id`
+
+### 3.3 Views
+
+Keep Blade views grouped by feature area:
+- `resources/views/admin/`
+- `resources/views/client/`
+- shared components under dedicated partial/component folders
+
+## 4. Documentation Conventions (For AI + Developers)
+
+- Use migration files as schema source-of-truth.
+- If SQL dump and migrations differ, document migration-based reality first.
+- Always separate active tables from legacy tables in docs.
+- Prefer short sections with explicit headings and bullet lists.
+
+## 5. Git Conventions
+
+- Commit messages: imperative and descriptive
+    - Example: `Update docs with full active database schema`
+- Branch naming:
+    - `feature/<short-description>`
+    - `fix/<short-description>`

@@ -1,428 +1,325 @@
 {{-- ===== resources/views/client/contact/index.blade.php ===== --}}
-<x-client.layout :title="$title" :description="$description" body-class="bg-neutral-50">
+<x-client.layout :title="$title" :description="$description" body-class="bg-[#F8FAFC] text-slate-800">
+    @php
+        $safeExternalUrl = static function (?string $url): ?string {
+            if (!$url) {
+                return null;
+            }
+
+            $trimmed = trim($url);
+            return preg_match('/^https?:\/\//i', $trimmed) ? $trimmed : null;
+        };
+
+        $zaloUrl = $safeExternalUrl((string) data_get($webProfile, 'zalo_url'));
+        $facebookUrl = $safeExternalUrl((string) data_get($webProfile, 'facebook_url'));
+
+        $mapEmbedSrc = null;
+        $rawMapEmbed = data_get($webProfile, 'map_embedded');
+        if (is_string($rawMapEmbed) && preg_match('/src=["\']([^"\']+)["\']/i', $rawMapEmbed, $matches)) {
+            $candidateMapSrc = html_entity_decode((string) $matches[1], ENT_QUOTES, 'UTF-8');
+            if (preg_match('/^https?:\/\//i', $candidateMapSrc)) {
+                $mapEmbedSrc = $candidateMapSrc;
+            }
+        }
+
+        $faqItems = __('client.contact.faq_items');
+        $faqItems = is_array($faqItems) ? $faqItems : [];
+
+        $officeItems = is_iterable($offices ?? null) ? $offices : [];
+
+        $contactChannels = [
+            [
+                'value' => data_get($webProfile, 'hotline'),
+                'label' => __('client.contact.channels.hotline'),
+                'href' => data_get($webProfile, 'hotline') ? 'tel:' . preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) : null,
+                'icon' => 'fa-solid fa-phone-volume',
+                'tone' => 'from-amber-100 to-amber-50 text-amber-700 border-amber-200',
+            ],
+            [
+                'value' => data_get($webProfile, 'phone'),
+                'label' => __('client.contact.channels.care'),
+                'href' => data_get($webProfile, 'phone') ? 'tel:' . preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'phone')) : null,
+                'icon' => 'fa-solid fa-headset',
+                'tone' => 'from-blue-100 to-blue-50 text-blue-700 border-blue-200',
+            ],
+            [
+                'value' => data_get($webProfile, 'email'),
+                'label' => __('client.contact.channels.email'),
+                'href' => data_get($webProfile, 'email') ? 'mailto:' . data_get($webProfile, 'email') : null,
+                'icon' => 'fa-regular fa-envelope',
+                'tone' => 'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200',
+            ],
+            [
+                'value' => 'Facebook',
+                'label' => __('client.contact.channels.facebook'),
+                'href' => $facebookUrl,
+                'icon' => 'fa-brands fa-facebook-f',
+                'tone' => 'from-sky-100 to-sky-50 text-sky-700 border-sky-200',
+            ],
+            [
+                'value' => 'Zalo',
+                'label' => __('client.contact.channels.zalo'),
+                'href' => $zaloUrl,
+                'icon' => 'fa-solid fa-comments',
+                'tone' => 'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200',
+            ],
+            [
+                'value' => data_get($webProfile, 'whatsapp'),
+                'label' => 'WhatsApp',
+                'href' => data_get($webProfile, 'whatsapp') ? 'https://wa.me/' . preg_replace('/[^\d]/', '', (string) data_get($webProfile, 'whatsapp')) : null,
+                'icon' => 'fa-brands fa-whatsapp',
+                'tone' => 'from-green-100 to-green-50 text-green-700 border-green-200',
+            ],
+        ];
+    @endphp
 
     @push('styles')
         <style>
-            /* Hero Background */
-            .hero-contact-bg {
-                background-image: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.8)), url('/client/images/city_imgs/ha-noi.jpg');
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
-            }
+            @keyframes contact-hero-shift {
+                0% {
+                    background-position: center top;
+                }
 
-            @media (max-width: 768px) {
-                .hero-contact-bg {
-                    background-attachment: scroll;
+                100% {
+                    background-position: center bottom;
                 }
             }
 
-            /* Contact Card Hover */
-            .contact-card {
-                transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            .contact-hero-bg {
+                background-image:
+                    linear-gradient(110deg, rgba(6, 22, 41, 0.78), rgba(255, 155, 0, 0.52)),
+                    url('/client/images/city_imgs/ha-noi.jpg');
+                background-size: cover;
+                background-position: center;
+                animation: contact-hero-shift 17s ease-in-out infinite alternate;
             }
 
-            .contact-card:hover {
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            }
-
-            /* FAQ Item */
-            .faq-item {
-                transition: background-color 0.2s ease;
-            }
-
-            .faq-item:hover {
-                background-color: #f9fafb;
-            }
-
-            /* Office Card */
-            .office-card {
-                transition: border-color 0.2s ease;
-            }
-
-            .office-card:hover {
-                border-color: #D97706;
-            }
-
-            /* Map Container */
-            .map-container {
+            .contact-map-wrap {
                 position: relative;
-                padding-bottom: 50%;
-                height: 0;
                 overflow: hidden;
-                border-radius: 8px;
+                border-radius: 1rem;
+                min-height: 320px;
             }
 
-            .map-container iframe {
+            .contact-map-wrap iframe {
                 position: absolute;
-                top: 0;
-                left: 0;
+                inset: 0;
                 width: 100%;
                 height: 100%;
                 border: 0;
             }
 
-            /* Pulse Effect for Online Status */
-            .pulse-dot {
-                animation: pulse 2s infinite;
-            }
-
-            @keyframes pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
-                }
-
-                70% {
-                    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
-                }
-
-                100% {
-                    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            @media (prefers-reduced-motion: reduce) {
+                .contact-hero-bg {
+                    animation: none;
                 }
             }
         </style>
     @endpush
 
-    {{-- Hero Section --}}
-    <section
-        class="relative min-h-[350px] md:min-h-[400px] hero-contact-bg flex flex-col justify-center items-center px-4 py-16 pt-24 md:py-20">
-        <div class="container relative z-10 w-full max-w-4xl text-center">
-            {{-- Badge --}}
-            <span
-                class="inline-block py-1.5 px-4 rounded-md bg-accent-500/20 text-accent-300 border border-accent-400/30 text-xs md:text-sm font-semibold tracking-wider mb-3 md:mb-4">
-                <i class="fa-solid fa-headset mr-2"></i>{{ __('client.contact.hero.badge') }}
-            </span>
+    {{-- HEADER --}}
+    {{-- Header được render trong x-client.layout --}}
 
-            {{-- Hero Title --}}
-            <h1
-                class="text-3xl sm:text-4xl md:text-5xl font-semibold text-white leading-tight mb-3 md:mb-4">
-                {{ __('client.contact.hero.title') }}
-            </h1>
+    {{-- HERO/SEARCH --}}
+    <section class="contact-hero-bg relative overflow-visible px-4 pb-14 pt-24 md:pb-20 md:pt-28">
+        <div class="container mx-auto max-w-7xl">
+            <div class="max-w-3xl">
+                <span class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+                    <i class="fa-solid fa-headset" aria-hidden="true"></i>
+                    {{ __('client.contact.hero.badge') }}
+                </span>
+                <h1 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-6xl">
+                    {{ __('client.contact.hero.title') }}
+                </h1>
+                <p class="mt-4 max-w-2xl text-sm text-slate-100/95 sm:text-base lg:text-lg">
+                    {{ __('client.contact.hero.subtitle') }}
+                </p>
+            </div>
 
-            {{-- Subtitle --}}
-            <p class="text-base md:text-lg lg:text-xl text-neutral-200 max-w-2xl mx-auto px-2">
-                {{ __('client.contact.hero.subtitle') }}
-            </p>
-
-            {{-- Quick Contact Buttons --}}
-            <div class="flex flex-wrap justify-center gap-3 md:gap-4 mt-6 md:mt-8">
-                @if($webProfile->hotline ?? null)
-                    <a href="tel:{{ preg_replace('/[^\d+]/', '', $webProfile->hotline) }}"
-                        class="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-accent-500 text-white rounded-md font-semibold text-sm md:text-base hover:bg-accent-600 transition-colors duration-200">
-                        <i class="fa-solid fa-phone"></i>
-                        {{ $webProfile->hotline }}
+            <div class="mt-6 flex flex-wrap gap-3">
+                @if (data_get($webProfile, 'hotline'))
+                    <a href="tel:{{ preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) }}"
+                        class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
+                        <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
+                        {{ data_get($webProfile, 'hotline') }}
                     </a>
                 @endif
-                @if($webProfile->zalo_url ?? null)
-                    <a href="{{ $webProfile->zalo_url }}" target="_blank"
-                        class="inline-flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 bg-primary-600 text-white rounded-md font-semibold text-sm md:text-base hover:bg-primary-700 transition-colors duration-200">
-                        <i class="fa-solid fa-comment-dots"></i>
-                        Chat Zalo
+                @if ($zaloUrl)
+                    <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer"
+                        class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
+                        <i class="fa-solid fa-comments" aria-hidden="true"></i>
+                        Zalo chat
                     </a>
                 @endif
+            </div>
+
+            <div class="relative z-50 mt-8" style="z-index: 90;">
+                <x-client.search-bar submit-label="Tìm chuyến" />
+            </div>
+
+            <div class="mt-6 grid gap-3 sm:grid-cols-3">
+                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                    <p class="text-xs uppercase tracking-wide text-white/80">Tuyến đang khai thác</p>
+                    <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'route_count', 0)) }}+</p>
+                </article>
+                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                    <p class="text-xs uppercase tracking-wide text-white/80">Đội xe hiện có</p>
+                    <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'bus_count', 0)) }}+</p>
+                </article>
+                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                    <p class="text-xs uppercase tracking-wide text-white/80">Chuyến hoạt động</p>
+                    <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'trip_count', 0)) }}+</p>
+                </article>
             </div>
         </div>
     </section>
 
-    {{-- Support Channels Section --}}
-    <section class="py-12 md:py-16 bg-white relative -mt-6 md:-mt-8 z-20">
-        <div class="container mx-auto px-4">
-            <div class="bg-white rounded-lg shadow-card p-6 md:p-8 lg:p-12 border border-neutral-200">
-                {{-- Section Header --}}
-                <div class="text-center mb-8 md:mb-10">
-                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold text-neutral-900 mb-2 md:mb-3">
-                        {{ __('client.contact.headings.support_channels') }}
-                    </h2>
-                    <p class="text-neutral-500 text-sm md:text-base max-w-xl mx-auto">
-                        {{ __('client.contact.support_desc') }}</p>
+    {{-- MAIN CONTENT --}}
+    <section class="px-4 py-12 md:py-16">
+        <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <article class="lg:col-span-7 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
+                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.support_channels') }}</p>
+                <h2 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">Kết nối nhanh với đội ngũ hỗ trợ</h2>
+                <p class="mt-2 text-sm text-slate-500 md:text-base">{{ __('client.contact.support_desc') }}</p>
+
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                    @foreach ($contactChannels as $channel)
+                        @if ($channel['href'])
+                            <a href="{{ $channel['href'] }}"
+                                @if (str_starts_with($channel['href'], 'http')) target="_blank" rel="noopener noreferrer" @endif
+                                class="group rounded-2xl border bg-linear-to-br p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $channel['tone'] }}">
+                                <div class="flex items-start gap-3">
+                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 text-base">
+                                        <i class="{{ $channel['icon'] }}" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="min-w-0">
+                                        <span class="block text-xs font-bold uppercase tracking-wide">{{ $channel['label'] }}</span>
+                                        <span class="mt-1 block truncate text-sm font-bold">{{ $channel['value'] }}</span>
+                                    </span>
+                                </div>
+                            </a>
+                        @endif
+                    @endforeach
                 </div>
+            </article>
 
-                {{-- Support Channels Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                    {{-- Hotline --}}
-                    @if($webProfile->hotline ?? null)
-                        <a href="tel:{{ preg_replace('/[^\d+]/', '', $webProfile->hotline) }}"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-accent-50 rounded-lg border border-accent-200 hover:border-accent-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-accent-500 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-solid fa-phone text-lg md:text-xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">
-                                    {{ __('client.contact.channels.hotline') }}</p>
-                                <p class="text-accent-600 font-semibold text-sm md:text-base truncate">
-                                    {{ $webProfile->hotline }}</p>
-                            </div>
-                            <div class="ml-auto shrink-0">
-                                <span class="w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full block pulse-dot"></span>
-                            </div>
-                        </a>
-                    @endif
+            <aside class="lg:col-span-5 space-y-6">
+                <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.working_hours') }}</p>
+                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">Khung giờ hỗ trợ khách hàng</h3>
+                    <div class="mt-5 space-y-3">
+                        <div class="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                            <p class="text-sm font-semibold text-slate-800">{{ __('client.contact.hours.weekday_label') }}</p>
+                            <p class="text-sm font-extrabold text-emerald-700">07:00 - 22:00</p>
+                        </div>
+                        <div class="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-3">
+                            <p class="text-sm font-semibold text-slate-800">{{ __('client.contact.hours.weekend_label') }}</p>
+                            <p class="text-sm font-extrabold text-blue-700">08:00 - 21:00</p>
+                        </div>
+                        <p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            {{ __('client.contact.hours.note') }}
+                        </p>
+                    </div>
+                </article>
 
-                    {{-- Phone --}}
-                    @if($webProfile->phone ?? null)
-                        <a href="tel:{{ preg_replace('/[^\d+]/', '', $webProfile->phone) }}"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-primary-50 rounded-lg border border-primary-200 hover:border-primary-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-primary-600 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-solid fa-headset text-lg md:text-xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">
-                                    {{ __('client.contact.channels.care') }}</p>
-                                <p class="text-primary-600 font-semibold text-sm md:text-base truncate">
-                                    {{ $webProfile->phone }}</p>
-                            </div>
-                        </a>
-                    @endif
-
-                    {{-- Email --}}
-                    @if($webProfile->email ?? null)
-                        <a href="mailto:{{ $webProfile->email }}"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-green-50 rounded-lg border border-green-200 hover:border-green-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-green-600 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-regular fa-envelope text-lg md:text-xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">
-                                    {{ __('client.contact.channels.email') }}</p>
-                                <p class="text-green-600 font-semibold text-xs md:text-sm truncate">{{ $webProfile->email }}
+                <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.offices') }}</p>
+                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">Danh sách văn phòng nổi bật</h3>
+                    <div class="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
+                        @forelse ($officeItems as $office)
+                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-soft">
+                                <p class="text-sm font-bold text-slate-800">{{ data_get($office, 'name', 'Văn phòng') }}</p>
+                                <p class="mt-1 text-xs text-slate-500 md:text-sm">
+                                    {{ data_get($office, 'address', 'Đang cập nhật') }}, {{ data_get($office, 'district_name', '') }}, {{ data_get($office, 'province_name', '') }}
                                 </p>
                             </div>
-                        </a>
-                    @endif
-
-                    {{-- Facebook --}}
-                    @if($webProfile->facebook_url ?? null)
-                        <a href="{{ $webProfile->facebook_url }}" target="_blank"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-blue-50 rounded-lg border border-blue-200 hover:border-blue-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-blue-600 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-brands fa-facebook-f text-lg md:text-xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">
-                                    {{ __('client.contact.channels.facebook') }}</p>
-                                <p class="text-blue-600 text-xs md:text-sm">Facebook Fanpage</p>
-                            </div>
-                        </a>
-                    @endif
-
-                    {{-- Zalo --}}
-                    @if($webProfile->zalo_url ?? null)
-                        <a href="{{ $webProfile->zalo_url }}" target="_blank"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-blue-50 rounded-lg border border-blue-200 hover:border-blue-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-blue-500 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-solid fa-comment-dots text-lg md:text-xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">
-                                    {{ __('client.contact.channels.zalo') }}</p>
-                                <p class="text-blue-600 text-xs md:text-sm">Chat ngay</p>
-                            </div>
-                        </a>
-                    @endif
-
-                    {{-- WhatsApp --}}
-                    @if($webProfile->whatsapp ?? null)
-                        <a href="https://wa.me/{{ preg_replace('/[^\d]/', '', $webProfile->whatsapp) }}" target="_blank"
-                            class="contact-card group flex items-center p-4 md:p-5 bg-green-50 rounded-lg border border-green-200 hover:border-green-400">
-                            <div
-                                class="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 bg-green-600 text-white rounded-lg flex items-center justify-center">
-                                <i class="fa-brands fa-whatsapp text-xl md:text-2xl"></i>
-                            </div>
-                            <div class="ml-3 md:ml-4 min-w-0">
-                                <p class="font-semibold text-base md:text-lg text-neutral-900">WhatsApp</p>
-                                <p class="text-green-600 text-xs md:text-sm truncate">{{ $webProfile->whatsapp }}</p>
-                            </div>
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </section>
-
-    {{-- Working Hours & Offices Section --}}
-    <section class="py-12 md:py-16 bg-neutral-50">
-        <div class="container mx-auto px-4">
-            <div class="grid lg:grid-cols-2 gap-6 md:gap-8">
-                {{-- Working Hours --}}
-                <div class="bg-white rounded-lg shadow-card p-6 md:p-8 border border-neutral-200">
-                    <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                        <div
-                            class="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-accent-500 flex items-center justify-center text-white">
-                            <i class="fa-regular fa-clock text-xl md:text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-semibold text-neutral-900">
-                            {{ __('client.contact.headings.working_hours') }}
-                        </h3>
-                    </div>
-
-                    <div class="space-y-3 md:space-y-4">
-                        <div
-                            class="flex items-center justify-between p-3 md:p-4 bg-green-50 rounded-md border border-green-100">
-                            <div class="flex items-center gap-2 md:gap-3">
-                                <span class="w-2.5 h-2.5 md:w-3 md:h-3 bg-green-500 rounded-full pulse-dot"></span>
-                                <span
-                                    class="font-semibold text-neutral-800 text-sm md:text-base">{{ __('client.contact.hours.weekday_label') }}</span>
-                            </div>
-                            <span class="text-green-600 font-semibold text-sm md:text-base">07:00 - 22:00</span>
-                        </div>
-
-                        <div
-                            class="flex items-center justify-between p-3 md:p-4 bg-primary-50 rounded-md border border-primary-100">
-                            <div class="flex items-center gap-2 md:gap-3">
-                                <span class="w-2.5 h-2.5 md:w-3 md:h-3 bg-primary-500 rounded-full"></span>
-                                <span
-                                    class="font-semibold text-neutral-800 text-sm md:text-base">{{ __('client.contact.hours.weekend_label') }}</span>
-                            </div>
-                            <span class="text-primary-600 font-semibold text-sm md:text-base">08:00 - 21:00</span>
-                        </div>
-
-                        <div
-                            class="mt-4 md:mt-6 p-3 md:p-4 bg-accent-50 rounded-md border border-accent-200">
-                            <p class="text-xs md:text-sm text-accent-800">
-                                <i class="fa-solid fa-info-circle mr-2"></i>
-                                {{ __('client.contact.hours.note') }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Offices --}}
-                <div class="bg-white rounded-lg shadow-card p-6 md:p-8 border border-neutral-200">
-                    <div class="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
-                        <div
-                            class="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-primary-600 flex items-center justify-center text-white">
-                            <i class="fa-solid fa-location-dot text-xl md:text-2xl"></i>
-                        </div>
-                        <h3 class="text-xl md:text-2xl font-semibold text-neutral-900">
-                            {{ __('client.contact.headings.offices') }}</h3>
-                    </div>
-
-                    <div class="space-y-2 md:space-y-3 max-h-[280px] md:max-h-[350px] overflow-y-auto pr-2">
-                        @forelse ($offices as $office)
-                            <div
-                                class="office-card p-3 md:p-4 bg-neutral-50 rounded-md border border-neutral-200">
-                                <div class="flex items-start gap-2 md:gap-3">
-                                    <div
-                                        class="w-8 h-8 md:w-10 md:h-10 rounded-md bg-primary-100 text-primary-600 flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fa-solid fa-building text-xs md:text-sm"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="font-semibold text-neutral-900 text-sm md:text-base truncate">{{ $office->name }}
-                                        </p>
-                                        <p class="text-xs md:text-sm text-neutral-600 line-clamp-2">
-                                            {{ $office->address }}, {{ $office->district_name }},
-                                            {{ $office->province_name }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
                         @empty
-                            <p class="text-neutral-500 text-center py-6 md:py-8 text-sm md:text-base">
-                                {{ __('client.contact.no_offices') }}</p>
+                            <p class="rounded-xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">{{ __('client.contact.no_offices') }}</p>
                         @endforelse
                     </div>
-                </div>
-            </div>
+                </article>
+            </aside>
         </div>
     </section>
 
-    {{-- FAQ Section --}}
-    <section class="py-12 md:py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto">
-                {{-- Section Header --}}
-                <div class="text-center mb-8 md:mb-12">
-                    <span
-                        class="inline-block py-1.5 px-4 rounded-md bg-primary-50 text-primary-700 font-semibold text-xs md:text-sm border border-primary-200 mb-3 md:mb-4">
-                        <i class="fa-solid fa-circle-question mr-2"></i>FAQ
-                    </span>
-                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold text-neutral-900">
-                        {{ __('client.contact.headings.faq') }}
-                    </h2>
-                </div>
+    <section class="bg-white px-4 py-12 md:py-16">
+        <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-[#fffdf8] p-5 shadow-soft md:p-7" x-data="{ openFaq: 0 }">
+                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">FAQ</p>
+                <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.headings.faq') }}</h3>
 
-                {{-- FAQ Accordion --}}
-                <div class="space-y-3 md:space-y-4" x-data="{ openFaq: null }">
-                    @foreach(__('client.contact.faq_items') as $index => $faq)
-                        <div class="faq-item bg-white rounded-lg border border-neutral-200 overflow-hidden shadow-soft">
-                            <button @click="openFaq = openFaq === {{ $index }} ? null : {{ $index }}"
-                                class="w-full flex items-center justify-between p-4 md:p-5 text-left"
-                                :class="openFaq === {{ $index }} ? 'bg-accent-50' : ''">
-                                <span
-                                    class="font-semibold text-neutral-900 pr-3 md:pr-4 text-sm md:text-base">{{ $faq['question'] }}</span>
-                                <span
-                                    class="shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-md flex items-center justify-center transition-all"
-                                    :class="openFaq === {{ $index }} ? 'bg-accent-500 text-white rotate-180' : 'bg-neutral-100 text-neutral-500'">
-                                    <i class="fa-solid fa-chevron-down text-xs md:text-sm"></i>
+                <div class="mt-5 space-y-3">
+                    @foreach($faqItems as $index => $faq)
+                        <div class="rounded-xl border border-amber-100 bg-white">
+                            <button type="button" @click="openFaq = openFaq === {{ $index }} ? -1 : {{ $index }}"
+                                id="contact-faq-trigger-{{ $index }}"
+                                :aria-expanded="openFaq === {{ $index }}"
+                                aria-controls="contact-faq-panel-{{ $index }}"
+                                class="flex w-full items-center justify-between gap-3 p-4 text-left">
+                                <span class="text-sm font-bold text-slate-800 md:text-base">{{ $faq['question'] }}</span>
+                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 transition" :class="openFaq === {{ $index }} ? 'rotate-180' : ''">
+                                    <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                                 </span>
                             </button>
-                            <div x-show="openFaq === {{ $index }}" x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 -translate-y-2"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                class="px-4 md:px-5 pb-4 md:pb-5 text-neutral-600 leading-relaxed border-t border-neutral-100">
-                                <p class="pt-3 md:pt-4 text-sm md:text-base">{{ $faq['answer'] }}</p>
+                            <div x-show="openFaq === {{ $index }}" x-cloak x-transition.opacity.duration.220ms
+                                id="contact-faq-panel-{{ $index }}"
+                                role="region"
+                                aria-labelledby="contact-faq-trigger-{{ $index }}"
+                                class="border-t border-amber-100 px-4 pb-4 pt-3 text-sm leading-relaxed text-slate-600 md:text-base">
+                                {{ $faq['answer'] }}
                             </div>
                         </div>
                     @endforeach
                 </div>
-            </div>
+            </article>
+
+            <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
+                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.map') }}</p>
+                <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.map_desc') }}</h3>
+
+                @if ($mapEmbedSrc)
+                    <div class="contact-map-wrap mt-5 border border-amber-100 bg-slate-50 shadow-soft">
+                        <iframe src="{{ $mapEmbedSrc }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+                    </div>
+                @else
+                    <div class="mt-5 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                        Bản đồ đang được cập nhật.
+                    </div>
+                @endif
+            </article>
         </div>
     </section>
 
-    {{-- Map Section --}}
-    @if($webProfile->map_embedded ?? null)
-        <section class="py-12 md:py-16 bg-neutral-50">
-            <div class="container mx-auto px-4">
-                <div class="max-w-5xl mx-auto">
-                    <div class="text-center mb-6 md:mb-8">
-                        <h2 class="text-2xl md:text-3xl font-semibold text-neutral-900 mb-2 md:mb-3">
-                            {{ __('client.contact.headings.map') }}</h2>
-                        <p class="text-neutral-500 text-sm md:text-base">{{ __('client.contact.map_desc') }}</p>
+    <section class="px-4 pb-14 pt-12 md:pb-20">
+        <div class="container mx-auto max-w-7xl">
+            <div class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-soft">
+                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,201,0,0.24),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,155,0,0.28),transparent_44%)]"></div>
+                <div class="relative grid items-center gap-6 p-6 text-white md:p-12 lg:grid-cols-[1.15fr_0.85fr]">
+                    <div>
+                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Support team</p>
+                        <h3 class="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">{{ __('client.contact.cta.title') }}</h3>
+                        <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">{{ __('client.contact.cta.subtitle') }}</p>
                     </div>
-
-                    <div class="bg-white rounded-lg shadow-card p-3 md:p-4 border border-neutral-200">
-                        <div class="map-container rounded-lg overflow-hidden">
-                            {!! $webProfile->map_embedded !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- CTA Section --}}
-    <section class="py-12 md:py-16 bg-accent-500">
-        <div class="container mx-auto px-4">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 text-center md:text-left">
-                <div class="space-y-2 md:space-y-3 max-w-xl">
-                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-semibold text-white">
-                        {{ __('client.contact.cta.title') }}
-                    </h2>
-                    <p class="text-white/80 text-base md:text-lg">
-                        {{ __('client.contact.cta.subtitle') }}
-                    </p>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3 md:gap-4 w-full md:w-auto">
-                    <a href="{{ route('client.home') }}"
-                        class="inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-neutral-900 text-white rounded-md font-semibold text-base md:text-lg hover:bg-neutral-800 transition-colors duration-200">
-                        <i class="fa-solid fa-ticket"></i>
-                        {{ __('client.contact.cta.book_button') }}
-                    </a>
-                    @if($webProfile->hotline ?? null)
-                        <a href="tel:{{ preg_replace('/[^\d+]/', '', $webProfile->hotline) }}"
-                            class="inline-flex items-center justify-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-neutral-900 rounded-md font-semibold text-base md:text-lg hover:bg-neutral-100 transition-colors duration-200">
-                            <i class="fa-solid fa-phone"></i>
-                            {{ __('client.contact.cta.call_button') }}
+                    <div class="flex flex-wrap gap-3 lg:justify-end">
+                        <a href="{{ route('client.home') }}"
+                            class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
+                            <i class="fa-solid fa-ticket" aria-hidden="true"></i>
+                            {{ __('client.contact.cta.book_button') }}
                         </a>
-                    @endif
+                        @if (data_get($webProfile, 'hotline'))
+                            <a href="tel:{{ preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) }}"
+                                class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
+                                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+                                {{ __('client.contact.cta.call_button') }}
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    {{-- FOOTER --}}
+    {{-- Footer được render trong x-client.layout --}}
 </x-client.layout>

@@ -1,94 +1,114 @@
 # KingExpressBus
 
-Single-tenant bus ticket booking system for managing transportation services. Built with Laravel 12.
+Single-tenant bus ticket booking platform built with Laravel 12.
 
-## Project Overview
+## 1. Purpose
 
-KingExpressBus is a comprehensive solution for managing bus transportation services. It provides:
--   **Admin Portal:** For centralized management of buses, routes, trips (schedules), and bookings.
--   **Client Portal:** A user-friendly interface for customers to search for trips, view details, and book tickets.
+KingExpressBus provides two server-rendered portals:
+- Admin portal for managing routes, buses, trips, stops, website settings, and bookings.
+- Client portal for searching trips and creating bookings.
 
-## Architecture (Single-Tenant)
+The current architecture is single-tenant (company-specific multi-tenant tables were removed by migration refactor).
 
-This system follows a single-tenant architecture where:
-- All buses are managed directly by the system administrator
-- Routes define the travel paths between provinces
-- Trips are scheduled departures with specific buses, times, and prices
-- Bookings are made against specific trips
+## 2. Tech Stack
 
-## Documentation
+- PHP 8.2+
+- Laravel 12
+- MySQL
+- Blade (SSR)
+- CKFinder (media/files)
 
--   [Project Overview & Requirements](docs/project-overview-pdr.md)
--   [Codebase Summary](docs/codebase-summary.md)
--   [System Architecture](docs/system-architecture.md)
--   [Coding Standards](docs/code-standards.md)
+## 3. Documentation Map
 
-## Requirements
+- [Project Overview and PDR](docs/project-overview-pdr.md)
+- [Codebase Summary](docs/codebase-summary.md)
+- [System Architecture and Full Database Catalog](docs/system-architecture.md)
+- [Coding Standards](docs/code-standards.md)
 
--   PHP >= 8.2
--   Composer
--   Node.js & NPM
--   MySQL
+## 4. Quick Start
 
-## Installation & Setup
+1. Clone repository.
+2. Install dependencies.
+3. Configure environment.
+4. Run migrations.
+5. Start app.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/yourusername/kingexpressbus.git
-    cd kingexpressbus
-    ```
+```bash
+git clone https://github.com/yourusername/kingexpressbus.git
+cd kingexpressbus
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+npm run dev
+```
 
-2.  **Install PHP dependencies:**
-    ```bash
-    composer install
-    ```
+Run backend/frontend separately if needed:
 
-3.  **Install Frontend dependencies:**
-    ```bash
-    npm install
-    ```
+```bash
+php artisan serve
+npm run dev
+```
 
-4.  **Environment Configuration:**
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
-    *Update `.env` with your database credentials.*
+## 5. Current Functional Areas
 
-5.  **Database Migration:**
-    ```bash
-    php artisan migrate
-    ```
+- Authentication for Admin and Client.
+- Locale switching (`en`, `vi`).
+- Admin CRUD: web profiles, menus, provinces, districts, stops, routes, buses, trips, bookings.
+- Client flow: search route/trip -> create booking -> success page.
 
-6.  **Run the application:**
-    ```bash
-    # Run backend and frontend build in parallel
-    npm run dev
-    ```
-    *Or run them separately:*
-    ```bash
-    php artisan serve
-    npm run dev
-    ```
+## 6. Full Database Table Inventory
 
-## Key Features
+Source of truth is migrations in `database/migrations`, especially:
+- `2025_09_22_152829_create_database_tables.php`
+- `2025_10_03_052200_modify_bookings_and_company_routes_tables.php`
+- `2026_01_29_000001_refactor_database_to_single_tenant.php`
 
--   **Single-Tenant System:** Centralized management by Admin.
--   **Bus Fleet Management:** Manage buses with seat maps, services, and details.
--   **Route Management:** Define routes between provinces with stops.
--   **Trip Scheduling:** Create trips with specific buses, times, and prices.
--   **Booking System:** Complete flow from search to payment status tracking.
--   **Localization:** Support for English and Vietnamese.
--   **Media Management:** Integration with CKFinder.
+### 6.1 Active Tables (Current Single-Tenant)
 
-## Database Structure
+Framework/auth/system tables:
+- `migrations`
+- `users`
+- `password_reset_tokens`
+- `sessions`
+- `cache`
+- `cache_locks`
+- `jobs`
+- `job_batches`
+- `failed_jobs`
+- `personal_access_tokens`
 
-- `routes` - Travel routes between provinces
-- `route_stops` - Pickup/dropoff stops for each route
-- `buses` - Fleet of buses with seat maps and services
-- `trips` - Scheduled departures (bus + route + time + price)
-- `bookings` - Customer reservations for trips
+Business/domain tables:
+- `web_profiles`
+- `menus`
+- `provinces`
+- `district_types`
+- `districts`
+- `stops`
+- `routes`
+- `route_stops`
+- `bus_services`
+- `buses`
+- `trips`
+- `bookings`
+
+### 6.2 Legacy Tables (Dropped by Single-Tenant Refactor)
+
+- `companies`
+- `company_routes`
+- `company_route_stops`
+- `bus_routes`
+
+These tables remain only in historical migrations and dump snapshots for rollback/data-migration history.
+
+## 7. Notes For Developer AI
+
+- Prefer reading migrations over `database/database.sql` when schema conflicts exist.
+- `trips` is the current schedule table (replaces `bus_routes`).
+- `route_stops` is the current route-stop mapping table (replaces `company_route_stops`).
+- `bookings.trip_id` is the current FK (replaces `bookings.bus_route_id`).
 
 ## License
 
-MIT License.
+MIT License

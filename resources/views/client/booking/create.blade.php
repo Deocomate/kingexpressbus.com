@@ -1,39 +1,61 @@
-<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.create.meta_title')" :description="$description ?? ''">
+<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.create.meta_title')" :description="$description ?? ''" body-class="bg-[#F8FAFC]">
     @push('styles')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/litepicker/dist/css/litepicker.css" />
         <style>
+            .booking-hero {
+                background-image:
+                    linear-gradient(112deg, rgba(9, 25, 47, 0.82), rgba(255, 155, 0, 0.52)),
+                    url('/client/images/kingexpressbus/cabin/2.jpg');
+                background-size: cover;
+                background-position: center;
+            }
+
+            .booking-panel {
+                background: #ffffff;
+                border: 1px solid #f3dfb7;
+                border-radius: 1rem;
+                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
+            }
+
+            .booking-sidebar-card {
+                background: #ffffff;
+                border: 1px solid #f3dfb7;
+                border-radius: 1rem;
+                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
+            }
+
             /* Custom phone input with searchable country dropdown */
             .phone-input-wrapper {
                 display: flex;
                 align-items: stretch;
-                border: 1px solid #d4d4d4;
-                border-radius: 0.375rem;
-                background-color: #fafafa;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.75rem;
+                background-color: #f8fafc;
                 overflow: visible;
                 transition: border-color 0.15s ease;
                 position: relative;
             }
             .phone-input-wrapper:focus-within {
-                border-color: #60a5fa;
+                border-color: #FF9B00;
                 background-color: #fff;
-                box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.3);
+                box-shadow: 0 0 0 2px rgba(255, 155, 0, 0.15);
             }
             .phone-country-btn {
                 display: flex;
                 align-items: center;
                 gap: 6px;
                 border: none;
-                background: #f5f5f5;
+                background: #f8fafc;
                 padding: 0 10px;
                 cursor: pointer;
-                border-right: 1px solid #d4d4d4;
+                border-right: 1px solid #e5e7eb;
                 border-radius: 0.375rem 0 0 0.375rem;
                 outline: none;
                 white-space: nowrap;
                 transition: background 0.15s;
             }
             .phone-country-btn:hover {
-                background: #e5e5e5;
+                background: #f1f5f9;
             }
             .phone-country-btn img {
                 width: 24px;
@@ -54,12 +76,12 @@
                 min-width: 48px;
                 max-width: 72px;
                 border: none;
-                background: #f5f5f5;
+                background: #f8fafc;
                 padding: 0 8px;
                 font-size: 0.9375rem;
                 font-weight: 600;
                 color: #1f2937;
-                border-right: 1px solid #d4d4d4;
+                border-right: 1px solid #e5e7eb;
                 outline: none;
                 text-align: center;
                 font-family: inherit;
@@ -111,7 +133,7 @@
                 outline: none;
             }
             .phone-dropdown-search input:focus {
-                border-color: #60a5fa;
+                border-color: #FF9B00;
             }
             .phone-dropdown-list {
                 overflow-y: auto;
@@ -129,10 +151,10 @@
             }
             .phone-dropdown-item:hover,
             .phone-dropdown-item.highlighted {
-                background: #eff6ff;
+                background: #fff7d6;
             }
             .phone-dropdown-item.selected {
-                background: #dbeafe;
+                background: #ffefc0;
                 font-weight: 600;
             }
             .phone-dropdown-item img {
@@ -175,8 +197,8 @@
             }
 
             .payment-method-label.selected {
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+                border-color: #FF9B00;
+                box-shadow: 0 0 0 2px rgba(255, 155, 0, 0.22);
             }
 
             /* Stop Selection Cards */
@@ -186,19 +208,19 @@
             }
 
             .stop-card:hover {
-                border-color: #3b82f6;
-                background-color: #f0f9ff;
+                border-color: #FF9B00;
+                background-color: #fffdf4;
             }
 
             .stop-card.selected {
-                border-color: #3b82f6;
-                background-color: #eff6ff;
-                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+                border-color: #FF9B00;
+                background-color: #fff8e6;
+                box-shadow: 0 0 0 2px rgba(255, 155, 0, 0.2);
             }
 
             .stop-card.selected .stop-radio {
-                border-color: #3b82f6;
-                background-color: #3b82f6;
+                border-color: #FF9B00;
+                background-color: #FF9B00;
             }
 
             .stop-card.selected .stop-radio::after {
@@ -261,7 +283,7 @@
             }
 
             .step-circle.active {
-                background: #3b82f6;
+                background: #FF9B00;
                 color: white;
             }
 
@@ -282,7 +304,7 @@
             }
 
             .step-label.active {
-                color: #3b82f6;
+                color: #b86100;
                 font-weight: 600;
             }
 
@@ -290,7 +312,7 @@
             @media (min-width: 1280px) {
                 .sticky-summary {
                     position: sticky;
-                    top: 100px;
+                    top: 132px;
                 }
             }
 
@@ -303,27 +325,27 @@
     @endpush
 
     @php
-        $busImage = $busImages[0] ?? ($trip->bus_thumbnail ?? '/userfiles/files/kingexpressbus/cabin/1.jpg');
+        $busImage = $busImages[0] ?? ($trip->bus_thumbnail ?? '/client/images/kingexpressbus/cabin/1.jpg');
         $seatPrice = (int) ($trip->price ?? 0);
         $pickupStops = $stops->where('stop_type', '!=', 'dropoff');
         $dropoffStops = $stops->where('stop_type', '!=', 'pickup');
     @endphp
 
     {{-- Hero Section --}}
-    <section class="bg-neutral-800 text-white">
-        <div class="container mx-auto px-4 py-10">
+    <section class="booking-hero text-white px-4 py-12 md:py-14">
+        <div class="container mx-auto max-w-7xl">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                 <div class="space-y-4 lg:col-span-2">
-                    <span class="inline-flex items-center gap-2 text-sm uppercase tracking-widest text-accent-300">
+                    <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90">
                         <i class="fa-solid fa-ticket"></i>
                         {{ __('client.booking.create.header_subtitle') }}
                     </span>
-                    <h1 class="text-2xl md:text-3xl font-semibold leading-tight">
+                    <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
                         {{ $trip->route_name }}
                     </h1>
                     <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
                         <span class="inline-flex items-center gap-2">
-                            <i class="fa-solid fa-clock w-4 text-center text-blue-400"></i>
+                            <i class="fa-solid fa-clock w-4 text-center text-accent"></i>
                             {{ \Carbon\Carbon::parse($trip->start_time)->format('H:i') }} -
                             {{ \Carbon\Carbon::parse($trip->end_time)->format('H:i') }}
                         </span>
@@ -337,12 +359,12 @@
                         </span>
                     </div>
                 </div>
-                <div class="relative h-40 lg:h-48 rounded-lg overflow-hidden shadow-card">
+                <div class="relative h-44 lg:h-52 rounded-2xl overflow-hidden shadow-soft border border-white/20">
                     <img src="{{ $busImage }}" alt="{{ $trip->bus_name }}" class="h-full w-full object-cover"
                         loading="lazy">
                     <span
-                        class="absolute bottom-3 left-3 inline-flex items-center gap-2 bg-white/95 text-neutral-900 px-3 py-1.5 rounded-md text-xs font-semibold">
-                        <i class="fa-solid fa-shield-heart text-blue-600"></i>
+                        class="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-800">
+                        <i class="fa-solid fa-shield-heart text-primary-600"></i>
                         {{ __('client.booking.create.insurance_badge') }}
                     </span>
                 </div>
@@ -351,8 +373,8 @@
     </section>
 
     {{-- Step Progress Indicator --}}
-    <section class="bg-white border-b border-gray-100">
-        <div class="container mx-auto px-4 py-6">
+    <section class="bg-white border-b border-amber-100 px-4">
+        <div class="container mx-auto max-w-7xl py-6">
             <div class="step-progress max-w-lg mx-auto">
                 <div class="step-item">
                     <div class="step-circle active" id="step-1-circle">1</div>
@@ -371,8 +393,8 @@
     </section>
 
     {{-- Main Content --}}
-    <section class="py-8 bg-gray-50">
-        <div class="container mx-auto px-4 grid grid-cols-1 xl:grid-cols-3 gap-8">
+    <section class="py-8 bg-[#F8FAFC] px-4 md:py-10">
+        <div class="container mx-auto max-w-7xl grid grid-cols-1 xl:grid-cols-3 gap-8">
             <form class="xl:col-span-2 space-y-6" method="POST" action="{{ route('client.booking.store') }}"
                 id="booking-form">
                 @if (session('error'))
@@ -398,11 +420,11 @@
                     value="{{ old('dropoff_stop_id', request('dropoff_stop_id')) }}">
 
                 {{-- Step 1: Trip Info --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-1">
+                <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-1">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
-                                class="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">1</span>
+                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">1</span>
                             {{ __('client.booking.create.trip_info_title') }}
                         </h2>
                     </div>
@@ -414,7 +436,7 @@
                             </label>
                             <input type="text" id="booking_date" name="booking_date"
                                 value="{{ $bookingDate->format('d/m/Y') }}"
-                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-primary-600 focus:ring-primary-100"
                                 required>
                         </div>
                         <div>
@@ -439,7 +461,7 @@
                                             class="text-[10px] text-gray-400 uppercase tracking-wide -mt-1">{{ __('client.booking.create.tickets_unit') }}</span>
                                     </div>
                                     <button type="button" id="increase-quantity"
-                                        class="w-10 h-10 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-all shadow-sm">
+                                        class="w-10 h-10 flex items-center justify-center rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-all shadow-sm">
                                         <i class="fa-solid fa-plus text-sm"></i>
                                     </button>
                                 </div>
@@ -457,11 +479,11 @@
                 </section>
 
                 {{-- Step 2: Pickup & Dropoff --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-2">
+                <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-2">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
-                                class="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
+                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
                             {{ __('client.booking.create.location_title') }}
                         </h2>
                     </div>
@@ -497,7 +519,7 @@
                                         <span
                                             class="font-semibold text-gray-900 block truncate">{{ $stop->name }}</span>
                                         <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $stop->address }}</p>
-                                        <p class="text-xs text-blue-600 mt-1">{{ $stop->district_name }},
+                                        <p class="text-xs text-primary-600 mt-1">{{ $stop->district_name }},
                                             {{ $stop->province_name }}</p>
                                     </div>
                                 </div>
@@ -512,7 +534,7 @@
                         </label>
                         <input type="text" id="hotel_pickup_address" name="hotel_pickup_address"
                             value="{{ old('hotel_pickup_address', request('hotel_pickup_address')) }}"
-                            class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                            class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-primary-600 focus:ring-primary-100"
                             placeholder="{{ __('client.booking.create.hotel_address_placeholder') }}">
                     </div>
 
@@ -531,7 +553,7 @@
                                         <span
                                             class="font-semibold text-gray-900 block truncate">{{ $stop->name }}</span>
                                         <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ $stop->address }}</p>
-                                        <p class="text-xs text-blue-600 mt-1">{{ $stop->district_name }},
+                                        <p class="text-xs text-primary-600 mt-1">{{ $stop->district_name }},
                                             {{ $stop->province_name }}</p>
                                     </div>
                                 </div>
@@ -541,11 +563,11 @@
                 </section>
 
                 {{-- Step 3: Passenger Info --}}
-                <section class="bg-white border border-gray-100 rounded-lg p-5 space-y-5" id="section-step-3">
+                <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-3">
                     <div class="flex items-center justify-between">
                         <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                             <span
-                                class="w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm">3</span>
+                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">3</span>
                             {{ __('client.booking.create.passenger_info_title') }}
                         </h2>
                     </div>
@@ -557,7 +579,7 @@
                             </label>
                             <input type="text" id="customer_name" name="customer_name"
                                 value="{{ old('customer_name', request('customer_name', $user->name ?? '')) }}"
-                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-primary-600 focus:ring-primary-100"
                                 required placeholder="{{ __('client.booking.create.name_placeholder') }}">
                         </div>
                         <div>
@@ -592,7 +614,7 @@
                             </label>
                             <input type="email" id="customer_email" name="customer_email"
                                 value="{{ old('customer_email', request('customer_email', $user->email ?? '')) }}"
-                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-primary-600 focus:ring-primary-100"
                                 required placeholder="{{ __('client.booking.create.email_placeholder') }}">
                         </div>
                         <div>
@@ -600,7 +622,7 @@
                                 {{ __('client.booking.create.notes_label') }}
                             </label>
                             <textarea id="notes" name="notes" rows="1"
-                                class="w-full rounded-md border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-blue-400 focus:ring-0"
+                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:bg-white focus:border-primary-600 focus:ring-primary-100"
                                 placeholder="{{ __('client.booking.create.notes_placeholder') }}">{{ old('notes', request('notes')) }}</textarea>
                         </div>
                     </div>
@@ -618,7 +640,7 @@
                                     <div class="flex items-start gap-3">
                                         <div
                                             class="mt-0.5 w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center radio-icon">
-                                            <div class="w-2.5 h-2.5 rounded-full bg-blue-600 hidden"></div>
+                                            <div class="w-2.5 h-2.5 rounded-full bg-primary-600 hidden"></div>
                                         </div>
                                         <div class="flex-1">
                                             <span
@@ -638,7 +660,7 @@
                         {!! __('client.booking.create.terms_agreement', ['link' => '#']) !!}
                     </div>
                     <button type="submit"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-accent-500 text-white font-semibold rounded-md hover:bg-accent-600 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                         id="submit-booking">
                         <span id="submit-text">{{ __('client.booking.create.submit_button') }}</span>
                         <i id="submit-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
@@ -649,7 +671,7 @@
 
             {{-- Sidebar Summary --}}
             <aside class="space-y-5 sticky-summary">
-                <div class="bg-white border border-gray-100 rounded-lg p-5 space-y-4">
+                <div class="booking-sidebar-card p-5 space-y-4 md:p-6">
                     <h2 class="text-lg font-bold text-gray-900">{{ __('client.booking.create.summary_title') }}</h2>
 
                     {{-- Selected Locations --}}
@@ -698,53 +720,53 @@
                     <div
                         class="border-t border-gray-200 pt-4 mt-4 flex items-center justify-between text-lg font-bold text-gray-900">
                         <span>{{ __('client.booking.create.summary_total') }}</span>
-                        <span class="text-blue-600" id="summary-total-price">0đ</span>
+                        <span class="text-primary-600" id="summary-total-price">0đ</span>
                     </div>
                 </div>
 
                 {{-- Amenities --}}
-                <div class="bg-blue-50 border border-blue-100 rounded-lg p-5 space-y-3 text-sm text-blue-800">
-                    <h3 class="text-sm font-semibold text-blue-900">{{ __('client.booking.create.amenities_title') }}
+                <div class="booking-sidebar-card p-5 space-y-3 text-sm text-slate-700 md:p-6 bg-[#fffdf5]">
+                    <h3 class="text-sm font-semibold text-slate-800">{{ __('client.booking.create.amenities_title') }}
                     </h3>
                     <ul class="grid grid-cols-2 gap-x-3 gap-y-2">
                         @forelse ($services as $service)
                             <li class="flex items-center gap-2 text-xs">
-                                <i class="fa-solid fa-circle-check text-blue-500"></i>
+                                <i class="fa-solid fa-circle-check text-primary-600"></i>
                                 {{ $service }}
                             </li>
                         @empty
                             <li class="flex items-center gap-2 text-xs"><i
-                                    class="fa-solid fa-circle-check text-blue-500"></i>{{ __('client.booking.create.amenity_ac') }}
+                                    class="fa-solid fa-circle-check text-primary-600"></i>{{ __('client.booking.create.amenity_ac') }}
                             </li>
                             <li class="flex items-center gap-2 text-xs"><i
-                                    class="fa-solid fa-circle-check text-blue-500"></i>{{ __('client.booking.create.amenity_blanket') }}
+                                    class="fa-solid fa-circle-check text-primary-600"></i>{{ __('client.booking.create.amenity_blanket') }}
                             </li>
                             <li class="flex items-center gap-2 text-xs"><i
-                                    class="fa-solid fa-circle-check text-blue-500"></i>{{ __('client.booking.create.amenity_water') }}
+                                    class="fa-solid fa-circle-check text-primary-600"></i>{{ __('client.booking.create.amenity_water') }}
                             </li>
                             <li class="flex items-center gap-2 text-xs"><i
-                                    class="fa-solid fa-circle-check text-blue-500"></i>{{ __('client.booking.create.amenity_wifi') }}
+                                    class="fa-solid fa-circle-check text-primary-600"></i>{{ __('client.booking.create.amenity_wifi') }}
                             </li>
                         @endforelse
                     </ul>
                 </div>
 
                 {{-- Support --}}
-                <div class="bg-white border border-gray-100 rounded-lg p-5 space-y-3">
+                <div class="booking-sidebar-card p-5 space-y-3 md:p-6">
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('client.booking.create.support_title') }}
                     </h3>
                     <div class="space-y-2">
                         @if (!empty($web_profile->hotline))
                             <a href="tel:{{ preg_replace('/[^\d+]/', '', $web_profile->hotline) }}"
                                 class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-sm">
-                                <i class="fa-solid fa-phone text-blue-600"></i>
+                                <i class="fa-solid fa-phone text-primary-600"></i>
                                 <span class="font-medium text-gray-800">{{ $web_profile->hotline }}</span>
                             </a>
                         @endif
                         @if (!empty($web_profile->zalo_url))
                             <a href="{{ $web_profile->zalo_url }}" target="_blank"
                                 class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-sm">
-                                <i class="fa-solid fa-comment-dots text-blue-600"></i>
+                                <i class="fa-solid fa-comment-dots text-primary-600"></i>
                                 <span class="font-medium text-gray-800">Zalo</span>
                             </a>
                         @endif
@@ -1251,11 +1273,11 @@
                         const innerDot = radioIcon.querySelector('div');
                         if (input.checked) {
                             label.classList.add('selected');
-                            radioIcon.classList.add('border-blue-600');
+                            radioIcon.classList.add('border-primary-600');
                             innerDot.classList.remove('hidden');
                         } else {
                             label.classList.remove('selected');
-                            radioIcon.classList.remove('border-blue-600');
+                            radioIcon.classList.remove('border-primary-600');
                             innerDot.classList.add('hidden');
                         }
                     });

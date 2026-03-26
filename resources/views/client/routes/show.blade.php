@@ -1,7 +1,7 @@
-{{-- ===== resources\views\client\routes\show.blade.php ===== --}}
+﻿{{-- ===== resources\views\client\routes\show.blade.php ===== --}}
 <x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.route_show.meta_title')" :description="$description ?? ''">
     @php
-        $heroImage = $route->banner_url ?? ($route->thumbnail_url ?? '/userfiles/files/city_imgs/ha-noi.jpg');
+        $heroImage = $route->banner_url ?? ($route->thumbnail_url ?? '/client/images/city_imgs/ha-noi.jpg');
         $minPrice = (int) ($route->min_price ?? 0);
         $priceDisplay =
             $minPrice > 0
@@ -10,7 +10,7 @@
         $routeHighlights = [
             [
                 'icon' => 'fa-solid fa-location-dot',
-                'color' => 'from-blue-400 to-blue-600',
+                'color' => 'from-primary-500 to-primary-700',
                 'label' => __('client.route_show.hero_origin'),
                 'value' => $route->start_province_name,
             ],
@@ -95,34 +95,34 @@
             'price_high' => __('client.route_show.filters.sort_price_high'),
             'seats_available' => __('client.route_show.filters.sort_seats'),
         ];
-        $galleryFallback = '/userfiles/files/king/sleeper/5.jpg';
+        $galleryFallback = '/client/images/kingexpressbus/sleeper/1.jpg';
     @endphp
 
     @push('styles')
         <style>
-            /* Hero Section - Compact Banner */
+            /* HERO/SEARCH */
             .route-hero {
-                background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.7)),
+                background: linear-gradient(110deg, rgba(8, 23, 43, 0.78), rgba(255, 155, 0, 0.56)),
                     url('{{ $heroImage }}');
                 background-size: cover;
                 background-position: center;
-                min-height: 140px;
+                min-height: 168px;
                 background-attachment: fixed;
             }
 
             @media (max-width: 768px) {
                 .route-hero {
                     background-attachment: scroll;
-                    min-height: 120px;
+                    min-height: 140px;
                 }
             }
 
             /* Filter Sidebar */
             .filters-sidebar {
                 background: #ffffff;
-                border-radius: 8px;
-                border: 1px solid #e5e7eb;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                border-radius: 16px;
+                border: 1px solid #f4d8a2;
+                box-shadow: 0 14px 30px -20px rgba(15, 23, 42, 0.28);
                 position: sticky;
                 top: 100px;
                 max-height: calc(100vh - 120px);
@@ -164,9 +164,9 @@
             .filters-sticky-footer {
                 position: sticky;
                 bottom: 0;
-                background: #f8fafc;
-                border-top: 1px solid #e5e7eb;
-                border-radius: 0 0 8px 8px;
+                background: #fffcf3;
+                border-top: 1px solid #f4d8a2;
+                border-radius: 0 0 16px 16px;
                 padding: 16px 20px;
                 z-index: 2;
             }
@@ -238,14 +238,14 @@
             }
 
             .filter-pill:hover {
-                border-color: #3b82f6;
-                background: #eff6ff;
+                border-color: #FF9B00;
+                background: #fffcf0;
             }
 
             .filter-pill.active,
             .filter-pill:has(input:checked) {
-                background: #3b82f6;
-                border-color: #3b82f6;
+                background: #FF9B00;
+                border-color: #FF9B00;
                 color: #ffffff;
             }
 
@@ -336,8 +336,8 @@
             }
 
             .trip-time-block .time-dot.departure {
-                background: #3b82f6;
-                border: 2px solid #93c5fd;
+                background: #FF9B00;
+                border: 2px solid #FFE8B3;
             }
 
             .trip-time-block .time-dot.arrival {
@@ -447,7 +447,7 @@
             }
 
             .service-chip i {
-                color: #3b82f6;
+                color: #FF9B00;
                 font-size: 9px;
             }
 
@@ -482,8 +482,8 @@
                 gap: 5px;
                 padding: 7px 12px;
                 background: transparent;
-                color: #1565C0;
-                border: 1px solid #bfdbfe;
+                color: #FF9B00;
+                border: 1px solid #ffe3a6;
                 font-weight: 600;
                 font-size: 12px;
                 border-radius: 6px;
@@ -493,8 +493,8 @@
             }
 
             .btn-details-toggle:hover {
-                background: #eff6ff;
-                border-color: #93c5fd;
+                background: #fffcf0;
+                border-color: #FFE8B3;
             }
 
             .btn-details-toggle .chevron-icon {
@@ -536,7 +536,7 @@
                 top: 8px;
                 bottom: 8px;
                 width: 2px;
-                background: linear-gradient(to bottom, #3b82f6, #10b981);
+                background: linear-gradient(to bottom, #FF9B00, #10b981);
                 border-radius: 1px;
             }
 
@@ -557,8 +557,8 @@
             }
 
             .route-timeline-stop.is-origin::before {
-                background: #3b82f6;
-                border-color: #93c5fd;
+                background: #FF9B00;
+                border-color: #FFE8B3;
             }
 
             .route-timeline-stop.is-destination::before {
@@ -591,8 +591,8 @@
             }
 
             .point-card.pickup {
-                background: #eff6ff;
-                border-color: #bfdbfe;
+                background: #fffcf0;
+                border-color: #ffe3a6;
             }
 
             .point-card.dropoff {
@@ -612,7 +612,7 @@
             }
 
             .point-card.pickup .point-title {
-                color: #1d4ed8;
+                color: #b86100;
             }
 
             .point-card.dropoff .point-title {
@@ -655,7 +655,7 @@
 
             .detail-gallery-thumb:hover,
             .detail-gallery-thumb.active {
-                border-color: #3b82f6;
+                border-color: #FF9B00;
             }
 
             .detail-gallery-thumb img {
@@ -756,13 +756,13 @@
             }
 
             .quick-filter-pill.active {
-                background: #1565C0;
-                border-color: #1565C0;
+                background: #FF9B00;
+                border-color: #FF9B00;
                 color: #ffffff;
             }
 
             .quick-filter-pill.active:hover {
-                background: #0D47A1;
+                background: #e68a00;
             }
 
             .quick-filter-pill.clear-pill {
@@ -861,8 +861,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                background: #f8fafc;
-                border-radius: 8px 8px 0 0;
+                background: #fffcf3;
+                border-radius: 16px 16px 0 0;
             }
 
             .filter-sidebar-header h3 {
@@ -903,10 +903,13 @@
                 background: rgba(0, 0, 0, 0.6);
                 backdrop-filter: blur(4px);
                 z-index: 120;
-                display: flex;
                 align-items: center;
                 justify-content: center;
                 padding: 20px;
+            }
+
+            .modal-overlay:not(.hidden) {
+                display: flex;
             }
 
             .modal-content {
@@ -945,7 +948,7 @@
             }
 
             .modal-thumb.is-active {
-                border-color: #3b82f6;
+                border-color: #FF9B00;
             }
 
             /* Fullscreen Image Lightbox */
@@ -1097,9 +1100,9 @@
     </section>
 
     {{-- Search Section - Compact --}}
-    <section id="search-section" class="bg-white py-4 border-b border-gray-100">
-        <div class="container mx-auto px-4">
-            <div class="bg-neutral-50 rounded-lg p-3 md:p-4 border border-neutral-200">
+    <section id="search-section" class="border-b border-amber-100 bg-white py-4">
+        <div class="container mx-auto max-w-7xl px-4">
+            <div class="">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
             </div>
         </div>
@@ -1107,7 +1110,7 @@
 
     {{-- Trust Bar --}}
     <section class="trust-bar py-3">
-        <div class="container mx-auto px-4">
+        <div class="container mx-auto max-w-7xl px-4">
             <div class="flex items-center justify-center gap-6 md:gap-10 overflow-x-auto scrollbar-thin pb-1">
                 <div class="trust-item">
                     <span class="trust-icon bg-emerald-100 text-emerald-600">
@@ -1116,7 +1119,7 @@
                     <span>{{ __('client.route_show.trust.safe_booking', ['default' => 'Đặt vé an toàn']) }}</span>
                 </div>
                 <div class="trust-item">
-                    <span class="trust-icon bg-blue-100 text-blue-600">
+                    <span class="trust-icon bg-primary-100 text-primary-600">
                         <i class="fa-solid fa-headset"></i>
                     </span>
                     <span>{{ __('client.route_show.trust.support_247', ['default' => 'Hỗ trợ 24/7']) }}</span>
@@ -1139,8 +1142,8 @@
 
     @if ($trips->isNotEmpty() || $hasActiveFilters)
         {{-- Quick Filter Pills --}}
-        <section class="bg-white py-3 border-b border-gray-100 sticky top-0 z-40 shadow-sm">
-            <div class="container mx-auto px-4">
+        <section class="sticky top-20 xl:top-[124px] z-40 border-b border-amber-100 bg-white py-3 shadow-sm">
+            <div class="container mx-auto max-w-7xl px-4">
                 <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
                     <span class="text-sm font-semibold text-gray-500 whitespace-nowrap mr-1">
                         {{ __('client.route_show.quick_filters.label', ['default' => 'Lọc nhanh:']) }}
@@ -1194,8 +1197,8 @@
         </section>
 
         {{-- Results Section --}}
-        <section id="availabilities" class="py-6 lg:py-8 bg-gray-50">
-            <div class="container mx-auto px-4">
+        <section id="availabilities" class="bg-gray-50 py-6 lg:py-8">
+            <div class="container mx-auto max-w-7xl px-4">
                 {{-- Results Header --}}
                 <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 mb-6">
                     <div>
@@ -1216,7 +1219,7 @@
                         <span>{{ __('client.route_show.filters.mobile_button') }}</span>
                         @if ($hasActiveFilters)
                             <span
-                                class="inline-flex items-center justify-center w-5 h-5 bg-blue-600 text-white text-xs font-bold rounded-full">{{ $activeFilterCount }}</span>
+                                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">{{ $activeFilterCount }}</span>
                         @endif
                     </button>
                 </div>
@@ -1252,11 +1255,11 @@
                         <div id="filter-panel-desktop" class="filters-sidebar">
                             <div class="filter-sidebar-header">
                                 <h3>
-                                    <i class="fa-solid fa-sliders text-blue-500"></i>
+                                    <i class="fa-solid fa-sliders text-primary-600"></i>
                                     {{ __('client.route_show.filters.sidebar_title', ['default' => 'Bộ lọc']) }}
                                 </h3>
                                 @if ($hasActiveFilters)
-                                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-bold text-primary-700">
                                         {{ $activeFilterCount }} {{ __('client.route_show.filters.active', ['default' => 'đang lọc']) }}
                                     </span>
                                 @endif
@@ -1339,7 +1342,7 @@
                                                 @if ($trip->has_price)
                                                     <p class="price-tag">{{ number_format($trip->price) }}<small>đ</small></p>
                                                 @else
-                                                    <p class="text-sm font-bold text-blue-600">{{ __('client.route_show.price_contact') }}</p>
+                                                    <p class="text-sm font-bold text-primary-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
                                                 <span class="availability-badge {{ $hasSeats ? 'available' : 'unavailable' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
@@ -1416,7 +1419,7 @@
                                         {{-- Route Timeline --}}
                                         <div class="mb-4">
                                             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-1.5">
-                                                <i class="fa-solid fa-route text-blue-500"></i>
+                                                <i class="fa-solid fa-route text-primary-600"></i>
                                                 Lộ trình chuyến xe
                                             </h4>
                                             <div class="route-timeline">
@@ -1438,7 +1441,7 @@
                                                 <h4 class="point-title">
                                                     <i class="fa-solid fa-location-dot"></i>
                                                     {{ __('client.route_show.trip_card.pickup_point', ['default' => 'Điểm đón']) }}
-                                                    <span class="text-[10px] font-normal text-blue-400">({{ $pickupPoints->count() }} điểm)</span>
+                                                    <span class="text-[10px] font-normal text-primary-500">({{ $pickupPoints->count() }} điểm)</span>
                                                 </h4>
                                                 @forelse ($pickupPoints as $pickup)
                                                     <p class="point-item">{{ $pickup->name }}</p>
@@ -1480,7 +1483,7 @@
                                             </div>
                                             <div>
                                                 <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
-                                                    <i class="fa-solid fa-bus text-blue-400"></i>
+                                                    <i class="fa-solid fa-bus text-primary-500"></i>
                                                     Thông tin xe
                                                 </h4>
                                                 <div class="text-xs text-gray-500 space-y-1">
@@ -1527,22 +1530,22 @@
         </section>
     @else
         {{-- No Results --}}
-        <section class="py-20 bg-gray-50">
+        <section class="bg-gray-50 py-20">
             <div class="container mx-auto px-4 text-center max-w-lg">
-                <div class="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center shadow-inner">
+                <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-linear-to-br from-gray-100 to-gray-200 shadow-inner">
                     <i class="fa-solid fa-calendar-xmark text-4xl text-gray-400"></i>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-3">{{ __('client.route_show.no_trips.title') }}</h2>
                 <p class="text-gray-500 mb-8 leading-relaxed">{{ __('client.route_show.no_trips.description') }}</p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
                     <a href="#search-section"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition">
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary-600 px-6 py-3.5 font-semibold text-primary-600 transition hover:bg-primary-50">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         {{ __('client.route_show.no_trips.research_button') }}
                     </a>
                     @if ($hasActiveFilters ?? false)
                         <a href="{{ $clearFiltersUrl }}"
-                            class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-600/25">
+                            class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-primary-600/25 transition hover:bg-primary-700">
                             <i class="fa-solid fa-xmark"></i>
                             {{ __('client.route_show.no_trips.clear_filters_button') }}
                         </a>
@@ -1571,21 +1574,31 @@
 
     {{-- Travel Tips --}}
     @if (!empty($travelTips))
-        <section id="travel-tips" class="py-16 bg-white">
-            <div class="container mx-auto px-4">
-                <div class="flex items-center gap-4 mb-10">
-                    <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-                        <i class="fa-solid fa-lightbulb text-yellow-500 text-xl"></i>
+        <section id="travel-tips" class="bg-[#F8FAFC] py-16 md:py-20">
+            <div class="container mx-auto max-w-7xl px-4">
+                <div class="mb-10 flex flex-col gap-3 md:mb-12 md:flex-row md:items-end md:justify-between">
+                    <div>
+                        <span class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary-700">
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            {{ __('client.route_show.tips.title') }}
+                        </span>
+                        <h2 class="mt-3 text-2xl font-extrabold text-slate-800 md:text-3xl">
+                            {{ __('client.route_show.tips.title') }}
+                        </h2>
+                        <p class="mt-2 text-sm text-slate-500 md:text-base">
+                            Một vài kinh nghiệm hữu ích giúp chuyến đi của bạn thoải mái và chủ động hơn.
+                        </p>
                     </div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900">{{ __('client.route_show.tips.title') }}
-                    </h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
                     @foreach ($travelTips as $tip)
-                        <article
-                            class="bg-gray-50 border border-gray-100 rounded-2xl p-6 hover:border-yellow-200 hover:bg-yellow-50/30 transition">
-                            <h3 class="text-lg font-bold text-gray-900 mb-3">{{ $tip['title'] }}</h3>
-                            <p class="text-gray-600 leading-relaxed">{{ $tip['content'] }}</p>
+                        <article class="rounded-2xl border border-amber-100 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-xl">
+                            <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF5DC] text-primary-700">
+                                <i class="fa-solid fa-star text-sm" aria-hidden="true"></i>
+                            </div>
+                            <h3 class="mb-2 text-lg font-bold text-slate-800">{{ $tip['title'] }}</h3>
+                            <p class="text-sm leading-relaxed text-slate-600 md:text-base">{{ $tip['content'] }}</p>
                         </article>
                     @endforeach
                 </div>
@@ -1675,38 +1688,6 @@
                     });
                 });
 
-                // Mobile Filter
-                const filterPanel = document.getElementById('filter-panel');
-                const filterBackdrop = document.getElementById('mobile-filter-backdrop');
-                const filterToggle = document.getElementById('mobile-filter-toggle');
-                const filterClose = document.getElementById('mobile-filter-close');
-
-                function openFilters() {
-                    if (!filterPanel) return;
-                    filterPanel.classList.add('open');
-                    filterBackdrop?.classList.remove('hidden');
-                    body.classList.add('overflow-hidden');
-                }
-
-                function closeFilters() {
-                    if (!filterPanel) return;
-                    filterPanel.classList.remove('open');
-                    filterBackdrop?.classList.add('hidden');
-                    body.classList.remove('overflow-hidden');
-                }
-
-                filterToggle?.addEventListener('click', openFilters);
-                filterClose?.addEventListener('click', closeFilters);
-                filterBackdrop?.addEventListener('click', closeFilters);
-
-                window.addEventListener('resize', function() {
-                    if (window.innerWidth >= 1024) {
-                        body.classList.remove('overflow-hidden');
-                        filterBackdrop?.classList.add('hidden');
-                        filterPanel?.classList.remove('open');
-                    }
-                });
-
                 // Image Trigger (for gallery in expanded details)
                 document.querySelectorAll('[data-image-trigger]').forEach(function(button) {
                     button.addEventListener('click', function() {
@@ -1757,6 +1738,12 @@
                 const modalDropoffPoints = document.getElementById('modal-dropoff-points');
                 const modalAvailability = document.getElementById('modal-availability');
                 const modalBookingLink = document.getElementById('modal-booking-link');
+
+                // Ensure modal never auto-opens from stale state.
+                if (modal) {
+                    modal.classList.add('hidden');
+                }
+                body.classList.remove('overflow-hidden');
 
                 function openModal() {
                     modal?.classList.remove('hidden');
@@ -2043,12 +2030,12 @@
                     <div>
                         <p class="text-xs text-gray-500">
                             {{ __('client.route_show.mobile_bar.from', ['default' => 'Chỉ từ']) }}</p>
-                        <p class="text-xl font-bold text-blue-600">
+                        <p class="text-xl font-bold text-primary-600">
                             {{ number_format($lowestPrice, 0, ',', '.') }}₫
                         </p>
                     </div>
                     <a href="#availabilities"
-                        class="flex-1 max-w-[160px] inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent-500 text-white font-semibold rounded-md hover:bg-accent-600 transition-colors">
+                        class="inline-flex max-w-40 flex-1 items-center justify-center gap-2 rounded-md bg-accent-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-accent-600">
                         {{ __('client.route_show.mobile_bar.view_trips', ['default' => 'Xem chuyến']) }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>

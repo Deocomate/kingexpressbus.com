@@ -1,10 +1,10 @@
-{{-- Scrollable Filter Content --}}
+﻿{{-- Scrollable Filter Content --}}
 <div class="filters-scrollable">
     {{-- Sort --}}
     <div class="filter-section filter-collapsible">
         <h3 class="filter-title filter-toggle" data-target="filter-sort">
             <span class="flex items-center gap-2">
-                <i class="fa-solid fa-arrow-down-wide-short text-blue-500"></i>
+                <i class="fa-solid fa-arrow-down-wide-short text-primary-600"></i>
                 {{ __('client.route_show.filters.sort_title') }}
             </span>
             <i class="fa-solid fa-chevron-down filter-chevron text-xs text-gray-400 transition-transform duration-200"></i>
@@ -14,7 +14,7 @@
                 @foreach ($sortOptions as $value => $label)
                     <label class="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
                         <input type="radio" name="sort" value="{{ $value }}" @checked(($filterState['sort'] ?? 'recommended') === $value)
-                            class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                            class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500">
                         <span>{{ $label }}</span>
                     </label>
                 @endforeach
@@ -35,12 +35,12 @@
             <div class="flex items-center gap-3">
                 <input type="number" name="price_min" value="{{ $filterState['price_min'] ?? '' }}"
                     placeholder="{{ $priceRange['min'] ?? 0 ? number_format($priceRange['min']) : __('client.route_show.filters.price_from') }}"
-                    class="w-full px-4 py-3 rounded-md border border-neutral-200 bg-neutral-50 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                    class="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
                 <span class="text-neutral-300">-</span>
                 <input type="number" name="price_max" value="{{ $filterState['price_max'] ?? '' }}"
                     placeholder="{{ $priceRange['max'] ?? 0 ? number_format($priceRange['max']) : __('client.route_show.filters.price_to') }}"
-                    class="w-full px-4 py-3 rounded-md border border-neutral-200 bg-neutral-50 text-sm focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+                    class="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
             </div>
         </div>
@@ -108,7 +108,7 @@
                     @foreach ($busCategoryOptions as $category)
                         <label class="flex items-center gap-3 text-sm text-gray-600 cursor-pointer hover:text-gray-900">
                             <input type="checkbox" name="bus_categories[]" value="{{ $category }}"
-                                @checked(in_array($category, $filterState['bus_categories'] ?? [])) class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                                @checked(in_array($category, $filterState['bus_categories'] ?? [])) class="h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500">
                             <span>{{ $category }}</span>
                         </label>
                     @endforeach
@@ -121,13 +121,14 @@
 {{-- Sticky Action Buttons --}}
 <div class="filters-sticky-footer">
     <button type="submit"
-        class="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold transition-colors duration-200 flex items-center justify-center gap-2 text-sm">
+        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-primary-700 active:scale-95">
         <i class="fa-solid fa-check"></i>
         {{ __('client.route_show.filters.apply_button') }}
     </button>
     <a href="{{ $clearFiltersUrl }}"
-        class="w-full mt-2 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-md font-medium hover:bg-neutral-50 transition-colors duration-200 flex items-center justify-center gap-2 text-sm">
+        class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white py-2.5 text-sm font-medium text-neutral-600 transition duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700">
         <i class="fa-solid fa-rotate-left"></i>
         {{ __('client.route_show.filters.clear_button') }}
     </a>
 </div>
+

@@ -1,50 +1,109 @@
 # Project Overview & Product Development Requirements (PDR)
 
-## 1. Project Overview
-**KingExpressBus** is a single-tenant bus ticket booking platform. The system facilitates the management of routes, trips, buses, and bookings, providing distinct interfaces for platform administrators and end-users (customers).
+## 1. Product Overview
 
-### Key Objectives
--   **Centralized Management:** Allow platform admins to manage locations, routes, buses, trips, and platform settings.
--   **User Convenience:** Provide a seamless booking experience for customers with search, seat selection, and payment options.
+KingExpressBus is a single-tenant bus booking system built on Laravel 12.
 
-## 2. Stakeholders & Roles
--   **Administrator (Admin):** Platform owner with full access to system configurations, master data (locations), and oversight of all bookings.
--   **Customer (Client):** End-users who search for trips, book tickets, and manage their travel history.
+It serves two audiences:
+- Admin: controls master data and operations.
+- Client (customer): searches trips and creates bookings.
 
-## 3. Product Development Requirements (PDR)
+Core domain is route-trip-booking management with supporting location data and website configuration.
 
-### 3.1 Functional Requirements
+## 2. Stakeholders And Roles
 
-#### A. Authentication & Authorization
--   **Multi-guard Auth:** Distinct authentication flows for Admin and Customer.
--   **Registration:** Public registration for Customers. Admin account creation is internal.
--   **Profile Management:** Users can update personal information and passwords.
+- Administrator (Admin): full CRUD on operational data and platform settings.
+- Customer (Client): public browsing + booking + account profile actions.
 
-#### B. Admin Module
--   **Dashboard:** System-wide statistics.
--   **Website Configuration:** Manage logo, SEO settings, contact info, and menus via `web_profiles` and `menus`.
--   **Location Management:** CRUD for Provinces, Districts, Stops, and District Types.
--   **Route Management:** Define routes (Start Province -> End Province).
--   **Fleet Management:** Manage buses, seat maps, and amenities.
--   **Trip Scheduling:** Create trips with time, price, and availability.
--   **Booking Oversight:** View and manage all bookings across the platform.
+## 3. Functional Requirements
 
-#### C. Client (Customer) Module
--   **Search & Discovery:** Search trips by origin, destination, and date.
--   **Route Details:** View bus details, amenities, photos, and policies.
--   **Booking Flow:**
-    -   Select Route -> Select Seat (implied by schema) -> Enter Info -> Payment.
-    -   Support for multiple payment methods (Online Banking, Cash on Pickup).
--   **Localization:** Switch between Vietnamese (vi) and English (en).
--   **Static Pages:** About Us, Contact, Articles.
+### 3.1 Authentication & Access Control
 
-### 3.2 Non-Functional Requirements
--   **Performance:** Optimized for fast search results.
--   **SEO:** Dynamic meta tags for routes and locations.
--   **Scalability:** Database design supports routes, trips, and future expansions.
--   **Security:** Role-based access control (RBAC) middleware (`AdminAuthMiddleware`, `CustomerAuthMiddleware`).
+- Separate admin and client authentication flows.
+- Public registration for clients.
+- Middleware-based role protection:
+    - `AdminAuthMiddleware`
+    - `CustomerAuthMiddleware`
 
-## 4. Roadmap (Inferred)
--   **Phase 1 (MVP):** Core booking flow, admin panel, manual payment confirmation.
--   **Phase 2:** Advanced seat selection (visual), Payment Gateway integration.
--   **Phase 3:** Mobile App API, Loyalty program.
+### 3.2 Admin Capabilities
+
+- Dashboard and management screens.
+- Website configuration via `web_profiles` and `menus`.
+- Location management:
+    - `provinces`
+    - `district_types`
+    - `districts`
+    - `stops`
+- Transport and schedule management:
+    - `routes`
+    - `route_stops`
+    - `buses`
+    - `bus_services`
+    - `trips`
+- Booking management:
+    - `bookings`
+
+### 3.3 Client Capabilities
+
+- Search trips by origin/destination/date.
+- View route and trip details.
+- Booking flow:
+    - choose trip
+    - provide customer info
+    - choose pickup/dropoff points
+    - submit booking
+- Localization support (`vi`, `en`).
+
+## 4. Non-Functional Requirements
+
+- Performance: fast search and booking response.
+- Security: role-protected admin/client areas.
+- Maintainability: thin controllers, service-layer business logic.
+- SEO/content: route/location metadata and static content pages.
+
+## 5. Database Scope (Complete Inventory)
+
+The documentation scope includes all current active tables in the application schema.
+
+### 5.1 Framework/System Tables
+
+- `migrations`
+- `users`
+- `password_reset_tokens`
+- `sessions`
+- `cache`
+- `cache_locks`
+- `jobs`
+- `job_batches`
+- `failed_jobs`
+- `personal_access_tokens`
+
+### 5.2 Business Tables
+
+- `web_profiles`
+- `menus`
+- `provinces`
+- `district_types`
+- `districts`
+- `stops`
+- `routes`
+- `route_stops`
+- `bus_services`
+- `buses`
+- `trips`
+- `bookings`
+
+### 5.3 Legacy (Historical, Not Active In Current Single-Tenant Runtime)
+
+- `companies`
+- `company_routes`
+- `company_route_stops`
+- `bus_routes`
+
+These legacy tables exist for migration history/rollback and are not part of the current target runtime schema.
+
+## 6. Product Roadmap (High-Level)
+
+- Phase 1: core booking and admin management.
+- Phase 2: richer seat selection and payment enhancements.
+- Phase 3: API/mobile expansion and loyalty features.

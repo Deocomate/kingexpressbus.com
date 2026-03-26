@@ -1,43 +1,90 @@
 # Codebase Summary
 
-## 1. Architecture Overview
-The project follows the standard **Laravel 11/12** MVC architecture. It is a monolithic application serving two distinct user panels (Admin, Client) via server-side rendering (Blade templates implied, though API structure is also present but currently commented out).
+## 1. Architecture Snapshot
 
-## 2. Directory Structure
+- Pattern: Laravel MVC monolith.
+- Runtime style: server-side rendered web app (Blade views).
+- Product shape: two main panels (`admin`, `client`) with shared domain models.
+- Tenant model: single-tenant (legacy multi-tenant tables are deprecated by migration refactor).
 
-### `app/`
--   **Http/Controllers:** Organized by functional modules:
-    -   `Admin/`: Controllers for platform administration (RouteController, BusController, TripController, etc.).
-    -   `Client/`: Controllers for the public facing website (HomeController, BookingController).
-    -   `Auth/`: Authentication logic (Login, Register, Logout).
-    -   `System/`: Utility controllers (e.g., CkFinderController).
--   **Http/Middleware:** Custom middleware for role-based access:
-    -   `Roles/AdminAuthMiddleware`
-    -   `Roles/CustomerAuthMiddleware`
--   **Models:** Eloquent models representing the database entities (User, Bus, Route, Booking, etc.).
+## 2. Runtime Areas
 
-### `routes/`
--   **`web.php`:** Main entry point for all application routes.
-    -   **Prefix `admin.`**: Protected by Admin middleware.
-    -   **Prefix `client.`**: Public and Customer middleware routes.
--   **`api.php`**: Currently commented out/placeholder.
+### 2.1 Admin Area
 
-### `database/`
--   **Migrations:** robust schema definition handling relational integrity (Foreign Keys with Cascades).
+Main responsibilities:
+- Website configuration (`web_profiles`, `menus`)
+- Location data (`provinces`, `district_types`, `districts`, `stops`)
+- Route and fleet management (`routes`, `route_stops`, `buses`, `bus_services`)
+- Schedule management (`trips`)
+- Booking operations (`bookings`)
 
-## 3. Key Functionalities & Logic
+### 2.2 Client Area
 
-### Authentication
--   The system uses Laravel's built-in Auth mechanisms but separates sessions/guards for different user types (likely configured in `config/auth.php` - *to be verified*).
+Main responsibilities:
+- Home/search pages
+- Route/trip detail pages
+- Booking submission flow
+- Locale switching (`en`, `vi`)
+- Profile/account pages under customer-auth middleware
 
-### Content Management
--   **CKFinder Integration:** The project includes CKFinder for handling file uploads (images for buses, routes), integrated via `CkFinderController`.
+### 2.3 Authentication & Middleware
 
-### Localization
--   Route `/locale/{locale}` handles session-based language switching ('en', 'vi').
+- Admin auth middleware: `App\Http\Middleware\Roles\AdminAuthMiddleware`
+- Customer auth middleware: `App\Http\Middleware\Roles\CustomerAuthMiddleware`
 
-## 4. Dependencies
--   `laravel/framework`: ^12.0 (Bleeding edge/Latest)
--   `ckfinder/ckfinder-laravel-package`: ^5.0 (File management)
--   `resend/resend-php`: Email service integration.
--   `laravel/sanctum`: API token management (installed but API routes are currently inactive).
+## 3. Important Directories
+
+- `app/Http/Controllers/Admin`: admin feature controllers
+- `app/Http/Controllers/Client`: client feature controllers
+- `app/Http/Controllers/Auth`: authentication controllers
+- `app/Services`: business logic services for booking, bus, route, trip, and home
+- `app/Models`: Eloquent models (Booking, Bus, District, Province, Route, Stop, Trip, User, etc.)
+- `routes/web.php`: primary route definitions
+- `database/migrations`: schema source of truth
+
+## 4. Current Database Coverage (All Active Tables)
+
+Framework/system:
+- `migrations`
+- `users`
+- `password_reset_tokens`
+- `sessions`
+- `cache`
+- `cache_locks`
+- `jobs`
+- `job_batches`
+- `failed_jobs`
+- `personal_access_tokens`
+
+Domain/business:
+- `web_profiles`
+- `menus`
+- `provinces`
+- `district_types`
+- `districts`
+- `stops`
+- `routes`
+- `route_stops`
+- `bus_services`
+- `buses`
+- `trips`
+- `bookings`
+
+Legacy historical tables (dropped in single-tenant refactor):
+- `companies`
+- `company_routes`
+- `company_route_stops`
+- `bus_routes`
+
+## 5. Key Data Flow
+
+- Admin creates and maintains location + route + bus + trip data.
+- Client searches trips and submits booking requests.
+- Booking references trip and stop points, then moves through status/payment lifecycle.
+
+## 6. Dependencies
+
+- `laravel/framework` ^12.0
+- `ckfinder/ckfinder-laravel-package` ^5.0
+- `resend/resend-php` ^0.11
+- `laravel/sanctum` ^4.2

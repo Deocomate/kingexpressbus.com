@@ -1,11 +1,15 @@
 @php
     $brandTitle = data_get($webProfile, 'title', config('app.name'));
-    $brandLogo = data_get($webProfile, 'logo_url');
+    $brandLogo = data_get($webProfile, 'logo_url', '/client/images/web information/logo.jpg');
     $hotline = data_get($webProfile, 'hotline');
     $hotlineTel = $hotline ? preg_replace('/[^\d+]/', '', $hotline) : '';
+    $email = data_get($webProfile, 'email');
+    $emailHref = $email ? ('mailto:' . $email) : '';
+
     $authUser = $authUser ?? null;
     $isCustomer = $authUser && ($authUser->role ?? null) === 'customer';
     $customerLinks = $customerLinks ?? [];
+
     $currentLocale = app()->getLocale();
     $languageOptions = [
         ['code' => 'vi', 'label' => 'Tiếng Việt', 'flag' => asset('/client/icons/vn-flag.svg')],
@@ -14,227 +18,139 @@
     $currentLanguage = collect($languageOptions)->firstWhere('code', $currentLocale);
 @endphp
 
-<header class="bg-white shadow-soft sticky top-0 z-50 border-b border-neutral-200">
-    <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center py-3">
-            {{-- Brand Logo --}}
-            <a href="{{ route('client.home') }}" class="flex-shrink-0 flex items-center gap-2"
-                aria-label="{{ __('client.nav.home_aria') }}">
-                @if ($brandLogo)
-                    <img src="{{ $brandLogo }}" alt="{{ $brandTitle }}" class="h-10 w-auto">
-                @else
-                    <span class="text-2xl font-semibold text-primary-600">{{ $brandTitle }}</span>
-                @endif
-            </a>
-
-            {{-- Desktop Navigation --}}
-            <nav class="hidden lg:flex items-center gap-1">
-                @foreach ($mainMenu ?? [] as $item)
-                    @php
-                        $isActive = $item->isActive ?? false;
-                        $hasChildren = !empty($item->children);
-                    @endphp
-
-                    @if (!$hasChildren)
-                        <a href="{{ url($item->url) }}"
-                            class="font-medium transition-colors duration-200 px-4 py-2 rounded-md whitespace-nowrap {{ $isActive ? 'bg-primary-50 text-primary-600' : 'text-neutral-700 hover:bg-neutral-100 hover:text-primary-600' }}">
-                            {{ $item->name }}
+<header x-data="{ mobileOpen: false, languageOpen: false, accountOpen: false, soldOutAlertOpen: true }"
+    x-init="setTimeout(() => soldOutAlertOpen = false, 9000)"
+    @keydown.escape.window="mobileOpen = false; languageOpen = false; accountOpen = false"
+    class="sticky top-0 z-50 border-b border-amber-100/80 bg-white/90 shadow-sm backdrop-blur-xl" style="z-index: 260;">
+    <div class="hidden border-b border-amber-100/80 bg-[#fffdf5] lg:block">
+        <div class="container mx-auto max-w-7xl px-4">
+            <div class="flex h-11 items-center justify-between gap-4 text-sm">
+                <div class="flex min-w-0 items-center gap-2 text-slate-500">
+                    @if ($hotline)
+                        <a href="tel:{{ $hotlineTel }}"
+                            class="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50">
+                            <i class="fa-solid fa-phone-volume text-[11px]"></i>
+                            <span class="truncate">{{ $hotline }}</span>
                         </a>
-                    @else
-                        <div class="relative group">
-                            <a href="{{ url($item->url) }}"
-                                class="flex items-center gap-1.5 font-medium transition-colors duration-200 px-4 py-2 rounded-md whitespace-nowrap {{ $isActive || ($item->isParentOfActive ?? false) ? 'bg-primary-50 text-primary-600' : 'text-neutral-700 hover:bg-neutral-100 hover:text-primary-600' }}">
-                                <span>{{ $item->name }}</span>
-                                <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 group-hover:rotate-180"></i>
-                            </a>
-                            <div
-                                class="absolute left-0 mt-0 pt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200 z-50">
-                                <div class="bg-white border border-neutral-200 rounded-lg shadow-dropdown py-2 max-h-80 overflow-y-auto">
-                                    @foreach ($item->children as $child)
-                                        <a href="{{ url($child->url) }}"
-                                            class="block px-4 py-2.5 text-sm rounded mx-1 {{ ($child->isActive ?? false) ? 'bg-primary-50 text-primary-600 font-semibold' : 'text-neutral-600 hover:bg-neutral-100 hover:text-primary-600' }}">
-                                            <span class="flex items-center gap-2">
-                                                <i class="fa-solid fa-route text-xs text-primary-400"></i>
-                                                {{ $child->name }}
-                                            </span>
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
                     @endif
-                @endforeach
-            </nav>
+                    @if ($email)
+                        <a href="{{ $emailHref }}"
+                            class="inline-flex min-w-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-slate-600 transition hover:bg-amber-50 hover:text-primary-700">
+                            <i class="fa-regular fa-envelope text-[11px]"></i>
+                            <span class="truncate">{{ $email }}</span>
+                        </a>
+                    @endif
+                </div>
 
-            {{-- Desktop Actions --}}
-            <div class="hidden lg:flex items-center gap-3">
-                {{-- Language Switcher --}}
-                <div class="relative group">
-                    <button class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-neutral-100 transition-colors duration-200">
-                        @if($currentLanguage && $currentLanguage['flag'])
-                            <img src="{{ $currentLanguage['flag'] }}" alt="{{ $currentLanguage['label'] }}"
-                                class="w-5 h-5 rounded-full object-cover">
-                        @endif
-                        <span class="font-medium text-sm text-neutral-700 uppercase">{{ $currentLanguage['code'] }}</span>
-                        <i class="fa-solid fa-chevron-down text-xs text-neutral-400"></i>
-                    </button>
-                    <div
-                        class="absolute right-0 mt-0 pt-2 w-40 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                        <div class="bg-white border border-neutral-200 rounded-lg shadow-dropdown py-1.5">
+                <div class="flex items-center gap-2">
+                    <div class="relative">
+                        <button type="button" @click="languageOpen = !languageOpen" @click.outside="languageOpen = false"
+                            :aria-expanded="languageOpen"
+                            aria-haspopup="menu"
+                            class="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-100 bg-white px-2.5 text-sm font-semibold text-slate-600 transition hover:bg-amber-50">
+                            @if($currentLanguage)
+                                <img src="{{ $currentLanguage['flag'] }}" alt="{{ $currentLanguage['label'] }}" class="h-4 w-4 rounded-full object-cover">
+                            @endif
+                            <span class="uppercase">{{ $currentLanguage['code'] ?? 'vi' }}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                        <div x-show="languageOpen" x-cloak x-transition.origin.top.right.duration.220ms
+                            class="absolute right-0 top-full z-50 mt-2 w-44 rounded-2xl border border-amber-100 bg-white p-2 shadow-soft" style="z-index: 320;">
                             @foreach ($languageOptions as $language)
                                 <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
-                                    class="flex items-center gap-3 px-4 py-2 text-sm hover:bg-neutral-100 transition-colors duration-200 {{ $currentLocale === $language['code'] ? 'font-semibold text-primary-600' : 'text-neutral-700' }}">
-                                    <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}"
-                                        class="w-5 h-5 rounded-full object-cover">
-                                    <span>{{ $language['label'] }}</span>
+                                    class="mb-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition last:mb-0 {{ $currentLocale === $language['code'] ? 'bg-primary-50 font-semibold text-primary-700' : 'text-slate-600 hover:bg-amber-50 hover:text-primary-700' }}">
+                                    <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}" class="h-5 w-5 rounded-full object-cover">
+                                    {{ $language['label'] }}
                                 </a>
                             @endforeach
                         </div>
                     </div>
-                </div>
 
-                {{-- Hotline --}}
-                @if ($hotline)
-                    <a href="tel:{{ $hotlineTel }}"
-                        class="flex items-center gap-2 text-green-700 font-semibold px-3 py-2 rounded-md hover:bg-green-50 transition-colors duration-200">
-                        <i class="fas fa-phone-alt text-sm"></i>
-                        <span class="text-sm">{{ $hotline }}</span>
-                    </a>
-                @endif
-
-                {{-- Auth Section --}}
-                @if ($isCustomer)
-                    <div class="relative group">
-                        <button class="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-neutral-100 transition-colors duration-200">
-                            <div class="w-8 h-8 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold text-sm">
-                                {{ strtoupper(substr($authUser->name, 0, 1)) }}
+                    @if ($isCustomer)
+                        <div class="relative">
+                            <button type="button" @click="accountOpen = !accountOpen" @click.outside="accountOpen = false"
+                                :aria-expanded="accountOpen"
+                                aria-haspopup="menu"
+                                class="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-100 bg-white px-2.5 transition hover:bg-amber-50">
+                                <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary-600 text-[11px] font-bold text-white">
+                                    {{ strtoupper(substr($authUser->name, 0, 1)) }}
+                                </span>
+                                <span class="max-w-24 truncate text-sm font-semibold text-slate-700">{{ $authUser->name }}</span>
+                                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                            </button>
+                            <div x-show="accountOpen" x-cloak x-transition.origin.top.right.duration.220ms
+                                class="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl border border-amber-100 bg-white p-2 shadow-soft" style="z-index: 320;">
+                                <div class="rounded-xl bg-slate-50 px-3 py-2">
+                                    <p class="truncate text-sm font-bold text-slate-800">{{ $authUser->name }}</p>
+                                    <p class="truncate text-xs text-slate-500">{{ $authUser->email ?? $authUser->phone }}</p>
+                                </div>
+                                <div class="mt-2 space-y-1">
+                                    @foreach ($customerLinks as $link)
+                                        <a href="{{ $link['url'] }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-600 transition hover:bg-amber-50 hover:text-primary-700">
+                                            <i class="{{ $link['icon'] }} w-4 text-center"></i>
+                                            {{ $link['label'] }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                                <form method="POST" action="{{ route('client.logout') }}" class="mt-2 border-t border-slate-100 pt-2">
+                                    @csrf
+                                    <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-rose-600 transition hover:bg-rose-50">
+                                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                        {{ __('client.nav.logout') }}
+                                    </button>
+                                </form>
                             </div>
-                            <span class="font-medium text-sm text-neutral-800 max-w-[100px] truncate">{{ $authUser->name }}</span>
-                            <i class="fa-solid fa-chevron-down text-xs text-neutral-400"></i>
-                        </button>
-                        <div
-                            class="absolute right-0 mt-0 pt-2 w-56 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-opacity duration-200">
-                          <div class="bg-white border border-neutral-200 rounded-lg shadow-dropdown py-2">
-                            <div class="px-4 py-3 border-b border-neutral-100">
-                                <p class="font-semibold text-neutral-800">{{ $authUser->name }}</p>
-                                <p class="text-sm text-neutral-500 truncate">{{ $authUser->email ?? $authUser->phone }}</p>
-                            </div>
-                            <div class="py-2">
-                                @foreach ($customerLinks as $link)
-                                    <a href="{{ $link['url'] }}"
-                                        class="flex items-center gap-3 px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-100 hover:text-primary-600 transition-colors duration-200">
-                                        <i class="{{ $link['icon'] }} w-4 text-center text-neutral-400"></i>
-                                        <span>{{ $link['label'] }}</span>
-                                    </a>
-                                @endforeach
-                            </div>
-                            <form method="POST" action="{{ route('client.logout') }}"
-                                class="pt-2 border-t border-neutral-100">
-                                @csrf
-                                <button type="submit"
-                                    class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200">
-                                    <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center"></i>
-                                    <span>{{ __('client.nav.logout') }}</span>
-                                </button>
-                            </form>
-                          </div>
                         </div>
-                    </div>
-                @else
-                    <div class="flex items-center gap-2">
-                        <a href="{{ route('client.login') }}"
-                            class="text-sm font-medium text-neutral-700 px-4 py-2 rounded-md hover:bg-neutral-100 transition-colors duration-200">
+                    @else
+                        <a href="{{ route('client.login') }}" class="rounded-lg px-2.5 py-1 text-sm font-semibold text-slate-600 transition hover:bg-amber-50 hover:text-primary-700">
                             {{ __('client.nav.login') }}
                         </a>
-                        <a href="{{ route('client.register') }}"
-                            class="text-sm font-semibold bg-accent-500 text-white px-4 py-2 rounded-md hover:bg-accent-600 transition-colors duration-200">
+                        <a href="{{ route('client.register') }}" class="rounded-lg bg-primary-600 px-2.5 py-1 text-sm font-semibold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
                             {{ __('client.nav.register') }}
                         </a>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
-
-            {{-- Mobile Menu Button --}}
-            <button id="mobile-menu-button"
-                class="lg:hidden text-2xl text-neutral-700 hover:text-primary-600 transition-colors duration-200"
-                aria-label="{{ __('client.nav.open_menu') }}">
-                <i class="fas fa-bars"></i>
-            </button>
         </div>
     </div>
 
-    {{-- Mobile Menu Panel --}}
-    <div id="mobile-menu"
-        class="lg:hidden fixed top-0 left-0 w-80 h-screen bg-white shadow-elevated z-[1000] transform -translate-x-full"
-        aria-hidden="true">
-        <div class="p-5 flex flex-col h-full">
-            {{-- Header --}}
-            <div class="flex justify-between items-center mb-6">
-                <a href="{{ route('client.home') }}" class="flex items-center gap-2"
-                    aria-label="{{ __('client.nav.home_aria') }}">
-                    @if ($brandLogo)
-                        <img src="{{ $brandLogo }}" alt="{{ $brandTitle }}" class="h-10">
-                    @else
-                        <span class="text-xl font-semibold text-primary-600">{{ $brandTitle }}</span>
-                    @endif
-                </a>
-                <button id="close-mobile-menu" class="text-3xl text-neutral-400 hover:text-neutral-600">&times;</button>
-            </div>
+    <div class="container mx-auto max-w-7xl px-4">
+        <div class="flex h-20 items-center justify-between gap-4">
+            <a href="{{ route('client.home') }}" class="group inline-flex items-center gap-3" aria-label="{{ __('client.nav.home_aria') }}">
+                <img src="{{ $brandLogo }}" alt="{{ $brandTitle }}" class="h-11 w-11 rounded-2xl object-cover shadow-soft ring-1 ring-amber-100">
+                <span class="hidden text-base font-extrabold tracking-tight text-slate-800 sm:inline lg:text-lg">
+                    {{ $brandTitle }}
+                </span>
+            </a>
 
-            {{-- Auth for Logged Out --}}
-            @if (!$isCustomer)
-                <div class="flex items-center gap-3 mb-6">
-                    <a href="{{ route('client.login') }}"
-                        class="flex-1 text-center border border-neutral-200 rounded-md py-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition-colors duration-200">
-                        {{ __('client.nav.login') }}
-                    </a>
-                    <a href="{{ route('client.register') }}"
-                        class="flex-1 text-center bg-accent-500 text-white font-semibold rounded-md py-2.5 hover:bg-accent-600 transition-colors duration-200">
-                        {{ __('client.nav.register') }}
-                    </a>
-                </div>
-            @endif
-
-            {{-- Navigation --}}
-            <nav class="flex-grow overflow-y-auto space-y-1">
+            <nav class="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex">
                 @foreach ($mainMenu ?? [] as $item)
                     @php
                         $isActive = $item->isActive ?? false;
                         $hasChildren = !empty($item->children);
-                        $icon = match ($item->id ?? '') {
-                            'static_home' => 'fa-solid fa-home',
-                            'static_about' => 'fa-solid fa-info-circle',
-                            'static_routes' => 'fa-solid fa-map-signs',
-                            'static_hot_routes' => 'fa-solid fa-fire',
-                            'static_contact' => 'fa-solid fa-phone',
-                            default => 'fa-solid fa-link',
-                        };
                     @endphp
-
                     @if (!$hasChildren)
                         <a href="{{ url($item->url) }}"
-                            class="flex items-center gap-3 font-medium py-3 px-4 rounded-md transition-colors duration-200 {{ $isActive ? 'bg-primary-50 text-primary-600' : 'text-neutral-700 hover:bg-neutral-100' }}">
-                            <i class="{{ $icon }} w-5 text-center"></i>
+                            class="whitespace-nowrap rounded-xl px-4 py-2 text-base font-semibold transition {{ $isActive ? 'bg-primary-100 text-primary-700' : 'text-slate-600 hover:bg-primary-50 hover:text-primary-700' }}">
                             {{ $item->name }}
                         </a>
                     @else
-                        <div x-data="{ open: false }">
-                            <div class="flex items-center">
-                                <a href="{{ url($item->url) }}"
-                                    class="flex-1 flex items-center gap-3 font-medium py-3 px-4 rounded-md transition-colors duration-200 {{ $isActive || ($item->isParentOfActive ?? false) ? 'bg-primary-50 text-primary-600' : 'text-neutral-700 hover:bg-neutral-100' }}">
-                                    <i class="{{ $icon }} w-5 text-center"></i>
-                                    {{ $item->name }}
-                                </a>
-                                <button @click="open = !open" class="p-3 text-neutral-500 hover:text-primary-600">
-                                    <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200"
-                                        :class="{ 'rotate-180': open }"></i>
-                                </button>
-                            </div>
-                            <div x-show="open" x-collapse class="pl-8 mt-1 space-y-1 border-l-2 border-primary-100 ml-6">
+                        <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false"
+                            @focusin="open = true" @focusout="open = false" @keydown.escape.stop="open = false">
+                            <a href="{{ url($item->url) }}"
+                                :aria-expanded="open"
+                                aria-haspopup="menu"
+                                class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-base font-semibold transition {{ $isActive || ($item->isParentOfActive ?? false) ? 'bg-primary-100 text-primary-700' : 'text-slate-600 hover:bg-primary-50 hover:text-primary-700' }}">
+                                {{ $item->name }}
+                                <i class="fa-solid fa-chevron-down text-[10px] transition" :class="open ? 'rotate-180' : ''"></i>
+                            </a>
+                            <div x-show="open" x-cloak x-transition.origin.top.left.duration.250ms
+                                role="menu"
+                                class="absolute left-0 top-full z-50 mt-2 w-64 rounded-2xl border border-amber-100 bg-white p-2 shadow-soft" style="z-index: 320;">
                                 @foreach ($item->children as $child)
                                     <a href="{{ url($child->url) }}"
-                                        class="flex items-center gap-2 font-medium py-2 px-3 rounded-md transition-colors duration-200 {{ ($child->isActive ?? false) ? 'text-primary-600 font-semibold bg-primary-50' : 'text-neutral-600 hover:text-primary-600 hover:bg-neutral-50' }}">
-                                        <i class="fa-solid fa-route text-xs text-primary-400"></i>
+                                        class="mb-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition last:mb-0 {{ ($child->isActive ?? false) ? 'bg-primary-50 font-semibold text-primary-700' : 'text-slate-600 hover:bg-amber-50 hover:text-primary-700' }}">
+                                        <i class="fa-solid fa-location-dot text-xs text-primary-600"></i>
                                         {{ $child->name }}
                                     </a>
                                 @endforeach
@@ -244,64 +160,145 @@
                 @endforeach
             </nav>
 
-            {{-- Footer section of mobile menu --}}
-            <div class="mt-auto pt-4 border-t border-neutral-200 space-y-4">
-                {{-- Auth for Logged In --}}
-                @if ($isCustomer)
-                    <div class="border border-neutral-200 rounded-lg p-4 bg-neutral-50 space-y-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center text-white font-semibold">
-                                {{ strtoupper(substr($authUser->name, 0, 1)) }}
-                            </div>
-                            <div>
-                                <p class="font-semibold text-neutral-800 truncate">{{ $authUser->name }}</p>
-                                <p class="text-sm text-neutral-500 truncate">{{ $authUser->email ?? $authUser->phone }}</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-2 pt-3 border-t border-neutral-200">
-                            @foreach ($customerLinks as $link)
-                                <a href="{{ $link['url'] }}"
-                                    class="flex items-center gap-3 text-sm text-primary-600 hover:text-primary-700 transition-colors duration-200">
-                                    <i class="{{ $link['icon'] }} w-4 text-center"></i>
-                                    <span>{{ $link['label'] }}</span>
+            <div class="hidden xl:flex">
+                <a href="{{ route('client.routes.search') }}"
+                    class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
+                    <i class="fa-solid fa-ticket"></i>
+                    {{ __('client.routes.index.cta_button') }}
+                </a>
+            </div>
+
+            <button type="button" @click="mobileOpen = true" :aria-expanded="mobileOpen" aria-controls="client-mobile-nav"
+                aria-label="{{ __('client.nav.open_menu') }}"
+                class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-100 bg-white text-lg text-slate-700 xl:hidden">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </div>
+
+    <div x-show="soldOutAlertOpen" x-cloak x-transition.opacity.duration.250ms x-transition.scale.origin.top.right.duration.250ms
+        class="fixed right-4 top-[88px] z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl border border-amber-100 bg-white p-4 shadow-soft" style="z-index: 310;">
+        <div class="flex items-start gap-3">
+            <span class="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-xl bg-amber-100 text-primary-600">
+                <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+            </span>
+            <p class="flex-1 text-sm font-medium text-slate-700">{{ __('client.layout.warning_holiday_ticket') }}</p>
+            <button type="button" @click="soldOutAlertOpen = false" class="text-slate-400 transition hover:text-slate-700" aria-label="Close warning">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <div x-show="mobileOpen" x-cloak x-transition.opacity.duration.200ms class="fixed inset-0 z-50 bg-slate-900/50 xl:hidden"
+        style="z-index: 60;" @click="mobileOpen = false"></div>
+
+    <aside x-show="mobileOpen" x-cloak x-transition:enter="transition duration-300" x-transition:enter-start="translate-x-full"
+        x-transition:enter-end="translate-x-0" x-transition:leave="transition duration-300" x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="translate-x-full"
+        id="client-mobile-nav"
+        class="fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm overflow-y-auto bg-white p-5 xl:hidden" style="z-index: 70;">
+        <div class="mb-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="{{ $brandLogo }}" alt="{{ $brandTitle }}" class="h-10 w-10 rounded-xl object-cover ring-1 ring-amber-100">
+                <p class="text-sm font-bold text-slate-800">{{ $brandTitle }}</p>
+            </div>
+            <button type="button" @click="mobileOpen = false" aria-label="{{ __('client.nav.close_menu') }}"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="space-y-2">
+            @foreach ($mainMenu ?? [] as $item)
+                @php
+                    $isActive = $item->isActive ?? false;
+                    $hasChildren = !empty($item->children);
+                @endphp
+                @if (!$hasChildren)
+                    <a href="{{ url($item->url) }}" class="flex items-center rounded-xl px-4 py-3 text-sm font-semibold {{ $isActive ? 'bg-primary-50 text-primary-700' : 'text-slate-700 hover:bg-amber-50' }}">
+                        {{ $item->name }}
+                    </a>
+                @else
+                    <div x-data="{ open: {{ ($item->isParentOfActive ?? false) ? 'true' : 'false' }} }" class="rounded-2xl border border-slate-100">
+                        <button type="button" @click="open = !open" class="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold text-slate-700">
+                            {{ $item->name }}
+                            <i class="fa-solid fa-chevron-down text-xs transition" :class="open ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="open" x-cloak x-transition.duration.220ms class="space-y-1 px-2 pb-3">
+                            @foreach ($item->children as $child)
+                                <a href="{{ url($child->url) }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm {{ ($child->isActive ?? false) ? 'bg-primary-50 font-semibold text-primary-700' : 'text-slate-600 hover:bg-amber-50' }}">
+                                    <i class="fa-solid fa-angle-right text-xs"></i>
+                                    {{ $child->name }}
                                 </a>
                             @endforeach
                         </div>
-                        <form method="POST" action="{{ route('client.logout') }}" class="pt-3 border-t border-neutral-200">
-                            @csrf
-                            <button type="submit" class="w-full flex items-center justify-start gap-3 text-sm text-red-600 hover:text-red-700 transition-colors duration-200">
-                                <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center"></i>
-                                <span>{{ __('client.nav.logout') }}</span>
-                            </button>
-                        </form>
                     </div>
                 @endif
+            @endforeach
+        </div>
 
-                {{-- Language Switcher --}}
-                <div class="grid grid-cols-2 gap-2">
-                    @foreach ($languageOptions as $language)
-                        <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
-                            class="flex items-center justify-center gap-2 py-2.5 rounded-md border text-sm font-medium transition-colors duration-200 {{ $currentLocale === $language['code'] ? 'bg-primary-600 text-white border-primary-600' : 'border-neutral-200 text-neutral-600 hover:bg-neutral-100' }}">
-                            <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}"
-                                class="w-5 h-5 rounded-full object-cover">
-                            <span>{{ $language['label'] }}</span>
+        @if (!$isCustomer)
+            <div class="mt-6 grid grid-cols-2 gap-3">
+                <a href="{{ route('client.login') }}" class="rounded-xl border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-slate-700">
+                    {{ __('client.nav.login') }}
+                </a>
+                <a href="{{ route('client.register') }}" class="rounded-xl bg-primary-600 px-4 py-2 text-center text-sm font-semibold text-white active:scale-95">
+                    {{ __('client.nav.register') }}
+                </a>
+            </div>
+        @endif
+
+        @if ($isCustomer)
+            <div class="mt-6 rounded-2xl border border-amber-100 bg-amber-50/60 p-4">
+                <div class="mb-3 flex items-center gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">
+                        {{ strtoupper(substr($authUser->name, 0, 1)) }}
+                    </span>
+                    <div>
+                        <p class="text-sm font-bold text-slate-800">{{ $authUser->name }}</p>
+                        <p class="text-xs text-slate-500">{{ $authUser->email ?? $authUser->phone }}</p>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    @foreach ($customerLinks as $link)
+                        <a href="{{ $link['url'] }}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-slate-700 hover:bg-white">
+                            <i class="{{ $link['icon'] }} w-4 text-center"></i>
+                            {{ $link['label'] }}
                         </a>
                     @endforeach
                 </div>
-
-                {{-- Hotline --}}
-                @if ($hotline)
-                    <a href="tel:{{ $hotlineTel }}"
-                        class="flex items-center gap-3 bg-green-50 text-green-700 font-semibold px-4 py-3 rounded-md border border-green-200 transition-colors duration-200 hover:bg-green-100">
-                        <i class="fas fa-phone-alt"></i>
-                        <span class="flex flex-col text-left leading-tight">
-                            <span class="text-xs uppercase tracking-wide text-green-600">{{ __('client.nav.hotline') }}</span>
-                            <span>{{ $hotline }}</span>
-                        </span>
-                    </a>
-                @endif
+                <form method="POST" action="{{ route('client.logout') }}" class="mt-2 border-t border-amber-100 pt-2">
+                    @csrf
+                    <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-white">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        {{ __('client.nav.logout') }}
+                    </button>
+                </form>
             </div>
+        @endif
+
+        <div class="mt-6 grid grid-cols-2 gap-2">
+            @foreach ($languageOptions as $language)
+                <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
+                    class="flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold {{ $currentLocale === $language['code'] ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 text-slate-600' }}">
+                    <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}" class="h-4 w-4 rounded-full object-cover">
+                    {{ strtoupper($language['code']) }}
+                </a>
+            @endforeach
         </div>
-    </div>
-    <div id="mobile-menu-overlay" class="hidden lg:hidden fixed inset-0 bg-black/40 z-[999]"></div>
+
+        @if ($hotline)
+            <a href="tel:{{ $hotlineTel }}" class="mt-6 flex items-center justify-center gap-2 rounded-xl bg-emerald-50 py-3 text-sm font-bold text-emerald-700">
+                <i class="fa-solid fa-phone-volume"></i>
+                {{ $hotline }}
+            </a>
+        @endif
+
+        @if ($email)
+            <a href="{{ $emailHref }}" class="mt-2 flex items-center justify-center gap-2 rounded-xl bg-slate-100 py-3 text-sm font-semibold text-slate-700">
+                <i class="fa-regular fa-envelope"></i>
+                {{ $email }}
+            </a>
+        @endif
+    </aside>
 </header>

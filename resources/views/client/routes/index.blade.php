@@ -3,18 +3,27 @@
 
     @push('styles')
         <style>
-            /* Hero Section */
+            /* HERO/SEARCH */
             .hero-routes {
-                background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.6)),
-                    url('/userfiles/files/city_imgs/sapa.jpg');
+                background: linear-gradient(110deg, rgba(8, 23, 43, 0.78), rgba(255, 155, 0, 0.58)),
+                    url('/client/images/city_imgs/sapa.jpg');
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
                 min-height: 85vh;
                 position: relative;
+                overflow: hidden;
             }
 
             .hero-routes::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(circle at 18% 18%, rgba(255, 225, 0, 0.28), transparent 48%),
+                    radial-gradient(circle at 82% 100%, rgba(255, 155, 0, 0.32), transparent 52%);
+            }
+
+            .hero-routes::after {
                 content: '';
                 position: absolute;
                 bottom: 0;
@@ -23,6 +32,7 @@
                 height: 120px;
                 background: linear-gradient(to top, rgba(249, 250, 251, 1) 0%, transparent 100%);
                 pointer-events: none;
+                z-index: 1;
             }
 
             @media (max-width: 768px) {
@@ -31,23 +41,25 @@
                 }
             }
 
-            /* Route Card */
+            /* MAIN CONTENT */
             .route-card {
                 background: #ffffff;
-                border-radius: 8px;
-                transition: box-shadow 0.2s ease;
+                border-radius: 1rem;
+                transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
                 overflow: hidden;
-                border: 1px solid #e5e7eb;
+                border: 1px solid #f1d7a0;
+                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.28);
             }
 
             .route-card:hover {
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-                border-color: #d1d5db;
+                transform: translateY(-4px);
+                box-shadow: 0 20px 38px -24px rgba(15, 23, 42, 0.35);
+                border-color: #ffdd99;
             }
 
             .route-card-image-wrapper {
                 position: relative;
-                height: 200px;
+                height: 220px;
                 overflow: hidden;
             }
 
@@ -63,19 +75,20 @@
                 background: linear-gradient(0deg, rgba(0, 0, 0, 0.65) 0%, transparent 60%);
             }
 
-            /* Stats Cards */
+            /* STATS */
             .stat-card {
                 background: #ffffff;
-                border-radius: 8px;
-                padding: 24px;
+                border-radius: 1rem;
+                padding: 1.5rem;
                 text-align: center;
-                border: 1px solid #e5e7eb;
+                border: 1px solid #f1d7a0;
+                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
             }
 
             .stat-icon {
                 width: 56px;
                 height: 56px;
-                border-radius: 8px;
+                border-radius: 0.9rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -83,133 +96,153 @@
                 font-size: 22px;
             }
 
-            /* Province Filter Tabs */
+            /* PROVINCE TABS */
             .province-tabs {
                 display: flex;
-                gap: 8px;
+                gap: 10px;
                 overflow-x: auto;
-                padding-bottom: 8px;
+                padding-bottom: 10px;
                 scrollbar-width: thin;
             }
 
+            .province-tabs::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .province-tabs::-webkit-scrollbar-thumb {
+                background: #ffdd99;
+                border-radius: 9999px;
+            }
+
             .province-tab {
-                padding: 10px 20px;
-                border-radius: 6px;
-                font-size: 14px;
+                padding: 11px 20px;
+                border-radius: 0.85rem;
+                font-size: 0.875rem;
                 font-weight: 600;
                 white-space: nowrap;
-                transition: background 0.2s ease;
-                border: 1px solid #e5e7eb;
+                transition: all 0.2s ease;
+                border: 1px solid #fde4b6;
                 background: #ffffff;
-                color: #374151;
+                color: #475569;
                 cursor: pointer;
             }
 
             .province-tab:hover {
-                background: #f3f4f6;
-                border-color: #d1d5db;
+                background: #fff7d6;
+                border-color: #ffc900;
             }
 
             .province-tab.active {
-                background: #1565C0;
-                border-color: #1565C0;
+                background: #FF9B00;
+                border-color: #FF9B00;
                 color: #ffffff;
+                box-shadow: 0 10px 20px -16px rgba(255, 155, 0, 0.8);
             }
 
-            /* Quick Route Pills */
+            /* QUICK SEARCH PILLS */
             .quick-route-pill {
                 display: inline-flex;
                 align-items: center;
                 gap: 6px;
-                padding: 8px 16px;
-                background: rgba(255, 255, 255, 0.15);
-                border: 1px solid rgba(255, 255, 255, 0.25);
-                border-radius: 6px;
+                padding: 10px 16px;
+                background: rgba(255, 255, 255, 0.18);
+                border: 1px solid rgba(255, 255, 255, 0.28);
+                border-radius: 0.85rem;
                 color: #fff;
                 font-size: 13px;
-                font-weight: 500;
-                transition: background 0.2s ease;
+                font-weight: 600;
+                transition: all 0.25s ease;
                 white-space: nowrap;
             }
 
             .quick-route-pill:hover {
-                background: rgba(255, 255, 255, 0.25);
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-1px);
             }
 
-            /* Price Badge */
+            /* PRICE BADGE */
             .price-badge {
-                background: #D97706;
+                background: linear-gradient(135deg, #FF9B00, #FFC900);
                 color: #ffffff;
-                padding: 6px 14px;
-                border-radius: 6px;
-                font-weight: 600;
+                padding: 7px 14px;
+                border-radius: 0.75rem;
+                font-weight: 700;
                 font-size: 14px;
             }
 
-            /* Feature Cards */
+            /* FEATURES */
             .feature-card {
                 padding: 24px;
-                border-radius: 8px;
-                transition: background 0.2s ease;
-                border: 1px solid transparent;
+                border-radius: 1rem;
+                transition: all 0.25s ease;
+                border: 1px solid #f4e3bf;
                 background: #ffffff;
             }
 
             .feature-card:hover {
-                background: #f8f9fa;
-                border-color: #e5e7eb;
+                background: #fffcf3;
+                border-color: #ffdd99;
+                transform: translateY(-3px);
             }
 
             .feature-icon-wrapper {
                 width: 56px;
                 height: 56px;
-                border-radius: 8px;
+                border-radius: 1rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 flex-shrink: 0;
             }
 
-            /* CTA Section */
+            /* FOOTER CTA */
             .cta-section {
-                background: #1565C0;
+                background: linear-gradient(120deg, #FF9B00 0%, #FFC900 56%, #FFE100 100%);
                 position: relative;
                 overflow: hidden;
+            }
+
+            .cta-section::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(circle at 10% 16%, rgba(255, 255, 255, 0.35), transparent 40%),
+                    radial-gradient(circle at 90% 100%, rgba(255, 255, 255, 0.22), transparent 44%);
             }
         </style>
     @endpush
 
     {{-- Hero Section --}}
-    <section class="hero-routes flex flex-col justify-center items-center px-4 py-28 lg:py-32">
-        <div class="container relative z-10 w-full max-w-5xl text-center space-y-8">
+    <section class="hero-routes flex flex-col items-center justify-center px-4 py-24 lg:py-32">
+        <div class="container mx-auto max-w-7xl relative z-10 w-full text-center space-y-8">
 
             {{-- Badge --}}
             <div>
-                <span class="inline-flex items-center gap-2 py-2 px-5 rounded-md bg-white/15 text-white border border-white/20 text-sm font-semibold tracking-wider">
+                <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-5 py-2 text-sm font-bold tracking-wider text-white">
                     <i class="fa-solid fa-route"></i>
                     {{ __('client.routes.index.badge', ['default' => 'TÌM TUYẾN XE']) }}
                 </span>
             </div>
 
             {{-- Hero Title --}}
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-semibold text-white leading-tight">
+            <h1 class="text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-6xl">
                 {{ __('client.routes.index.typing_1', ['default' => 'Vi vu khắp Việt Nam']) }}
             </h1>
 
             {{-- Subtitle --}}
-            <p class="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
+            <p class="mx-auto max-w-2xl text-base text-slate-100/95 md:text-xl">
                 {{ __('client.routes.index.hero_subtitle', ['default' => 'Hơn 100+ tuyến đường chất lượng cao đang chờ đón bạn']) }}
             </p>
 
             {{-- Search Bar --}}
-            <div class="mt-10 w-full text-left">
+            <div class="mt-10 mx-auto w-full max-w-6xl text-left">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label', ['default' => 'Tìm chuyến'])" />
             </div>
 
             {{-- Quick Route Suggestions --}}
             @if (isset($quickRouteSuggestions) && $quickRouteSuggestions->isNotEmpty())
-                <div class="mt-6 flex flex-wrap gap-2 justify-center">
-                    <span class="text-white/60 text-sm font-medium mr-2 self-center">
+                <div class="mt-6 flex flex-wrap justify-center gap-2">
+                    <span class="mr-2 self-center text-sm font-semibold text-white/70">
                         {{ __('client.routes.index.popular_searches', ['default' => 'Phổ biến:']) }}
                     </span>
                     @foreach ($quickRouteSuggestions->take(4) as $suggestion)
@@ -225,14 +258,14 @@
     </section>
 
     {{-- Stats Section --}}
-    <section class="py-12 bg-neutral-50 relative -mt-16 z-20">
-        <div class="container mx-auto px-4">
+    <section class="relative z-20 -mt-14 bg-[#F8FAFC] py-12">
+        <div class="container mx-auto max-w-7xl px-4">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 <div class="stat-card" x-data="statsCounter(100, 2, 30)">
                     <div class="stat-icon bg-accent-100 text-accent-600">
                         <i class="fa-solid fa-route"></i>
                     </div>
-                    <p class="text-3xl md:text-4xl font-semibold text-neutral-800">
+                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
                         <span x-text="displayCount">0</span>+
                     </p>
                     <p class="text-neutral-500 text-sm mt-2 font-medium">
@@ -243,7 +276,7 @@
                     <div class="stat-icon bg-primary-50 text-primary-600">
                         <i class="fa-solid fa-bus"></i>
                     </div>
-                    <p class="text-3xl md:text-4xl font-semibold text-neutral-800">
+                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
                         <span x-text="displayCount">0</span>+
                     </p>
                     <p class="text-neutral-500 text-sm mt-2 font-medium">
@@ -254,7 +287,7 @@
                     <div class="stat-icon bg-emerald-50 text-emerald-600">
                         <i class="fa-solid fa-users"></i>
                     </div>
-                    <p class="text-3xl md:text-4xl font-semibold text-neutral-800">
+                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
                         <span x-text="displayCount">0</span>+
                     </p>
                     <p class="text-neutral-500 text-sm mt-2 font-medium">
@@ -265,7 +298,7 @@
                     <div class="stat-icon bg-purple-50 text-purple-600">
                         <i class="fa-solid fa-star"></i>
                     </div>
-                    <p class="text-3xl md:text-4xl font-semibold text-neutral-800">
+                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
                         <span x-text="displayCount">0</span>%
                     </p>
                     <p class="text-neutral-500 text-sm mt-2 font-medium">
@@ -278,8 +311,8 @@
 
     {{-- Popular Routes Section --}}
     @if (isset($popularRoutes) && $popularRoutes->isNotEmpty())
-        <section class="py-16 md:py-24 bg-neutral-50">
-            <div class="container mx-auto px-4">
+        <section class="bg-[#F8FAFC] py-16 md:py-24">
+            <div class="container mx-auto max-w-7xl px-4">
 
                 {{-- Province Filter Tabs --}}
                 @if (isset($provinces) && $provinces->isNotEmpty())
@@ -301,29 +334,29 @@
                 @endif
 
                 {{-- Section Header --}}
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+                <div class="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
                     <div class="space-y-3">
-                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-md bg-primary-50 text-primary-700 text-sm font-semibold">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-sm font-bold text-primary-700">
                             <i class="fa-solid fa-fire"></i>
                             {{ __('client.routes.index.trending_badge', ['default' => 'Được yêu thích']) }}
                         </span>
-                        <h2 class="text-3xl md:text-4xl font-semibold text-neutral-800">
+                        <h2 class="text-3xl font-extrabold text-slate-800 md:text-4xl">
                             {{ __('client.routes.index.popular_title', ['default' => 'Tuyến đường']) }}
                             <span class="text-primary-600">{{ __('client.routes.index.popular_highlight', ['default' => 'Phổ biến']) }}</span>
                         </h2>
-                        <p class="text-neutral-500 text-base md:text-lg max-w-lg">
+                        <p class="max-w-lg text-base text-slate-500 md:text-lg">
                             {{ __('client.routes.index.popular_subtitle', ['default' => 'Các tuyến đường được khách hàng yêu thích nhất']) }}
                         </p>
                     </div>
                     <a href="{{ route('client.routes.search') }}"
-                        class="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-neutral-800 text-white rounded-md font-semibold hover:bg-neutral-700 transition-colors duration-200">
+                        class="hidden items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95 md:inline-flex">
                         {{ __('client.routes.index.view_all', ['default' => 'Xem tất cả']) }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>
 
                 {{-- Routes Grid --}}
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($popularRoutes as $route)
                         @php
                             $minPrice = $route->min_price ?? 0;
@@ -337,13 +370,13 @@
 
                             {{-- Image --}}
                             <div class="route-card-image-wrapper">
-                                <img src="{{ $route->thumbnail_url ?? '/userfiles/files/city_imgs/ha-noi.jpg' }}"
+                                <img src="{{ $route->thumbnail_url ?? '/client/images/city_imgs/ha-noi.jpg' }}"
                                     alt="{{ $route->name }}" class="route-card-image" loading="lazy">
                                 <div class="route-card-overlay"></div>
 
                                 {{-- Trip Count Badge --}}
-                                <div class="absolute top-4 left-4">
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/95 rounded-md text-xs font-semibold text-neutral-800">
+                                <div class="absolute left-4 top-4">
+                                    <span class="inline-flex items-center gap-1.5 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-800">
                                         <i class="fa-solid fa-bus text-primary-600"></i>
                                         {{ $route->trip_count ?? 0 }}
                                         {{ __('client.routes.index.trips', ['default' => 'chuyến']) }}
@@ -352,7 +385,7 @@
 
                                 {{-- Route Name on Image --}}
                                 <div class="absolute bottom-4 left-4 right-4">
-                                    <h3 class="text-lg font-semibold text-white line-clamp-2">
+                                    <h3 class="line-clamp-2 text-lg font-extrabold text-white">
                                         {{ $route->name }}
                                     </h3>
                                 </div>
@@ -360,21 +393,21 @@
 
                             {{-- Content --}}
                             <div class="p-5">
-                                <div class="flex items-center justify-between gap-3 mb-4">
-                                    <div class="flex items-center gap-2 text-neutral-500 text-sm">
+                                <div class="mb-4 flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-2 text-sm text-slate-500">
                                         <i class="fa-regular fa-clock"></i>
                                         <span>{{ $route->duration ?? 'N/A' }}</span>
                                     </div>
                                     @if ($route->distance_km ?? false)
-                                        <div class="flex items-center gap-2 text-neutral-500 text-sm">
+                                        <div class="flex items-center gap-2 text-sm text-slate-500">
                                             <i class="fa-solid fa-road"></i>
                                             <span>{{ $route->distance_km }}km</span>
                                         </div>
                                     @endif
                                 </div>
 
-                                <div class="flex items-center justify-between pt-4 border-t border-neutral-100">
-                                    <span class="text-xs text-neutral-400 uppercase tracking-wide font-medium">
+                                <div class="flex items-center justify-between border-t border-amber-100 pt-4">
+                                    <span class="text-xs font-semibold uppercase tracking-wide text-slate-400">
                                         {{ __('client.routes.index.from', ['default' => 'Giá từ']) }}
                                     </span>
                                     <span class="price-badge">{{ $priceDisplay }}</span>
@@ -387,7 +420,7 @@
                 {{-- Mobile View All --}}
                 <div class="mt-10 text-center md:hidden">
                     <a href="{{ route('client.routes.search') }}"
-                        class="inline-flex items-center justify-center gap-2 w-full px-6 py-4 bg-neutral-800 text-white rounded-md font-semibold">
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-4 font-bold text-white shadow-soft active:scale-95">
                         {{ __('client.routes.index.view_all_routes', ['default' => 'Xem tất cả tuyến đường']) }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
@@ -397,17 +430,17 @@
     @endif
 
     {{-- Why Choose Us Section --}}
-    <section class="py-20 bg-white relative">
-        <div class="container mx-auto px-4 relative z-10">
+    <section class="relative bg-white py-20">
+        <div class="container mx-auto max-w-7xl px-4 relative z-10">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
                 {{-- Text Content --}}
                 <div class="space-y-8">
                     <div class="space-y-4">
-                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-primary-50 text-primary-700 font-semibold text-sm border border-primary-100">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700">
                             <i class="fa-solid fa-award"></i>
                             {{ __('client.about.subtitle', ['default' => 'Về King Express Bus']) }}
                         </span>
-                        <h2 class="text-3xl md:text-4xl font-semibold text-neutral-800 leading-tight">
+                        <h2 class="text-3xl font-extrabold leading-tight text-slate-800 md:text-4xl">
                             {{ __('client.about.title', ['default' => 'Tại sao nên chọn chúng tôi?']) }}
                         </h2>
                         <p class="text-lg text-neutral-600 leading-relaxed">
@@ -462,15 +495,15 @@
 
                 {{-- Image --}}
                 <div class="relative">
-                    <div class="relative rounded-lg overflow-hidden shadow-card aspect-[4/3]">
-                        <img src="/userfiles/files/city_imgs/sapa.jpg"
+                    <div class="relative aspect-4/3 overflow-hidden rounded-2xl shadow-soft">
+                        <img src="/client/images/city_imgs/sapa.jpg"
                             alt="{{ __('client.about.image_alt', ['default' => 'Nội thất xe King Express Bus']) }}"
                             class="w-full h-full object-cover">
                     </div>
 
                     {{-- Badge --}}
-                    <div class="absolute -bottom-6 -left-4 bg-white p-5 rounded-lg shadow-card hidden lg:flex items-center gap-4 z-10">
-                        <div class="bg-accent-500 p-4 rounded-md text-white">
+                    <div class="absolute -bottom-6 -left-4 z-10 hidden items-center gap-4 rounded-2xl bg-white p-5 shadow-soft lg:flex">
+                        <div class="rounded-xl bg-primary-600 p-4 text-white">
                             <i class="fa-solid fa-thumbs-up text-2xl"></i>
                         </div>
                         <div>
@@ -481,9 +514,9 @@
                     </div>
 
                     {{-- Badge 2 --}}
-                    <div class="absolute -top-4 -right-4 bg-primary-600 p-5 rounded-lg shadow-card hidden lg:block text-white">
+                    <div class="absolute -right-4 -top-4 hidden rounded-2xl bg-primary-600 p-5 text-white shadow-soft lg:block">
                         <div class="text-center">
-                            <p class="text-3xl font-semibold">7+</p>
+                            <p class="text-3xl font-extrabold">7+</p>
                             <p class="text-xs font-medium opacity-90">
                                 {{ __('client.about.years_experience', ['default' => 'Năm kinh nghiệm']) }}</p>
                         </div>
@@ -495,18 +528,18 @@
 
     {{-- CTA Section --}}
     <section class="cta-section py-16 md:py-20 relative">
-        <div class="container mx-auto px-4 relative z-10">
+        <div class="container mx-auto max-w-7xl px-4 relative z-10">
             <div class="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
                 <div class="space-y-3 max-w-xl">
-                    <h2 class="text-2xl md:text-4xl font-semibold text-white">
+                    <h2 class="text-2xl font-extrabold text-white md:text-4xl">
                         {{ __('client.routes.index.cta_title', ['default' => 'Sẵn sàng cho chuyến đi tiếp theo?']) }}
                     </h2>
-                    <p class="text-white/80 text-lg">
+                    <p class="text-lg text-slate-900/75 md:text-xl">
                         {{ __('client.routes.index.cta_subtitle', ['default' => 'Đặt vé ngay hôm nay để nhận ưu đãi hấp dẫn']) }}
                     </p>
                 </div>
                 <a href="#top"
-                    class="inline-flex items-center gap-3 px-10 py-5 bg-accent-500 text-white rounded-md font-semibold text-lg hover:bg-accent-600 transition-colors duration-200">
+                    class="inline-flex items-center gap-3 rounded-xl border border-white/35 bg-slate-900 px-10 py-5 text-lg font-bold text-white shadow-soft transition hover:bg-slate-800 active:scale-95">
                     <i class="fa-solid fa-ticket"></i>
                     {{ __('client.routes.index.cta_button', ['default' => 'Đặt vé ngay']) }}
                 </a>
