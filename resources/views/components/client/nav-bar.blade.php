@@ -21,7 +21,7 @@
 <header x-data="{ mobileOpen: false, languageOpen: false, accountOpen: false, soldOutAlertOpen: true }"
     x-init="setTimeout(() => soldOutAlertOpen = false, 9000)"
     @keydown.escape.window="mobileOpen = false; languageOpen = false; accountOpen = false"
-    class="sticky top-0 z-50 border-b border-amber-100/80 bg-white/90 shadow-sm backdrop-blur-xl" style="z-index: 260;">
+    class="sticky top-0 z-50 border-b border-amber-100/80 bg-white/90 shadow-sm backdrop-blur-xl" style="z-index: 9999;">
     <div class="hidden border-b border-amber-100/80 bg-[#fffdf5] lg:block">
         <div class="container mx-auto max-w-7xl px-4">
             <div class="flex h-11 items-center justify-between gap-4 text-sm">
@@ -161,7 +161,7 @@
             </nav>
 
             <div class="hidden xl:flex">
-                <a href="{{ route('client.routes.search') }}"
+                <a href="{{ route('client.routes.index') }}"
                     class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
                     <i class="fa-solid fa-ticket"></i>
                     {{ __('client.routes.index.cta_button') }}
@@ -189,14 +189,14 @@
         </div>
     </div>
 
-    <div x-show="mobileOpen" x-cloak x-transition.opacity.duration.200ms class="fixed inset-0 z-50 bg-slate-900/50 xl:hidden"
-        style="z-index: 60;" @click="mobileOpen = false"></div>
+    <div x-show="mobileOpen" x-cloak x-transition.opacity.duration.200ms class="fixed inset-0 z-50 bg-slate-900/50 xl:hidden h-screen"
+        style="z-index: 100000;" @click="mobileOpen = false"></div>
 
     <aside x-show="mobileOpen" x-cloak x-transition:enter="transition duration-300" x-transition:enter-start="translate-x-full"
         x-transition:enter-end="translate-x-0" x-transition:leave="transition duration-300" x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
         id="client-mobile-nav"
-        class="fixed right-0 top-0 z-50 h-full w-[88vw] max-w-sm overflow-y-auto bg-white p-5 xl:hidden" style="z-index: 70;">
+        class="fixed right-0 top-0 z-50 h-screen w-[88vw] max-w-sm overflow-y-auto bg-white p-5 xl:hidden" style="z-index: 100010;">
         <div class="mb-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="{{ $brandLogo }}" alt="{{ $brandTitle }}" class="h-10 w-10 rounded-xl object-cover ring-1 ring-amber-100">

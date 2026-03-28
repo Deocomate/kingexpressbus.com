@@ -147,7 +147,7 @@
                                 <h3 class="text-xl font-semibold text-neutral-800">Chưa có chuyến đi nào</h3>
                                 <p class="text-neutral-500 mt-2">Hãy lên kế hoạch cho chuyến đi tiếp theo của bạn ngay hôm
                                     nay.</p>
-                                <a href="{{ route('client.routes.search') }}"
+                                <a href="{{ route('client.routes.index') }}"
                                     class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold transition-colors duration-200">
                                     <i class="fa-solid fa-magnifying-glass-location"></i>
                                     Tìm chuyến xe

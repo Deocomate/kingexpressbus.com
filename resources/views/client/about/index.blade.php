@@ -97,7 +97,7 @@
                     </p>
 
                     <div class="mt-6 flex flex-wrap gap-3">
-                        <a href="{{ route('client.routes.search') }}"
+                        <a href="{{ route('client.routes.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-primary-700 active:scale-95">
                             <i class="fa-solid fa-ticket"></i>
                             Đặt vé ngay
@@ -368,7 +368,7 @@
                         <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">Tối ưu thao tác tìm chuyến, chọn chỗ và xác nhận đặt vé theo một luồng trực quan, thân thiện cho người dùng trẻ.</p>
                     </div>
                     <div class="flex flex-wrap gap-3 lg:justify-end">
-                        <a href="{{ route('client.routes.search') }}"
+                        <a href="{{ route('client.routes.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
                             <i class="fa-solid fa-bolt"></i>
                             Tìm chuyến ngay

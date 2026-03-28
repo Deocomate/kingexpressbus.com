@@ -96,7 +96,7 @@
                         <p class="text-xs font-bold uppercase tracking-widest text-primary-600">Nội dung chi tiết</p>
                         <h2 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ $page->title ?? 'Thông tin chi tiết' }}</h2>
                     </div>
-                    <a href="{{ route('client.routes.search') }}"
+                    <a href="{{ route('client.routes.index') }}"
                         class="inline-flex items-center gap-2 rounded-xl border border-primary-600/25 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700 transition-all duration-300 hover:-translate-y-1 hover:bg-primary-600 hover:text-white active:scale-95">
                         Đặt vé ngay
                         <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>

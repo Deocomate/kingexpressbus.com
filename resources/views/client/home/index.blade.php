@@ -71,7 +71,7 @@
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Popular routes</p>
                     <h2 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">Tuyến nổi bật trong tuần</h2>
                 </div>
-                <a href="{{ route('client.routes.search') }}" class="inline-flex items-center gap-2 rounded-xl border border-primary-600/25 bg-white px-4 py-2 text-sm font-bold text-primary-700 transition hover:bg-primary-50 active:scale-95">
+                <a href="{{ route('client.routes.index') }}" class="inline-flex items-center gap-2 rounded-xl border border-primary-600/25 bg-white px-4 py-2 text-sm font-bold text-primary-700 transition hover:bg-primary-50 active:scale-95">
                     Xem tất cả
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
@@ -256,7 +256,7 @@
                 <h3 class="mt-2 text-2xl font-extrabold text-slate-800 md:text-4xl">Lên lịch hành trình tiếp theo ngay hôm nay</h3>
                 <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-500 md:text-base">Săn chỗ đẹp, chọn giờ đẹp, và hoàn tất đặt vé chỉ trong vài thao tác.</p>
                 <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-                    <a href="{{ route('client.routes.search') }}"
+                    <a href="{{ route('client.routes.index') }}"
                         class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
                         <i class="fa-solid fa-ticket"></i>
                         Tìm chuyến ngay

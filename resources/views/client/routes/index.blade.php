@@ -348,7 +348,7 @@
                             {{ __('client.routes.index.popular_subtitle', ['default' => 'Các tuyến đường được khách hàng yêu thích nhất']) }}
                         </p>
                     </div>
-                    <a href="{{ route('client.routes.search') }}"
+                    <a href="{{ route('client.routes.index') }}"
                         class="hidden items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95 md:inline-flex">
                         {{ __('client.routes.index.view_all', ['default' => 'Xem tất cả']) }}
                         <i class="fa-solid fa-arrow-right"></i>
@@ -419,7 +419,7 @@
 
                 {{-- Mobile View All --}}
                 <div class="mt-10 text-center md:hidden">
-                    <a href="{{ route('client.routes.search') }}"
+                    <a href="{{ route('client.routes.index') }}"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-4 font-bold text-white shadow-soft active:scale-95">
                         {{ __('client.routes.index.view_all_routes', ['default' => 'Xem tất cả tuyến đường']) }}
                         <i class="fa-solid fa-arrow-right"></i>
