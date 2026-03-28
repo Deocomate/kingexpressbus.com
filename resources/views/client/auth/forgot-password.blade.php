@@ -1,12 +1,12 @@
-<x-client.layout title="Quên mật khẩu"
-    description="Nhập email để nhận liên kết đặt lại mật khẩu cho tài khoản King Express Bus.">
+<x-client.layout :title="__('client.auth.forgot_password.meta_title')"
+    :description="__('client.auth.forgot_password.meta_description')">
     <section class="min-h-screen flex items-center justify-center bg-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="w-full max-w-md bg-white rounded-lg shadow-card p-8 md:p-10 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-600"></div>
 
             <div class="text-center mb-8">
-                <h2 class="text-2xl font-semibold text-neutral-800 tracking-tight">Quên mật khẩu</h2>
-                <p class="text-neutral-500 mt-2 text-sm">Chúng tôi sẽ gửi liên kết đặt lại mật khẩu đến email của bạn.</p>
+                <h2 class="text-2xl font-semibold text-neutral-800 tracking-tight">{{ __('client.auth.forgot_password.title') }}</h2>
+                <p class="text-neutral-500 mt-2 text-sm">{{ __('client.auth.forgot_password.subtitle') }}</p>
             </div>
 
             @if (session('status'))
@@ -36,13 +36,13 @@
 
                 <button type="submit"
                     class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 rounded-md transition-colors duration-200">
-                    Gửi liên kết đặt lại
+                    {{ __('client.auth.forgot_password.submit') }}
                 </button>
             </form>
 
             <div class="mt-6 text-center text-sm text-neutral-600">
                 <a href="{{ route('client.login') }}"
-                    class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">Quay lại đăng nhập</a>
+                    class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">{{ __('client.auth.common.back_to_login') }}</a>
             </div>
         </div>
     </section>

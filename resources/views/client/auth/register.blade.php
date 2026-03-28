@@ -1,4 +1,4 @@
-<x-client.layout title="Đăng ký tài khoản" description="Tạo tài khoản King Express Bus để trải nghiệm dịch vụ tốt hơn.">
+<x-client.layout :title="__('client.auth.register.meta_title')" :description="__('client.auth.register.meta_description')">
     @php
         $redirectTarget = $redirectTo ?? route('client.profile.index');
     @endphp
@@ -19,35 +19,35 @@
             <div class="hidden lg:block text-white space-y-8 pr-10">
                 <div>
                     <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-primary-600 text-white uppercase tracking-wide">
-                        <i class="fa-solid fa-gift mr-2"></i> Đăng ký thành viên
+                        <i class="fa-solid fa-gift mr-2"></i> {{ __('client.auth.register.badge') }}
                     </span>
                     <h1 class="mt-6 text-5xl font-semibold leading-tight tracking-tight">
-                        Bắt đầu hành trình <br>
-                        <span class="text-accent-500">cùng King Express</span>
+                        {{ __('client.auth.register.welcome_title') }} <br>
+                        <span class="text-accent-500">{{ __('client.auth.register.welcome_brand') }}</span>
                     </h1>
                     <p class="mt-4 text-lg text-slate-300">
-                        Tạo tài khoản ngay hôm nay để tích điểm, đổi vé và nhận vô vàn ưu đãi hấp dẫn trên mọi chuyến đi.
+                        {{ __('client.auth.register.welcome_description') }}
                     </p>
                 </div>
 
                 <div class="grid gap-5 mt-10">
                     <div class="flex items-start gap-4 p-4 rounded-lg bg-white/10">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-md bg-accent-500 flex items-center justify-center text-white">
+                        <div class="shrink-0 w-12 h-12 rounded-md bg-accent-500 flex items-center justify-center text-white">
                             <i class="fa-solid fa-coins text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Tích điểm đổi quà</h3>
-                            <p class="text-sm text-slate-400 mt-1">Mỗi chuyến đi đều mang lại điểm thưởng để quy đổi thành vé miễn phí.</p>
+                            <h3 class="font-semibold text-lg">{{ __('client.auth.register.feature_points_title') }}</h3>
+                            <p class="text-sm text-slate-400 mt-1">{{ __('client.auth.register.feature_points_desc') }}</p>
                         </div>
                     </div>
 
                     <div class="flex items-start gap-4 p-4 rounded-lg bg-white/10">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-md bg-primary-600 flex items-center justify-center text-white">
+                        <div class="shrink-0 w-12 h-12 rounded-md bg-primary-600 flex items-center justify-center text-white">
                             <i class="fa-solid fa-tags text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Ưu đãi độc quyền</h3>
-                            <p class="text-sm text-slate-400 mt-1">Nhận thông báo sớm nhất về các chương trình khuyến mãi và giảm giá sâu.</p>
+                            <h3 class="font-semibold text-lg">{{ __('client.auth.register.feature_offers_title') }}</h3>
+                            <p class="text-sm text-slate-400 mt-1">{{ __('client.auth.register.feature_offers_desc') }}</p>
                         </div>
                     </div>
                 </div>
@@ -59,8 +59,8 @@
                 <div class="absolute top-0 left-0 w-full h-0.5 bg-accent-500"></div>
 
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-semibold text-neutral-800 tracking-tight">Tạo tài khoản</h2>
-                    <p class="text-neutral-500 mt-2 text-base">Điền thông tin của bạn để đăng ký thành viên</p>
+                    <h2 class="text-3xl font-semibold text-neutral-800 tracking-tight">{{ __('client.auth.register.form_title') }}</h2>
+                    <p class="text-neutral-500 mt-2 text-base">{{ __('client.auth.register.form_subtitle') }}</p>
                 </div>
 
                 <form action="{{ route('client.register.submit') }}" method="POST" class="space-y-6">
@@ -69,7 +69,7 @@
 
                     <!-- Name Input -->
                     <div class="group/input relative">
-                        <label for="name" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Họ và tên</label>
+                        <label for="name" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.register.name_label') }}</label>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                 <i class="fa-regular fa-user"></i>
@@ -86,7 +86,7 @@
                     <!-- Email Input -->
                     <div class="group/input relative">
                         <label for="email" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Email</label>
-                        <p class="text-xs text-neutral-500 mb-2 ml-1">Liên kết xác nhận và thông báo đặt vé sẽ gửi về đây.</p>
+                        <p class="text-xs text-neutral-500 mb-2 ml-1">{{ __('client.auth.register.email_hint') }}</p>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                 <i class="fa-regular fa-envelope"></i>
@@ -102,8 +102,8 @@
 
                     <!-- Phone Input -->
                     <div class="group/input relative">
-                        <label for="phone" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Số điện thoại</label>
-                        <p class="text-xs text-neutral-500 mb-2 ml-1">Tuỳ chọn, giúp nhận thông báo nhanh hơn.</p>
+                        <label for="phone" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.register.phone_label') }}</label>
+                        <p class="text-xs text-neutral-500 mb-2 ml-1">{{ __('client.auth.register.phone_hint') }}</p>
                         <div class="relative">
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                 <i class="fa-solid fa-phone"></i>
@@ -120,8 +120,8 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <!-- Password Input -->
                         <div class="group/input relative">
-                            <label for="password" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Mật khẩu</label>
-                            <p class="text-xs text-neutral-500 mb-2 ml-1">Tối thiểu 8 ký tự.</p>
+                            <label for="password" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.register.password_label') }}</label>
+                            <p class="text-xs text-neutral-500 mb-2 ml-1">{{ __('client.auth.register.password_hint') }}</p>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                     <i class="fa-solid fa-lock"></i>
@@ -137,7 +137,7 @@
 
                         <!-- Confirm Password Input -->
                         <div class="group/input relative">
-                            <label for="password_confirmation" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Xác nhận</label>
+                            <label for="password_confirmation" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.register.password_confirmation_label') }}</label>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                     <i class="fa-solid fa-shield-halved"></i>
@@ -153,7 +153,7 @@
                         class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 rounded-md transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
                         <span class="flex items-center justify-center gap-2">
                             <i class="fa-solid fa-user-plus text-sm"></i>
-                            <span>Đăng ký tài khoản</span>
+                            <span>{{ __('client.auth.register.submit') }}</span>
                         </span>
                     </button>
 
@@ -162,16 +162,16 @@
                             <div class="w-full border-t border-neutral-200"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-neutral-500">Hoặc</span>
+                            <span class="px-2 bg-white text-neutral-500">{{ __('client.auth.common.or') }}</span>
                         </div>
                     </div>
 
                     <div class="text-center">
                         <p class="text-sm text-neutral-600">
-                            Đã là thành viên?
+                            {{ __('client.auth.register.has_account') }}
                             <a href="{{ route('client.login', ['redirect_to' => $redirectTarget]) }}"
                                 class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
-                                Đăng nhập ngay
+                                {{ __('client.auth.register.login_now') }}
                             </a>
                         </p>
                     </div>

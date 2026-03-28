@@ -13,7 +13,7 @@ class SetLocale
     public function handle(Request $request, Closure $next)
     {
         $defaultLocale = config('app.locale');
-        $supportedLocales = ['en', 'vi'];
+        $supportedLocales = config('app.supported_locales', ['en', 'vi']);
 
         $locale = session('locale', $defaultLocale);
 

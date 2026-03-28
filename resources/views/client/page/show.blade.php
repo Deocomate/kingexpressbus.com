@@ -59,30 +59,30 @@
                 <span
                     class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
                     <i class="fa-solid fa-sparkles" aria-hidden="true"></i>
-                    Thông tin hành trình King Express Bus
+                    {{ __('client.page_view.hero.badge') }}
                 </span>
                 <h1 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-                    {{ $page->title ?? 'Nội dung hữu ích cho chuyến đi của bạn' }}
+                    {{ $page->title ?? __('client.page_view.hero.fallback_title') }}
                 </h1>
                 <p class="mt-4 text-sm text-slate-100/95 sm:text-base lg:text-lg">
-                    Tìm nhanh tuyến xe, cập nhật thông tin mới nhất và chuẩn bị hành trình thuận tiện với trải nghiệm đặt vé trực quan, hiện đại.
+                    {{ __('client.page_view.hero.description') }}
                 </p>
                 <div class="mt-5 flex flex-wrap gap-2">
                     @if ($displayUpdatedAt)
                         <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
                             <i class="fa-regular fa-clock" aria-hidden="true"></i>
-                            Cập nhật: {{ $displayUpdatedAt }}
+                            {{ __('client.page_view.hero.updated_at', ['datetime' => $displayUpdatedAt]) }}
                         </span>
                     @endif
                     <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white">
                         <i class="fa-solid fa-shield-heart" aria-hidden="true"></i>
-                        Thông tin minh bạch, dễ theo dõi
+                        {{ __('client.page_view.hero.trust_note') }}
                     </span>
                 </div>
             </div>
 
             <div class="relative z-90 mt-8">
-                <x-client.search-bar submit-label="Tìm chuyến ngay" />
+                <x-client.search-bar :submit-label="__('client.page_view.hero.search_submit')" />
             </div>
         </div>
     </section>
@@ -93,12 +93,12 @@
             <article class="lg:col-span-8 space-y-5 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-100 pb-4">
                     <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-primary-600">Nội dung chi tiết</p>
-                        <h2 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ $page->title ?? 'Thông tin chi tiết' }}</h2>
+                        <p class="text-xs font-bold uppercase tracking-widest text-primary-600">{{ __('client.page_view.content.label') }}</p>
+                        <h2 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ $page->title ?? __('client.page_view.content.fallback_title') }}</h2>
                     </div>
                     <a href="{{ route('client.routes.index') }}"
                         class="inline-flex items-center gap-2 rounded-xl border border-primary-600/25 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700 transition-all duration-300 hover:-translate-y-1 hover:bg-primary-600 hover:text-white active:scale-95">
-                        Đặt vé ngay
+                        {{ __('client.page_view.content.cta_book_now') }}
                         <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -114,27 +114,27 @@
                     <div class="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
                         <i class="fa-solid fa-headset text-lg" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-lg font-extrabold text-slate-800">Hỗ trợ đặt vé 24/7</h3>
+                    <h3 class="text-lg font-extrabold text-slate-800">{{ __('client.page_view.support.title') }}</h3>
                     <p class="mt-2 text-sm text-slate-600">
-                        Cần tư vấn thêm về điểm đón, điểm trả hay thay đổi lịch trình? Đội ngũ của chúng tôi luôn sẵn sàng hỗ trợ bạn.
+                        {{ __('client.page_view.support.description') }}
                     </p>
                     <a href="{{ route('client.contact') }}"
                         class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-bold text-white shadow-soft transition-all duration-300 hover:bg-primary-700 active:scale-95">
-                        Liên hệ hỗ trợ
+                        {{ __('client.page_view.support.cta') }}
                         <i class="fa-solid fa-phone" aria-hidden="true"></i>
                     </a>
                 </div>
 
                 <div class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft">
-                    <h3 class="text-base font-extrabold text-slate-800">Điểm đến nổi bật</h3>
+                    <h3 class="text-base font-extrabold text-slate-800">{{ __('client.page_view.destinations.title') }}</h3>
                     <div class="mt-4 space-y-3">
                         <a href="{{ route('client.routes.index') }}"
                             class="group flex items-center gap-3 rounded-xl border border-slate-100 p-2 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-soft">
                             <img src="/client/images/city_imgs/sapa.jpg" alt="Sa Pa"
                                 class="h-14 w-20 rounded-lg object-cover">
                             <div>
-                                <p class="text-sm font-bold text-slate-700">Sa Pa</p>
-                                <p class="text-xs text-slate-500">Không khí mát lạnh quanh năm</p>
+                                <p class="text-sm font-bold text-slate-700">{{ __('client.page_view.destinations.sapa.name') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('client.page_view.destinations.sapa.desc') }}</p>
                             </div>
                         </a>
                         <a href="{{ route('client.routes.index') }}"
@@ -142,8 +142,8 @@
                             <img src="/client/images/city_imgs/ha-noi.jpg" alt="Hà Nội"
                                 class="h-14 w-20 rounded-lg object-cover">
                             <div>
-                                <p class="text-sm font-bold text-slate-700">Hà Nội</p>
-                                <p class="text-xs text-slate-500">Ẩm thực và văn hóa đặc sắc</p>
+                                <p class="text-sm font-bold text-slate-700">{{ __('client.page_view.destinations.hanoi.name') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('client.page_view.destinations.hanoi.desc') }}</p>
                             </div>
                         </a>
                         <a href="{{ route('client.routes.index') }}"
@@ -151,35 +151,35 @@
                             <img src="/client/images/city_imgs/ninh-binh.jpg" alt="Ninh Bình"
                                 class="h-14 w-20 rounded-lg object-cover">
                             <div>
-                                <p class="text-sm font-bold text-slate-700">Ninh Bình</p>
-                                <p class="text-xs text-slate-500">Thiên nhiên hùng vĩ, thư giãn</p>
+                                <p class="text-sm font-bold text-slate-700">{{ __('client.page_view.destinations.ninh_binh.name') }}</p>
+                                <p class="text-xs text-slate-500">{{ __('client.page_view.destinations.ninh_binh.desc') }}</p>
                             </div>
                         </a>
                     </div>
                 </div>
 
                 <div class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft">
-                    <h3 class="text-base font-extrabold text-slate-800">Trang phổ biến</h3>
+                    <h3 class="text-base font-extrabold text-slate-800">{{ __('client.page_view.popular_pages.title') }}</h3>
                     <ul class="mt-3 space-y-2 text-sm">
                         <li>
                             <a href="{{ route('client.page.show', ['slug' => 'gioi-thieu']) }}"
                                 class="inline-flex items-center gap-2 font-semibold text-primary-700 transition hover:translate-x-1 hover:text-primary-600">
                                 <i class="fa-solid fa-circle-info text-xs" aria-hidden="true"></i>
-                                Giới thiệu
+                                {{ __('client.page_view.popular_pages.about') }}
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('client.page.show', ['slug' => 'chinh-sach']) }}"
                                 class="inline-flex items-center gap-2 font-semibold text-primary-700 transition hover:translate-x-1 hover:text-primary-600">
                                 <i class="fa-solid fa-file-shield text-xs" aria-hidden="true"></i>
-                                Chính sách hỗ trợ
+                                {{ __('client.page_view.popular_pages.policy') }}
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('client.home') }}"
                                 class="inline-flex items-center gap-2 font-semibold text-primary-700 transition hover:translate-x-1 hover:text-primary-600">
                                 <i class="fa-solid fa-house text-xs" aria-hidden="true"></i>
-                                Trang chủ
+                                {{ __('client.page_view.popular_pages.home') }}
                             </a>
                         </li>
                     </ul>

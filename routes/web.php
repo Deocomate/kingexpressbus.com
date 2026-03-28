@@ -46,7 +46,7 @@ use App\Http\Controllers\Client\SearchController as ClientSearchController;
 Route::name('client.')->group(function () {
     // Locale switching
     Route::get('/locale/{locale}', function (string $locale, Request $request) {
-        $availableLocales = ['en', 'vi'];
+        $availableLocales = config('app.supported_locales', ['en', 'vi']);
 
         if (!in_array($locale, $availableLocales, true)) {
             abort(404);
@@ -55,7 +55,14 @@ Route::name('client.')->group(function () {
         session(['locale' => $locale]);
         app()->setLocale($locale);
 
-        return back(fallback: route('client.home'));
+        $redirect = $request->query('redirect');
+        if (is_string($redirect) && $redirect !== '') {
+            if (str_starts_with($redirect, '/') && !str_starts_with($redirect, '//')) {
+                return redirect($redirect);
+            }
+        }
+
+        return redirect()->route('client.home');
     })->name('locale.switch');
 
     // Home

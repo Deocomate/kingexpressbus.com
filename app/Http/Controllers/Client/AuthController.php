@@ -33,9 +33,9 @@ class AuthController extends Controller
             'redirect_to' => ['nullable', 'string'],
             'remember' => ['nullable'],
         ], [
-            'login.required' => 'Vui lòng nhập email hoặc số điện thoại.',
-            'password.required' => 'Vui lòng nhập mật khẩu.',
-            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'login.required' => __('client.auth.validation.login_required'),
+            'password.required' => __('client.auth.validation.password_required'),
+            'password.min' => __('client.auth.validation.password_min_login'),
         ]);
 
         if ($validator->fails()) {
@@ -51,11 +51,11 @@ class AuthController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
             $target = $this->resolveRedirect($request, route('client.profile.index'));
-            return redirect($target)->with('success', 'Đăng nhập thành công.');
+            return redirect($target)->with('success', __('client.auth.flash.login_success'));
         }
 
         return back()->withErrors([
-            'login' => 'Thông tin đăng nhập không chính xác.',
+            'login' => __('client.auth.flash.login_invalid'),
         ])->withInput($request->except('password'));
     }
 
@@ -77,14 +77,14 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'redirect_to' => ['nullable', 'string'],
         ], [
-            'name.required' => 'Vui lòng nhập họ và tên.',
-            'email.required' => 'Vui lòng nhập địa chỉ email.',
-            'email.email' => 'Email không đúng định dạng.',
-            'email.unique' => 'Email này đã được đăng ký.',
-            'phone.unique' => 'Số điện thoại này đã được đăng ký.',
-            'password.required' => 'Vui lòng nhập mật khẩu.',
-            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
-            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+            'name.required' => __('client.auth.validation.name_required'),
+            'email.required' => __('client.auth.validation.email_required'),
+            'email.email' => __('client.auth.validation.email_invalid'),
+            'email.unique' => __('client.auth.validation.email_unique'),
+            'phone.unique' => __('client.auth.validation.phone_unique'),
+            'password.required' => __('client.auth.validation.password_required'),
+            'password.min' => __('client.auth.validation.password_min_register'),
+            'password.confirmed' => __('client.auth.validation.password_confirmed'),
         ]);
 
         if ($validator->fails()) {
@@ -110,7 +110,7 @@ class AuthController extends Controller
 
         $target = $this->resolveRedirect($request, route('client.profile.index'));
 
-        return redirect($target)->with('success', 'Đăng ký tài khoản thành công.');
+        return redirect($target)->with('success', __('client.auth.flash.register_success'));
     }
 
     public function logout(Request $request): RedirectResponse
@@ -119,7 +119,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('client.home')->with('success', 'Bạn đã đăng xuất.');
+        return redirect()->route('client.home')->with('success', __('client.auth.flash.logout_success'));
     }
 
     public function showForgotPasswordForm()
@@ -132,8 +132,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => ['required', 'email'],
         ], [
-            'email.required' => 'Vui lòng nhập địa chỉ email.',
-            'email.email' => 'Email không đúng định dạng.',
+            'email.required' => __('client.auth.validation.email_required'),
+            'email.email' => __('client.auth.validation.email_invalid'),
         ]);
 
         if ($validator->fails()) {
@@ -143,11 +143,11 @@ class AuthController extends Controller
         $status = Password::sendResetLink($request->only('email'));
 
         if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', 'Chúng tôi đã gửi liên kết đặt lại mật khẩu vào email của bạn.');
+            return back()->with('status', __('client.auth.password.reset_link_sent'));
         }
 
         return back()->withErrors([
-            'email' => 'Không tìm thấy tài khoản với email này.',
+            'email' => __('client.auth.password.email_not_found'),
         ]);
     }
 
@@ -166,11 +166,11 @@ class AuthController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
-            'email.required' => 'Vui lòng nhập địa chỉ email.',
-            'email.email' => 'Email không đúng định dạng.',
-            'password.required' => 'Vui lòng nhập mật khẩu.',
-            'password.min' => 'Mật khẩu phải có ít nhất 8 ký tự.',
-            'password.confirmed' => 'Mật khẩu xác nhận không khớp.',
+            'email.required' => __('client.auth.validation.email_required'),
+            'email.email' => __('client.auth.validation.email_invalid'),
+            'password.required' => __('client.auth.validation.password_required'),
+            'password.min' => __('client.auth.validation.password_min_register'),
+            'password.confirmed' => __('client.auth.validation.password_confirmed'),
         ]);
 
         if ($validator->fails()) {
@@ -190,11 +190,11 @@ class AuthController extends Controller
         if ($status === Password::PASSWORD_RESET) {
             return redirect()
                 ->route('client.login')
-                ->with('success', 'Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.');
+                ->with('success', __('client.auth.password.reset_success'));
         }
 
         return back()->withErrors([
-            'email' => 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',
+            'email' => __('client.auth.password.reset_invalid_link'),
         ]);
     }
 
@@ -202,14 +202,39 @@ class AuthController extends Controller
     {
         $target = $request->input('redirect_to');
 
-        if (is_string($target) && $target !== '') {
-            if (!str_starts_with($target, 'http')) {
-                return url($target);
+        if (!is_string($target) || $target === '') {
+            return $fallback;
+        }
+
+        $target = trim($target);
+
+        if (str_starts_with($target, '/') && !str_starts_with($target, '//')) {
+            return url($target);
+        }
+
+        $parsedTarget = parse_url($target);
+        $parsedAppUrl = parse_url(url('/'));
+
+        if (
+            $parsedTarget !== false
+            && $parsedAppUrl !== false
+            && isset($parsedTarget['host'], $parsedAppUrl['host'])
+            && strcasecmp($parsedTarget['host'], $parsedAppUrl['host']) === 0
+            && (!isset($parsedTarget['scheme']) || !isset($parsedAppUrl['scheme']) || strcasecmp($parsedTarget['scheme'], $parsedAppUrl['scheme']) === 0)
+            && (!isset($parsedTarget['port']) || !isset($parsedAppUrl['port']) || (int) $parsedTarget['port'] === (int) $parsedAppUrl['port'])
+        ) {
+            $path = $parsedTarget['path'] ?? '/';
+            if (!str_starts_with($path, '/')) {
+                $path = '/' . $path;
+            }
+            if (str_starts_with($path, '//')) {
+                return $fallback;
             }
 
-            if (str_starts_with($target, url('/'))) {
-                return $target;
-            }
+            $query = isset($parsedTarget['query']) ? ('?' . $parsedTarget['query']) : '';
+            $fragment = isset($parsedTarget['fragment']) ? ('#' . $parsedTarget['fragment']) : '';
+
+            return url($path . $query . $fragment);
         }
 
         return $fallback;

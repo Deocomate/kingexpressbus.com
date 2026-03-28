@@ -10,6 +10,8 @@
     $statusColor = $statusColors[$booking->status] ?? 'bg-slate-100 text-slate-700';
 
     $isUpcoming = $type === 'upcoming';
+    $pickupName = $booking->pickup_name ?? __('client.booking.service.not_available');
+    $dropoffName = $booking->dropoff_name ?? __('client.booking.service.not_available');
 @endphp
 
 <article
@@ -30,7 +32,7 @@
                 <div class="mt-2 inline-flex items-center gap-2 rounded-xl bg-pastel/40 px-3 py-1.5 text-sm text-slate-600">
                     <i class="fa-regular fa-clock {{ $isUpcoming ? 'text-primary-600' : '' }}"></i>
                     <span>
-                        Khởi hành:
+                        {{ __('client.booking_card.departure') }}:
                         <span class="font-bold text-slate-700">{{ \Carbon\Carbon::parse($booking->booking_date)->format('H:i d/m/Y') }}</span>
                     </span>
                 </div>
@@ -38,17 +40,17 @@
 
             <div class="grid gap-3 border-t border-dashed border-amber-100 pt-4 md:grid-cols-2">
                 <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Điểm đón</p>
+                    <p class="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('client.booking_card.pickup') }}</p>
                     <div class="flex items-start gap-2 text-sm text-slate-700">
                         <span class="mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-100"></span>
-                        <span class="line-clamp-2 font-semibold" title="{{ $booking->pickup_name ?? 'N/A' }}">{{ $booking->pickup_name ?? 'N/A' }}</span>
+                        <span class="line-clamp-2 font-semibold" title="{{ $pickupName }}">{{ $pickupName }}</span>
                     </div>
                 </div>
                 <div class="rounded-xl bg-slate-50 p-3">
-                    <p class="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Điểm trả</p>
+                    <p class="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('client.booking_card.dropoff') }}</p>
                     <div class="flex items-start gap-2 text-sm text-slate-700">
                         <span class="mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500 ring-4 ring-rose-100"></span>
-                        <span class="line-clamp-2 font-semibold" title="{{ $booking->dropoff_name ?? 'N/A' }}">{{ $booking->dropoff_name ?? 'N/A' }}</span>
+                        <span class="line-clamp-2 font-semibold" title="{{ $dropoffName }}">{{ $dropoffName }}</span>
                     </div>
                 </div>
             </div>
@@ -56,13 +58,13 @@
 
         <div class="flex w-full flex-row items-center justify-between gap-4 border-t border-amber-100 pt-4 lg:w-auto lg:flex-col lg:items-end lg:justify-start lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <div class="text-left lg:text-right">
-                <p class="text-[11px] font-bold uppercase tracking-wide text-slate-400">Tổng thanh toán</p>
+                <p class="text-[11px] font-bold uppercase tracking-wide text-slate-400">{{ __('client.booking_card.total_payment') }}</p>
                 <p class="text-xl font-extrabold text-primary-600 lg:text-2xl">{{ number_format($booking->total_price) }} đ</p>
             </div>
 
             <a href="{{ route('client.routes.show', ['slug' => $booking->route_slug]) }}"
                 class="inline-flex items-center gap-2 rounded-xl border border-primary-600/20 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700 transition hover:bg-primary-600 hover:text-white active:scale-95">
-                {{ $isUpcoming ? 'Chi tiết' : 'Đặt lại' }}
+                {{ $isUpcoming ? __('client.booking_card.actions.details') : __('client.booking_card.actions.rebook') }}
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
         </div>

@@ -18,6 +18,14 @@ use Illuminate\Support\Str;
  */
 class BookingService
 {
+    private const NOTE_HOTEL_PICKUP_PREFIX = '[HOTEL_PICKUP]: ';
+    private const NOTE_CUSTOMER_PREFIX = '[CUSTOMER_NOTE]: ';
+    private const NOTE_CANCEL_PREFIX = '[CANCEL_REASON]: ';
+    private const NOTE_ADMIN_CANCEL_PREFIX = '[ADMIN_CANCEL_REASON]: ';
+
+    private const LEGACY_NOTE_HOTEL_PICKUP_PREFIX = '[Đón tại khách sạn]: ';
+    private const LEGACY_NOTE_ADMIN_CANCEL_PREFIX = '[Lý do hủy Admin]: ';
+
     protected TripService $tripService;
 
     public function __construct(TripService $tripService)
@@ -39,7 +47,7 @@ class BookingService
                 ->first();
 
             if (!$trip || !$trip->is_active) {
-                throw new \Exception('Chuyến xe không tồn tại hoặc đã ngừng hoạt động.');
+                throw new \Exception(__('client.booking.create.trip_not_found'));
             }
 
             // Calculate available seats with lock
@@ -54,17 +62,23 @@ class BookingService
             $requestedQuantity = (int) $data['quantity'];
 
             if ($requestedQuantity > $availableSeats) {
-                throw new \Exception("Không đủ ghế trống. Yêu cầu: {$requestedQuantity}, Còn trống: {$availableSeats}");
+                throw new \Exception(__('client.booking.store.not_enough_seats', [
+                    'requested' => $requestedQuantity,
+                    'available' => $availableSeats,
+                ]));
             }
 
             // Process hotel pickup if applicable
             $pickupStopId = $data['pickup_stop_id'] ?? null;
-            $bookingNotes = isset($data['notes']) ? strip_tags($data['notes']) : null;
+            $bookingNotes = isset($data['notes']) ? trim(strip_tags($data['notes'])) : null;
+            $bookingNotes = $bookingNotes !== '' ? $bookingNotes : null;
 
             if (isset($data['is_hotel_pickup']) && $data['is_hotel_pickup']) {
-                $hotelAddress = strip_tags($data['hotel_pickup_address'] ?? '');
-                $hotelNote = "[Đón tại khách sạn]: " . $hotelAddress;
-                $bookingNotes = $bookingNotes ? $hotelNote . "\n[Ghi chú của khách]: " . $bookingNotes : $hotelNote;
+                $hotelAddress = trim(strip_tags($data['hotel_pickup_address'] ?? ''));
+                $hotelNote = self::NOTE_HOTEL_PICKUP_PREFIX . $hotelAddress;
+                $bookingNotes = $bookingNotes
+                    ? $hotelNote . "\n" . self::NOTE_CUSTOMER_PREFIX . $bookingNotes
+                    : $hotelNote;
                 $pickupStopId = null;
             }
 
@@ -92,7 +106,7 @@ class BookingService
             return [
                 'success' => true,
                 'booking_id' => $bookingId,
-                'message' => 'Đặt vé thành công.',
+                'message' => __('client.booking.service.create_success'),
             ];
         });
     }
@@ -106,7 +120,7 @@ class BookingService
             $mailDetails = $this->prepareMailDetails($bookingId);
 
             if (!$mailDetails) {
-                Log::error('Không thể chuẩn bị dữ liệu mail cho booking ID: ' . $bookingId);
+                Log::error('Cannot prepare booking confirmation mail data: ' . $bookingId);
                 return false;
             }
 
@@ -119,7 +133,7 @@ class BookingService
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Lỗi khi gửi email xác nhận đặt vé', [
+            Log::error('Error while sending booking confirmation email', [
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
@@ -164,20 +178,25 @@ class BookingService
         $webProfile = DB::table('web_profiles')->where('is_default', true)->first();
 
         $result['web_title'] = $webProfile->title ?? config('app.name');
-        $result['web_phone'] = $webProfile->hotline ?? $webProfile->phone ?? 'N/A';
-        $result['web_email'] = $webProfile->email ?? 'N/A';
+        $result['web_phone'] = $webProfile->hotline ?? $webProfile->phone ?? __('client.booking.service.not_available');
+        $result['web_email'] = $webProfile->email ?? __('client.booking.service.not_available');
         $result['web_link'] = url('/');
         $result['web_logo'] = !empty($webProfile->logo_url) ? url($webProfile->logo_url) : null;
 
         $result['departure_date'] = Carbon::parse($result['booking_date'])->format('d/m/Y');
         $result['start_time'] = Carbon::parse($result['start_time'])->format('H:i');
-        $result['bus_type_name'] = $result['bus_model_name'] ?? 'Đang cập nhật';
+        $result['bus_type_name'] = $result['bus_model_name'] ?? __('client.booking.common.updating');
 
         // Handle hotel pickup display
-        if (is_null($result['pickup_stop_id']) && Str::contains($result['notes'], '[Đón tại khách sạn]')) {
-            $result['pickup_info'] = Str::after($result['notes'], '[Đón tại khách sạn]: ');
+        $hotelAddress = $this->extractHotelPickupAddress($result['notes'] ?? null);
+        if (is_null($result['pickup_stop_id']) && $hotelAddress !== null) {
+            $result['pickup_info'] = __('client.booking.service.hotel_pickup_display', ['address' => $hotelAddress]);
         } else {
-            $result['pickup_info'] = sprintf('%s - %s', $result['pickup_name'] ?? 'N/A', $result['pickup_address'] ?? 'N/A');
+            $result['pickup_info'] = sprintf(
+                '%s - %s',
+                $result['pickup_name'] ?? __('client.booking.service.not_available'),
+                $result['pickup_address'] ?? __('client.booking.service.not_available')
+            );
         }
 
         $result['needs_bank_transfer_info'] = ($result['payment_method'] === 'online_banking' && $result['payment_status'] !== 'paid');
@@ -193,11 +212,11 @@ class BookingService
         $booking = DB::table('bookings')->where('id', $bookingId)->first();
 
         if (!$booking) {
-            return ['success' => false, 'message' => 'Không tìm thấy đặt vé.'];
+            return ['success' => false, 'message' => __('client.booking.service.cancel_not_found')];
         }
 
         if ($booking->status === 'cancelled') {
-            return ['success' => false, 'message' => 'Đặt vé đã được hủy trước đó.'];
+            return ['success' => false, 'message' => __('client.booking.service.cancel_already_cancelled')];
         }
 
         $updateData = [
@@ -207,16 +226,16 @@ class BookingService
 
         if ($reason) {
             $existingNotes = $booking->notes ?? '';
-            $cancelNote = $adminUserId ? '[Lý do hủy Admin]: ' : '[Lý do hủy]: ';
+            $cancelNote = $adminUserId ? self::NOTE_ADMIN_CANCEL_PREFIX : self::NOTE_CANCEL_PREFIX;
             $updateData['notes'] = $existingNotes . "\n" . $cancelNote . $reason;
         }
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
 
-        // Auto gửi mail thông báo hủy vé cho khách
+        // Auto send cancellation email to customer
         $this->sendCancellationEmail($bookingId, $reason);
 
-        return ['success' => true, 'message' => 'Hủy đặt vé thành công.'];
+        return ['success' => true, 'message' => __('client.booking.service.cancel_success')];
     }
 
     /**
@@ -228,28 +247,28 @@ class BookingService
             $mailDetails = $this->prepareMailDetails($bookingId);
 
             if (!$mailDetails) {
-                Log::error('Không thể chuẩn bị dữ liệu mail hủy vé cho booking ID: ' . $bookingId);
+                Log::error('Cannot prepare booking cancellation mail data: ' . $bookingId);
                 return false;
             }
 
-            $mailDetails['cancel_reason'] = $reason ?: 'Không có lý do cụ thể';
+            $mailDetails['cancel_reason'] = $reason ?: __('client.booking.service.cancel_reason_default');
 
-            // Gửi mail thông báo hủy cho khách hàng
+            // Send cancellation email to customer
             Mail::to($mailDetails['customer_email'])->queue(new BookingCancelledMail($mailDetails));
 
-            // Gửi mail thông báo cho admin
+            // Send cancellation email to admin
             $adminEmail = config('mail.admin_email', 'kingexpressbus@gmail.com');
             Mail::to($adminEmail)->queue(new BookingCancelledMail($mailDetails));
 
-            Log::info('Đã gửi mail hủy vé thành công', [
+            Log::info('Booking cancellation emails sent successfully', [
                 'booking_id' => $bookingId,
-                'booking_code' => $mailDetails['booking_code'] ?? 'N/A',
-                'customer_email' => $mailDetails['customer_email'] ?? 'N/A',
+                'booking_code' => $mailDetails['booking_code'] ?? __('client.booking.service.not_available'),
+                'customer_email' => $mailDetails['customer_email'] ?? __('client.booking.service.not_available'),
             ]);
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Lỗi khi gửi email hủy vé', [
+            Log::error('Error while sending booking cancellation emails', [
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
@@ -266,7 +285,7 @@ class BookingService
             $mailDetails = $this->prepareMailDetails($bookingId);
 
             if (!$mailDetails) {
-                Log::error('Không thể chuẩn bị dữ liệu mail xác nhận vé cho booking ID: ' . $bookingId);
+                Log::error('Cannot prepare booking approval mail data: ' . $bookingId);
                 return false;
             }
 
@@ -275,15 +294,15 @@ class BookingService
             $adminEmail = config('mail.admin_email', 'kingexpressbus@gmail.com');
             Mail::to($adminEmail)->queue(new BookingApprovedMail($mailDetails));
 
-            Log::info('Đã gửi mail xác nhận vé thành công', [
+            Log::info('Booking approval emails sent successfully', [
                 'booking_id' => $bookingId,
-                'booking_code' => $mailDetails['booking_code'] ?? 'N/A',
-                'customer_email' => $mailDetails['customer_email'] ?? 'N/A',
+                'booking_code' => $mailDetails['booking_code'] ?? __('client.booking.service.not_available'),
+                'customer_email' => $mailDetails['customer_email'] ?? __('client.booking.service.not_available'),
             ]);
 
             return true;
         } catch (\Throwable $e) {
-            Log::error('Lỗi khi gửi email xác nhận vé', [
+            Log::error('Error while sending booking approval emails', [
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
@@ -299,7 +318,7 @@ class BookingService
         $booking = DB::table('bookings')->where('id', $bookingId)->first();
 
         if (!$booking) {
-            return ['success' => false, 'message' => 'Không tìm thấy đặt vé.'];
+            return ['success' => false, 'message' => __('client.booking.service.status_not_found')];
         }
 
         $updateData = [
@@ -310,24 +329,24 @@ class BookingService
         // Handle cancellation notes
         if ($status === 'cancelled' && $notes) {
             $existingNotes = $booking->notes ?? '';
-            if (!Str::contains($existingNotes, '[Lý do hủy Admin]')) {
-                $updateData['notes'] = $existingNotes . "\n[Lý do hủy Admin]: " . trim($notes);
+            if (!Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
+                $updateData['notes'] = $existingNotes . "\n" . self::NOTE_ADMIN_CANCEL_PREFIX . trim($notes);
             }
         }
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
 
-        // Auto gửi mail xác nhận vé khi chuyển từ pending sang confirmed
+        // Auto send approval email when moving from pending to confirmed
         if ($status === 'confirmed' && $booking->status === 'pending') {
             $this->sendApprovalEmail($bookingId);
         }
 
-        // Auto gửi mail thông báo hủy vé khi chuyển trạng thái sang cancelled
+        // Auto send cancellation email when status is cancelled
         if ($status === 'cancelled') {
             $this->sendCancellationEmail($bookingId, $notes);
         }
 
-        return ['success' => true, 'message' => 'Cập nhật trạng thái thành công.'];
+        return ['success' => true, 'message' => __('client.booking.service.status_update_success')];
     }
 
     /**
@@ -370,16 +389,17 @@ class BookingService
         $booking->dropoff_stop_address = $dropoffStop->address ?? null;
 
         // Format pickup display
-        $booking->pickup_display = 'N/A';
+        $booking->pickup_display = __('client.booking.service.not_available');
         if ($booking->pickup_stop_id && isset($booking->pickup_stop_name)) {
             $booking->pickup_display = $booking->pickup_stop_name;
             if ($booking->pickup_stop_address) {
                 $booking->pickup_display .= ' - ' . $booking->pickup_stop_address;
             }
-        } elseif (is_null($booking->pickup_stop_id) && Str::contains($booking->notes ?? '', '[Đón tại khách sạn]')) {
-            $hotelAddress = Str::after($booking->notes, '[Đón tại khách sạn]: ');
-            $hotelAddress = Str::before($hotelAddress, "\n");
-            $booking->pickup_display = 'Đón tại khách sạn: ' . trim($hotelAddress);
+        } elseif (is_null($booking->pickup_stop_id)) {
+            $hotelAddress = $this->extractHotelPickupAddress($booking->notes ?? null);
+            if ($hotelAddress !== null) {
+                $booking->pickup_display = __('client.booking.service.hotel_pickup_display', ['address' => $hotelAddress]);
+            }
         }
 
         return $booking;
@@ -452,5 +472,26 @@ class BookingService
             ->sum('total_price');
 
         return compact('totalToday', 'pendingTotal', 'revenueToday');
+    }
+
+    private function extractHotelPickupAddress(?string $notes): ?string
+    {
+        if (!is_string($notes) || trim($notes) === '') {
+            return null;
+        }
+
+        $prefixes = [
+            self::NOTE_HOTEL_PICKUP_PREFIX,
+            self::LEGACY_NOTE_HOTEL_PICKUP_PREFIX,
+        ];
+
+        foreach ($prefixes as $prefix) {
+            if (Str::contains($notes, $prefix)) {
+                $segment = Str::after($notes, $prefix);
+                return trim(Str::before($segment, "\n"));
+            }
+        }
+
+        return null;
     }
 }

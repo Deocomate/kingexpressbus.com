@@ -1,12 +1,12 @@
-<x-client.layout title="Đặt lại mật khẩu"
-    description="Tạo mật khẩu mới cho tài khoản King Express Bus của bạn.">
+<x-client.layout :title="__('client.auth.reset_password.meta_title')"
+    :description="__('client.auth.reset_password.meta_description')">
     <section class="min-h-screen flex items-center justify-center bg-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
         <div class="w-full max-w-md bg-white rounded-lg shadow-card p-8 md:p-10 relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-600"></div>
 
             <div class="text-center mb-8">
-                <h2 class="text-2xl font-semibold text-neutral-800 tracking-tight">Đặt lại mật khẩu</h2>
-                <p class="text-neutral-500 mt-2 text-sm">Nhập mật khẩu mới để hoàn tất.</p>
+                <h2 class="text-2xl font-semibold text-neutral-800 tracking-tight">{{ __('client.auth.reset_password.title') }}</h2>
+                <p class="text-neutral-500 mt-2 text-sm">{{ __('client.auth.reset_password.subtitle') }}</p>
             </div>
 
             <form action="{{ route('client.password.update') }}" method="POST" class="space-y-5">
@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="group/input relative">
-                    <label for="password" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Mật khẩu mới</label>
+                    <label for="password" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.reset_password.password_label') }}</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                             <i class="fa-solid fa-lock"></i>
@@ -44,7 +44,7 @@
                 </div>
 
                 <div class="group/input relative">
-                    <label for="password_confirmation" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Xác nhận mật khẩu</label>
+                    <label for="password_confirmation" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.reset_password.password_confirmation_label') }}</label>
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                             <i class="fa-solid fa-shield-halved"></i>
@@ -57,13 +57,13 @@
 
                 <button type="submit"
                     class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 rounded-md transition-colors duration-200">
-                    Cập nhật mật khẩu
+                    {{ __('client.auth.reset_password.submit') }}
                 </button>
             </form>
 
             <div class="mt-6 text-center text-sm text-neutral-600">
                 <a href="{{ route('client.login') }}"
-                    class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">Quay lại đăng nhập</a>
+                    class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">{{ __('client.auth.common.back_to_login') }}</a>
             </div>
         </div>
     </section>

@@ -1,5 +1,5 @@
-<x-client.layout title="Đăng nhập King Express Bus"
-    description="Đăng nhập để theo dõi hành trình, đặt vé nhanh và quản lý thông tin cá nhân của bạn.">
+<x-client.layout :title="__('client.auth.login.meta_title')"
+    :description="__('client.auth.login.meta_description')">
     @php
         $redirectTarget = $redirectTo ?? route('client.profile.index');
     @endphp
@@ -20,25 +20,25 @@
             <div class="hidden lg:block text-white space-y-8 pr-10">
                 <div>
                     <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-accent-500 text-white uppercase tracking-wide">
-                        <i class="fa-solid fa-star mr-2"></i> Thành viên ưu đãi
+                        <i class="fa-solid fa-star mr-2"></i> {{ __('client.auth.login.badge') }}
                     </span>
                     <h1 class="mt-6 text-5xl font-semibold leading-tight tracking-tight">
-                        Chào mừng trở lại <br>
-                        <span class="text-accent-500">King Express Bus</span>
+                        {{ __('client.auth.login.welcome_title') }} <br>
+                        <span class="text-accent-500">{{ __('client.auth.login.welcome_brand') }}</span>
                     </h1>
                     <p class="mt-4 text-lg text-slate-300">
-                        Đăng nhập để quản lý vé, xem lịch sử chuyến đi và nhận các ưu đãi độc quyền dành riêng cho bạn.
+                        {{ __('client.auth.login.welcome_description') }}
                     </p>
                 </div>
 
                 <div class="space-y-6 mt-10">
                     <div class="flex items-start gap-4 p-4 rounded-lg bg-white/10">
-                        <div class="flex-shrink-0 w-12 h-12 rounded-md bg-primary-600 flex items-center justify-center text-white">
+                        <div class="shrink-0 w-12 h-12 rounded-md bg-primary-600 flex items-center justify-center text-white">
                             <i class="fa-solid fa-clock-rotate-left text-xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-lg">Quản lý chuyến đi</h3>
-                            <p class="text-sm text-slate-400 mt-1">Xem lại lịch sử đặt vé và trạng thái thanh toán theo thời gian thực.</p>
+                            <h3 class="font-semibold text-lg">{{ __('client.auth.login.feature_manage_title') }}</h3>
+                            <p class="text-sm text-slate-400 mt-1">{{ __('client.auth.login.feature_manage_desc') }}</p>
                         </div>
                     </div>
                 </div>
@@ -50,8 +50,8 @@
                 <div class="absolute top-0 left-0 w-full h-0.5 bg-primary-600"></div>
 
                 <div class="text-center mb-8">
-                    <h2 class="text-3xl font-semibold text-neutral-800 tracking-tight">Đăng nhập</h2>
-                    <p class="text-neutral-500 mt-2 text-base">Điền thông tin tài khoản của bạn để tiếp tục</p>
+                    <h2 class="text-3xl font-semibold text-neutral-800 tracking-tight">{{ __('client.auth.login.form_title') }}</h2>
+                    <p class="text-neutral-500 mt-2 text-base">{{ __('client.auth.login.form_subtitle') }}</p>
                 </div>
 
                 <form action="{{ route('client.login.submit') }}" method="POST" class="space-y-7">
@@ -61,8 +61,8 @@
                     <div class="space-y-5">
                         <!-- Login Input -->
                         <div class="group/input relative">
-                            <label for="login" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">Email hoặc Số điện thoại</label>
-                            <p class="text-xs text-neutral-500 mb-2 ml-1">Dùng email hoặc số điện thoại đã đăng ký.</p>
+                            <label for="login" class="block text-sm font-semibold text-neutral-700 mb-1.5 ml-1">{{ __('client.auth.login.login_label') }}</label>
+                            <p class="text-xs text-neutral-500 mb-2 ml-1">{{ __('client.auth.login.login_hint') }}</p>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                     <i class="fa-regular fa-envelope"></i>
@@ -79,9 +79,9 @@
                         <!-- Password Input -->
                         <div class="group/input relative">
                             <div class="flex justify-between items-center mb-1.5 ml-1">
-                                <label for="password" class="block text-sm font-semibold text-neutral-700">Mật khẩu</label>
+                                <label for="password" class="block text-sm font-semibold text-neutral-700">{{ __('client.auth.login.password_label') }}</label>
                             </div>
-                            <p class="text-xs text-neutral-500 mb-2 ml-1">Không chia sẻ mật khẩu với người khác.</p>
+                            <p class="text-xs text-neutral-500 mb-2 ml-1">{{ __('client.auth.login.password_hint') }}</p>
                             <div class="relative">
                                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 group-focus-within/input:text-primary-600 transition-colors">
                                     <i class="fa-solid fa-lock"></i>
@@ -105,7 +105,7 @@
                                     <i class="fa-solid fa-check text-xs"></i>
                                 </div>
                             </div>
-                            <span class="text-sm font-medium text-neutral-600">Lưu đăng nhập</span>
+                            <span class="text-sm font-medium text-neutral-600">{{ __('client.auth.login.remember') }}</span>
                         </label>
                     </div>
 
@@ -115,11 +115,11 @@
                                 <i class="fa-solid fa-key"></i>
                             </div>
                             <div class="flex-1">
-                                <p class="text-sm font-semibold text-neutral-800">Quên mật khẩu?</p>
-                                <p class="text-xs text-neutral-500 mt-1">Nhận liên kết đặt lại qua email trong vài phút.</p>
+                                <p class="text-sm font-semibold text-neutral-800">{{ __('client.auth.login.forgot_password_title') }}</p>
+                                <p class="text-xs text-neutral-500 mt-1">{{ __('client.auth.login.forgot_password_desc') }}</p>
                                 <a href="{{ route('client.password.request') }}"
                                     class="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors">
-                                    <span>Gửi liên kết đặt lại</span>
+                                    <span>{{ __('client.auth.login.forgot_password_link') }}</span>
                                     <i class="fa-solid fa-arrow-right text-xs"></i>
                                 </a>
                             </div>
@@ -129,7 +129,7 @@
                     <button type="submit"
                         class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-4 rounded-md transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed">
                         <span class="flex items-center justify-center gap-2">
-                            <span>Đăng nhập</span>
+                            <span>{{ __('client.auth.login.submit') }}</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </span>
                     </button>
@@ -139,16 +139,16 @@
                             <div class="w-full border-t border-neutral-200"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-neutral-500">Hoặc</span>
+                            <span class="px-2 bg-white text-neutral-500">{{ __('client.auth.common.or') }}</span>
                         </div>
                     </div>
 
                     <div class="text-center">
                         <p class="text-sm text-neutral-600">
-                            Bạn chưa có tài khoản?
+                            {{ __('client.auth.login.no_account') }}
                             <a href="{{ route('client.register', ['redirect_to' => $redirectTarget]) }}"
                                 class="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
-                                Đăng ký ngay
+                                {{ __('client.auth.login.register_now') }}
                             </a>
                         </p>
                     </div>

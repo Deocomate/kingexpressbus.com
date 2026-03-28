@@ -322,11 +322,11 @@ class TripService
 
         // Time range options with labels
         $timeRanges = [
-            'early_morning' => ['label' => 'Sáng sớm (5h-8h)', 'min' => 5, 'max' => 8],
-            'morning' => ['label' => 'Buổi sáng (8h-12h)', 'min' => 8, 'max' => 12],
-            'afternoon' => ['label' => 'Buổi chiều (12h-17h)', 'min' => 12, 'max' => 17],
-            'evening' => ['label' => 'Buổi tối (17h-21h)', 'min' => 17, 'max' => 21],
-            'night' => ['label' => 'Đêm khuya (21h-5h)', 'min' => 21, 'max' => 5],
+            'early_morning' => ['label' => __('client.route_show.filters.time_range_early_morning'), 'min' => 5, 'max' => 8],
+            'morning' => ['label' => __('client.route_show.filters.time_range_morning'), 'min' => 8, 'max' => 12],
+            'afternoon' => ['label' => __('client.route_show.filters.time_range_afternoon'), 'min' => 12, 'max' => 17],
+            'evening' => ['label' => __('client.route_show.filters.time_range_evening'), 'min' => 17, 'max' => 21],
+            'night' => ['label' => __('client.route_show.filters.time_range_night'), 'min' => 21, 'max' => 5],
         ];
 
         return [

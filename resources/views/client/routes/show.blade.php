@@ -1152,10 +1152,10 @@
                     {{-- Time Range Quick Filters --}}
                     @php
                         $quickTimeFilters = [
-                            'early_morning' => ['label' => 'Sáng sớm (5h-8h)', 'icon' => 'fa-sun'],
-                            'morning' => ['label' => 'Buổi sáng (8h-12h)', 'icon' => 'fa-cloud-sun'],
-                            'afternoon' => ['label' => 'Buổi chiều (12h-17h)', 'icon' => 'fa-sun'],
-                            'evening' => ['label' => 'Buổi tối (17h-21h)', 'icon' => 'fa-moon'],
+                            'early_morning' => ['label' => __('client.route_show.filters.time_range_early_morning'), 'icon' => 'fa-sun'],
+                            'morning' => ['label' => __('client.route_show.filters.time_range_morning'), 'icon' => 'fa-cloud-sun'],
+                            'afternoon' => ['label' => __('client.route_show.filters.time_range_afternoon'), 'icon' => 'fa-sun'],
+                            'evening' => ['label' => __('client.route_show.filters.time_range_evening'), 'icon' => 'fa-moon'],
                         ];
                     @endphp
 
@@ -1336,7 +1336,7 @@
                                         <div class="flex items-start justify-between gap-3 trip-card-header">
                                             <div class="min-w-0">
                                                 <h3 class="text-sm font-bold text-gray-900 truncate leading-tight">{{ $trip->bus_name }}</h3>
-                                                <p class="text-xs text-gray-400 mt-0.5">{{ $trip->bus_model ?? 'N/A' }}</p>
+                                                <p class="text-xs text-gray-400 mt-0.5">{{ $trip->bus_model ?? __('client.booking.service.not_available') }}</p>
                                             </div>
                                             <div class="text-right shrink-0 flex flex-col items-end gap-1">
                                                 @if ($trip->has_price)
@@ -1420,16 +1420,16 @@
                                         <div class="mb-4">
                                             <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-1.5">
                                                 <i class="fa-solid fa-route text-primary-600"></i>
-                                                Lộ trình chuyến xe
+                                                {{ __('client.route_show.trip_card.route_timeline_title') }}
                                             </h4>
                                             <div class="route-timeline">
                                                 <div class="route-timeline-stop is-origin">
                                                     <span class="stop-time">{{ $tripStart->format('H:i') }}</span>
-                                                    <span class="stop-name">{{ $firstPickup->name ?? 'Điểm xuất phát' }}</span>
+                                                    <span class="stop-name">{{ $firstPickup->name ?? __('client.route_show.hero_origin') }}</span>
                                                 </div>
                                                 <div class="route-timeline-stop is-destination">
                                                     <span class="stop-time">{{ $tripEnd->format('H:i') }}</span>
-                                                    <span class="stop-name">{{ $firstDropoff->name ?? 'Điểm đến' }}</span>
+                                                    <span class="stop-name">{{ $firstDropoff->name ?? __('client.route_show.hero_destination') }}</span>
                                                     <span class="text-xs text-gray-400 ml-1">({{ $durationLabel }})</span>
                                                 </div>
                                             </div>
@@ -1441,24 +1441,24 @@
                                                 <h4 class="point-title">
                                                     <i class="fa-solid fa-location-dot"></i>
                                                     {{ __('client.route_show.trip_card.pickup_point', ['default' => 'Điểm đón']) }}
-                                                    <span class="text-[10px] font-normal text-primary-500">({{ $pickupPoints->count() }} điểm)</span>
+                                                    <span class="text-[10px] font-normal text-primary-500">({{ __('client.route_show.trip_card.point_count', ['count' => $pickupPoints->count()]) }})</span>
                                                 </h4>
                                                 @forelse ($pickupPoints as $pickup)
                                                     <p class="point-item">{{ $pickup->name }}</p>
                                                 @empty
-                                                    <p class="text-xs text-gray-400">Chưa cập nhật</p>
+                                                    <p class="text-xs text-gray-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
                                                 @endforelse
                                             </div>
                                             <div class="point-card dropoff">
                                                 <h4 class="point-title">
                                                     <i class="fa-solid fa-flag-checkered"></i>
                                                     {{ __('client.route_show.trip_card.dropoff_point', ['default' => 'Điểm trả']) }}
-                                                    <span class="text-[10px] font-normal text-green-500">({{ $dropoffPoints->count() }} điểm)</span>
+                                                    <span class="text-[10px] font-normal text-green-500">({{ __('client.route_show.trip_card.point_count', ['count' => $dropoffPoints->count()]) }})</span>
                                                 </h4>
                                                 @forelse ($dropoffPoints as $dropoff)
                                                     <p class="point-item">{{ $dropoff->name }}</p>
                                                 @empty
-                                                    <p class="text-xs text-gray-400">Chưa cập nhật</p>
+                                                    <p class="text-xs text-gray-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
                                                 @endforelse
                                             </div>
                                         </div>
@@ -1477,18 +1477,18 @@
                                                             {{ $service }}
                                                         </span>
                                                     @empty
-                                                        <span class="text-xs text-gray-400">Chưa có tiện ích</span>
+                                                        <span class="text-xs text-gray-400">{{ __('client.route_show.trip_card.no_services_updated') }}</span>
                                                     @endforelse
                                                 </div>
                                             </div>
                                             <div>
                                                 <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
                                                     <i class="fa-solid fa-bus text-primary-500"></i>
-                                                    Thông tin xe
+                                                    {{ __('client.route_show.details_modal.bus_info_title') }}
                                                 </h4>
                                                 <div class="text-xs text-gray-500 space-y-1">
-                                                    <p><span class="font-semibold text-gray-600">{{ __('client.route_show.details_modal.bus_type', ['default' => 'Loại xe']) }}:</span> {{ $trip->bus_model ?? 'N/A' }}</p>
-                                                    <p><span class="font-semibold text-gray-600">Mã chuyến:</span> #{{ $trip->trip_id }}</p>
+                                                    <p><span class="font-semibold text-gray-600">{{ __('client.route_show.details_modal.bus_type', ['default' => 'Loại xe']) }}:</span> {{ $trip->bus_model ?? __('client.booking.service.not_available') }}</p>
+                                                    <p><span class="font-semibold text-gray-600">{{ __('client.route_show.trip_card.trip_code') }}:</span> #{{ $trip->trip_id }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -1496,7 +1496,7 @@
                                         {{-- Gallery --}}
                                         @if ($imageGallery->count() > 1)
                                             <div class="mt-4">
-                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Hình ảnh</h4>
+                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{{ __('client.route_show.details_modal.gallery_title') }}</h4>
                                                 <div class="detail-gallery scrollbar-thin">
                                                     @foreach ($imageGallery->take(6) as $idx => $image)
                                                         <button type="button" class="detail-gallery-thumb"
@@ -1506,7 +1506,7 @@
                                                             data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
                                                             data-lightbox-index="{{ $idx }}"
                                                             data-lightbox-images='@json($imageGallery->take(6)->values())'>
-                                                            <img src="{{ $image }}" alt="Bus image" loading="lazy">
+                                                            <img src="{{ $image }}" alt="{{ __('client.route_show.trip_card.bus_image_alt') }}" loading="lazy">
                                                         </button>
                                                     @endforeach
                                                     @if ($imageGallery->count() > 6)
@@ -1586,7 +1586,7 @@
                             {{ __('client.route_show.tips.title') }}
                         </h2>
                         <p class="mt-2 text-sm text-slate-500 md:text-base">
-                            Một vài kinh nghiệm hữu ích giúp chuyến đi của bạn thoải mái và chủ động hơn.
+                            {{ __('client.route_show.tips.description') }}
                         </p>
                     </div>
                 </div>

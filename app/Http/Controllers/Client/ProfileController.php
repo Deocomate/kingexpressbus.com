@@ -41,8 +41,8 @@ class ProfileController extends Controller
             'bookingHistory' => $bookingHistory,
             'stats' => $stats,
             'preferredRoutes' => $preferredRoutes,
-            'title' => 'Tài khoản của tôi',
-            'description' => 'Quản lý thông tin cá nhân và lịch sử đặt vé tại King Express Bus.',
+            'title' => __('client.profile_page.meta.title'),
+            'description' => __('client.profile_page.meta.description'),
         ]);
     }
 

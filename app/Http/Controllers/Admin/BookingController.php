@@ -47,17 +47,66 @@ class BookingController extends Controller
             return response()->json(['success' => false, 'message' => 'Không tìm thấy đặt vé.'], 404);
         }
 
-        // Clean up notes for display (remove hotel part if present)
-        $booking->notes_display = $booking->notes ?? '';
-        if (Str::contains($booking->notes ?? '', '[Đón tại khách sạn]')) {
-            $parts = explode("\n", $booking->notes, 2);
-            $booking->notes_display = count($parts) > 1 ? trim(Str::after($parts[1], '[Ghi chú của khách]: ')) : '';
-        }
-        if (empty(trim((string)$booking->notes_display))) {
-            $booking->notes_display = 'Không có';
-        }
+        $booking->notes_display = $this->extractDisplayNotes($booking->notes ?? null);
 
         return response()->json(['success' => true, 'data' => $booking]);
+    }
+
+    private function extractDisplayNotes(?string $notes): string
+    {
+        $content = trim((string) $notes);
+        if ($content === '') {
+            return 'Không có';
+        }
+
+        $lines = preg_split('/\r\n|\r|\n/', $content) ?: [];
+        $displayLines = [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+
+            if (Str::startsWith($line, ['[HOTEL_PICKUP]:', '[Đón tại khách sạn]:'])) {
+                continue;
+            }
+
+            if (Str::startsWith($line, '[CUSTOMER_NOTE]:')) {
+                $displayLines[] = trim(Str::after($line, '[CUSTOMER_NOTE]:'));
+                continue;
+            }
+
+            if (Str::startsWith($line, '[Ghi chú của khách]:')) {
+                $displayLines[] = trim(Str::after($line, '[Ghi chú của khách]:'));
+                continue;
+            }
+
+            if (Str::startsWith($line, '[CANCEL_REASON]:')) {
+                $displayLines[] = trim(Str::after($line, '[CANCEL_REASON]:'));
+                continue;
+            }
+
+            if (Str::startsWith($line, '[ADMIN_CANCEL_REASON]:')) {
+                $displayLines[] = trim(Str::after($line, '[ADMIN_CANCEL_REASON]:'));
+                continue;
+            }
+
+            if (Str::startsWith($line, '[') && Str::contains($line, ']:')) {
+                $displayLines[] = trim(Str::after($line, ']:'));
+                continue;
+            }
+
+            $displayLines[] = $line;
+        }
+
+        $displayLines = array_values(array_filter($displayLines, static fn (string $item): bool => $item !== ''));
+
+        if (empty($displayLines)) {
+            return 'Không có';
+        }
+
+        return implode(PHP_EOL, $displayLines);
     }
 
     /**

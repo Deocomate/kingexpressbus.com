@@ -9,11 +9,12 @@
     $authUser = $authUser ?? null;
     $isCustomer = $authUser && ($authUser->role ?? null) === 'customer';
     $customerLinks = $customerLinks ?? [];
+    $localeRedirect = request()->getRequestUri();
 
     $currentLocale = app()->getLocale();
     $languageOptions = [
-        ['code' => 'vi', 'label' => 'Tiếng Việt', 'flag' => asset('/client/icons/vn-flag.svg')],
-        ['code' => 'en', 'label' => 'English', 'flag' => asset('/client/icons/en-flag.svg')],
+        ['code' => 'vi', 'label' => __('client.nav.languages.vi'), 'flag' => asset('/client/icons/vn-flag.svg')],
+        ['code' => 'en', 'label' => __('client.nav.languages.en'), 'flag' => asset('/client/icons/en-flag.svg')],
     ];
     $currentLanguage = collect($languageOptions)->firstWhere('code', $currentLocale);
 @endphp
@@ -57,7 +58,7 @@
                         <div x-show="languageOpen" x-cloak x-transition.origin.top.right.duration.220ms
                             class="absolute right-0 top-full z-50 mt-2 w-44 rounded-2xl border border-amber-100 bg-white p-2 shadow-soft" style="z-index: 320;">
                             @foreach ($languageOptions as $language)
-                                <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
+                                <a href="{{ route('client.locale.switch', ['locale' => $language['code'], 'redirect' => $localeRedirect]) }}"
                                     class="mb-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm transition last:mb-0 {{ $currentLocale === $language['code'] ? 'bg-primary-50 font-semibold text-primary-700' : 'text-slate-600 hover:bg-amber-50 hover:text-primary-700' }}">
                                     <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}" class="h-5 w-5 rounded-full object-cover">
                                     {{ $language['label'] }}
@@ -183,7 +184,7 @@
                 <i class="fa-solid fa-triangle-exclamation text-sm"></i>
             </span>
             <p class="flex-1 text-sm font-medium text-slate-700">{{ __('client.layout.warning_holiday_ticket') }}</p>
-            <button type="button" @click="soldOutAlertOpen = false" class="text-slate-400 transition hover:text-slate-700" aria-label="Close warning">
+            <button type="button" @click="soldOutAlertOpen = false" class="text-slate-400 transition hover:text-slate-700" aria-label="{{ __('client.layout.close_warning') }}">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -279,7 +280,7 @@
 
         <div class="mt-6 grid grid-cols-2 gap-2">
             @foreach ($languageOptions as $language)
-                <a href="{{ route('client.locale.switch', ['locale' => $language['code']]) }}"
+                <a href="{{ route('client.locale.switch', ['locale' => $language['code'], 'redirect' => $localeRedirect]) }}"
                     class="flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold {{ $currentLocale === $language['code'] ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 text-slate-600' }}">
                     <img src="{{ $language['flag'] }}" alt="{{ $language['label'] }}" class="h-4 w-4 rounded-full object-cover">
                     {{ strtoupper($language['code']) }}

@@ -4,19 +4,19 @@
     @php
         $fleetCards = [
             [
-                'name' => 'Cabin VIP',
+                'name' => __('client.about_page.fleet_cards.cabin.name'),
                 'image' => '/client/images/kingexpressbus/cabin/1.jpg',
-                'meta' => 'Riêng tư, êm ái, premium',
+                'meta' => __('client.about_page.fleet_cards.cabin.meta'),
             ],
             [
-                'name' => 'Limousine',
+                'name' => __('client.about_page.fleet_cards.limousine.name'),
                 'image' => '/client/images/kingexpressbus/limousine/1.png',
-                'meta' => 'Ghế rộng, tiện nghi thế hệ mới',
+                'meta' => __('client.about_page.fleet_cards.limousine.meta'),
             ],
             [
-                'name' => 'Sleeper',
+                'name' => __('client.about_page.fleet_cards.sleeper.name'),
                 'image' => '/client/images/kingexpressbus/sleeper/1.jpg',
-                'meta' => 'Phù hợp hành trình đêm đường dài',
+                'meta' => __('client.about_page.fleet_cards.sleeper.meta'),
             ],
         ];
 
@@ -100,35 +100,35 @@
                         <a href="{{ route('client.routes.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-primary-700 active:scale-95">
                             <i class="fa-solid fa-ticket"></i>
-                            Đặt vé ngay
+                            {{ __('client.about_page.hero.primary_button') }}
                         </a>
                         <a href="#about-content"
                             class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
                             <i class="fa-solid fa-circle-info"></i>
-                            Tìm hiểu thêm
+                            {{ __('client.about_page.hero.secondary_button') }}
                         </a>
                     </div>
                 </div>
 
                 <div class="grid gap-3 sm:grid-cols-2">
                     <div class="about-glass rounded-2xl border border-white/20 p-4 text-white shadow-soft sm:col-span-2">
-                        <p class="text-xs uppercase tracking-wide text-white/80">Khách hàng nói gì</p>
-                        <p class="mt-2 text-lg font-extrabold md:text-xl">"Đặt vé cực nhanh, giao diện dễ hiểu và mượt trên điện thoại."</p>
-                        <p class="mt-2 text-xs text-white/85">Minh Anh · Tuyến Hà Nội - Sa Pa</p>
+                        <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.about_page.hero.review_label') }}</p>
+                        <p class="mt-2 text-lg font-extrabold md:text-xl">{{ __('client.about_page.hero.review_quote') }}</p>
+                        <p class="mt-2 text-xs text-white/85">{{ __('client.about_page.hero.review_author') }}</p>
                     </div>
                     <div class="about-glass rounded-2xl border border-white/20 p-4 text-white shadow-soft">
-                        <p class="text-xs uppercase tracking-wide text-white/80">Đánh giá trung bình</p>
+                        <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.about_page.hero.rating_label') }}</p>
                         <p class="mt-2 text-2xl font-extrabold">4.9/5</p>
                     </div>
                     <div class="about-glass rounded-2xl border border-white/20 p-4 text-white shadow-soft">
-                        <p class="text-xs uppercase tracking-wide text-white/80">Tỷ lệ quay lại</p>
+                        <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.about_page.hero.return_rate_label') }}</p>
                         <p class="mt-2 text-2xl font-extrabold">92%</p>
                     </div>
                 </div>
             </div>
 
             <div class="relative z-40 mt-8" style="z-index: 90;">
-                <x-client.search-bar submit-label="Tìm chuyến ngay" />
+                <x-client.search-bar :submit-label="__('client.about_page.hero.search_submit')" />
             </div>
         </div>
     </section>
@@ -161,7 +161,7 @@
         <div class="container mx-auto max-w-7xl">
             <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                 <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
-                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Vị thế thương hiệu</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.about_page.position.label') }}</p>
                     <h2 class="mt-2 text-2xl font-extrabold text-slate-800 md:text-4xl">{{ __('client.about.position.title') }}</h2>
                     <div class="mt-4 space-y-3 text-sm leading-relaxed text-slate-600 md:text-base">
                         <p>{{ __('client.about.position.paragraph1') }}</p>
@@ -185,7 +185,7 @@
                 </article>
 
                 <aside x-data="{ tab: 'vision' }" class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
-                    <div class="mb-5 flex flex-wrap gap-2 rounded-xl bg-slate-100 p-1" role="tablist" aria-label="Giá trị thương hiệu">
+                    <div class="mb-5 flex flex-wrap gap-2 rounded-xl bg-slate-100 p-1" role="tablist" aria-label="{{ __('client.about_page.tabs.aria_label') }}">
                         <button type="button" @click="tab = 'vision'"
                             id="about-vision-tab"
                             role="tab"
@@ -245,12 +245,12 @@
         <div class="container mx-auto max-w-7xl">
             <div class="mb-8 flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Popular routes</p>
-                    <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">Tuyến nổi bật từ King Express</h3>
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.about_page.popular_routes.label') }}</p>
+                    <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">{{ __('client.about_page.popular_routes.title') }}</h3>
                 </div>
                 <a href="{{ route('client.routes.index') }}"
                     class="inline-flex items-center gap-2 rounded-xl border border-primary-600/25 bg-white px-4 py-2 text-sm font-bold text-primary-700 transition hover:bg-primary-50 active:scale-95">
-                    Xem toàn bộ tuyến
+                    {{ __('client.about_page.popular_routes.view_all') }}
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
@@ -269,24 +269,24 @@
                             <div class="flex items-center justify-between text-xs text-slate-500">
                                 <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1">
                                     <i class="fa-regular fa-clock"></i>
-                                    {{ $route->duration ?: 'Đang cập nhật' }}
+                                    {{ $route->duration ?: __('client.booking.common.updating') }}
                                 </span>
                                 <span class="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1">
                                     <i class="fa-solid fa-route"></i>
-                                    {{ $route->trip_count ?? 0 }} chuyến
+                                    {{ __('client.about_page.popular_routes.trip_count', ['count' => $route->trip_count ?? 0]) }}
                                 </span>
                             </div>
                             <div class="flex items-end justify-between border-t border-amber-100 pt-3">
-                                <p class="text-xs text-slate-500">Giá từ</p>
+                                <p class="text-xs text-slate-500">{{ __('client.about_page.popular_routes.price_from') }}</p>
                                 <p class="text-lg font-extrabold text-primary-600">
-                                    {{ (int) $route->min_price > 0 ? number_format($route->min_price) . 'đ' : 'Liên hệ' }}
+                                    {{ (int) $route->min_price > 0 ? number_format($route->min_price) . 'đ' : __('client.common.contact') }}
                                 </p>
                             </div>
                         </div>
                     </a>
                 @empty
                     <p class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
-                        Chưa có tuyến nổi bật để hiển thị.
+                        {{ __('client.about_page.popular_routes.empty') }}
                     </p>
                 @endforelse
             </div>
@@ -297,7 +297,7 @@
         <div class="container mx-auto max-w-7xl">
             <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
                 <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
-                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Premium fleet</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.about_page.fleet.label') }}</p>
                     <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">{{ __('client.about.fleet.title') }}</h3>
                     <p class="mt-3 text-sm leading-relaxed text-slate-600 md:text-base">{{ __('client.about.fleet.description') }}</p>
 
@@ -318,7 +318,7 @@
                 </article>
 
                 <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
-                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Core values</p>
+                    <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.about_page.core_values.label') }}</p>
                     <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.about.core_values.title') }}</h3>
                     <p class="mt-3 text-sm text-slate-600 md:text-base">{{ __('client.about.core_values.description') }}</p>
 
@@ -338,9 +338,9 @@
     <section class="bg-white px-4 py-12 md:py-16">
         <div class="container mx-auto max-w-7xl">
             <div class="mb-8 text-center">
-                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">Destinations</p>
-                <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">Điểm đến truyền cảm hứng</h3>
-                <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-500 md:text-base">Mỗi chuyến đi là một hành trình trải nghiệm văn hóa, ẩm thực và thiên nhiên theo cách trẻ trung, linh hoạt.</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.about_page.destinations.label') }}</p>
+                <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-4xl">{{ __('client.about_page.destinations.title') }}</h3>
+                <p class="mx-auto mt-3 max-w-2xl text-sm text-slate-500 md:text-base">{{ __('client.about_page.destinations.description') }}</p>
             </div>
 
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -363,20 +363,20 @@
                 <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,201,0,0.24),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,155,0,0.28),transparent_44%)]"></div>
                 <div class="relative grid items-center gap-6 p-6 text-white md:p-12 lg:grid-cols-[1.15fr_0.85fr]">
                     <div>
-                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Ready to ride</p>
-                        <h3 class="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">Sẵn sàng cho hành trình tiếp theo cùng King Express Bus?</h3>
-                        <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">Tối ưu thao tác tìm chuyến, chọn chỗ và xác nhận đặt vé theo một luồng trực quan, thân thiện cho người dùng trẻ.</p>
+                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">{{ __('client.about_page.cta.label') }}</p>
+                        <h3 class="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">{{ __('client.about_page.cta.title') }}</h3>
+                        <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">{{ __('client.about_page.cta.description') }}</p>
                     </div>
                     <div class="flex flex-wrap gap-3 lg:justify-end">
                         <a href="{{ route('client.routes.index') }}"
                             class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
                             <i class="fa-solid fa-bolt"></i>
-                            Tìm chuyến ngay
+                            {{ __('client.about_page.cta.primary_button') }}
                         </a>
                         <a href="{{ route('client.contact') }}"
                             class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
                             <i class="fa-solid fa-headset"></i>
-                            Liên hệ tư vấn
+                            {{ __('client.about_page.cta.secondary_button') }}
                         </a>
                     </div>
                 </div>

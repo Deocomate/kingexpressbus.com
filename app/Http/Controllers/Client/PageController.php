@@ -28,7 +28,7 @@ class PageController extends Controller
 
         return view('client.page.show', [
             'page' => $page,
-            'title' => $page->title ?: 'Trang nội dung',
+            'title' => $page->title ?: __('client.page.default_title'),
             'description' => Str::limit($description, 155),
         ]);
     }
@@ -48,8 +48,8 @@ class PageController extends Controller
                 'updated_at' => $webProfile->updated_at ?? null,
             ],
             'chinh-sach' => [
-                'title' => 'Chính sách hỗ trợ khách hàng',
-                'description' => 'Tổng hợp chính sách đặt vé, thanh toán và hỗ trợ khách hàng của King Express Bus.',
+                'title' => __('client.page.policy.title'),
+                'description' => __('client.page.policy.description'),
                 'content' => $webProfile->policy_content,
                 'updated_at' => $webProfile->updated_at ?? null,
             ],
@@ -76,7 +76,7 @@ class PageController extends Controller
     private function excerptFromContent(string $content): string
     {
         $plain = trim(strip_tags($content));
-        return $plain === '' ? 'Nội dung tổng hợp của King Express Bus.' : $plain;
+        return $plain === '' ? __('client.page.default_excerpt') : $plain;
     }
 
     public function about()

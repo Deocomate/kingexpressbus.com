@@ -1,6 +1,6 @@
 <x-client.layout :title="$title ?? __('client.profile.meta_title')" :description="$description ?? ''">
     @php
-        $userName = $user->name ?? 'Khách hàng';
+        $userName = $user->name ?? __('client.profile_page.default_user_name');
         $userEmail = $user->email ?? null;
         $userPhone = $user->phone ?? null;
         $preferredRoutes = ($preferredRoutes ?? collect())->values();
@@ -18,9 +18,9 @@
             <div class="space-y-4 text-center md:text-left">
                 <span
                     class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-accent-500 text-white uppercase tracking-wide">
-                    <i class="fa-solid fa-crown mr-2"></i> Thành viên thân thiết
+                    <i class="fa-solid fa-crown mr-2"></i> {{ __('client.profile_page.hero.badge') }}
                 </span>
-                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">Xin chào, {{ $userName }}</h1>
+                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">{{ __('client.profile_page.hero.greeting', ['name' => $userName]) }}</h1>
                 <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-white/80 text-base">
                     @if ($userEmail)
                         <span class="inline-flex items-center gap-2 transition-colors hover:text-white"><i
@@ -33,13 +33,13 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('client.logout') }}" class="flex-shrink-0">
+            <form method="POST" action="{{ route('client.logout') }}" class="shrink-0">
                 @csrf
                 <button type="submit"
                     class="group relative px-6 py-3 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition-colors duration-200 text-white font-semibold">
                     <span class="inline-flex items-center gap-2">
                         <i class="fa-solid fa-power-off text-red-400 group-hover:text-red-300 transition-colors"></i>
-                        <span>Đăng xuất</span>
+                        <span>{{ __('client.nav.logout') }}</span>
                     </span>
                 </button>
             </form>
@@ -59,11 +59,11 @@
                             class="w-12 h-12 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-ticket"></i>
                         </div>
-                        <span class="text-xs font-semibold text-neutral-400 uppercase">Tổng vé</span>
+                        <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.total_tickets') }}</span>
                     </div>
                     <p class="text-4xl font-semibold text-neutral-800 count-up"
                         data-target="{{ $stats['total_bookings'] ?? 0 }}">0</p>
-                    <p class="text-sm text-neutral-500 mt-1">Đã đặt thành công</p>
+                    <p class="text-sm text-neutral-500 mt-1">{{ __('client.profile_page.stats.total_tickets_desc') }}</p>
                 </div>
 
                 <!-- Card 2 -->
@@ -74,11 +74,11 @@
                             class="w-12 h-12 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-clock"></i>
                         </div>
-                        <span class="text-xs font-semibold text-neutral-400 uppercase">Sắp đi</span>
+                        <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.upcoming') }}</span>
                     </div>
                     <p class="text-4xl font-semibold text-neutral-800 count-up"
                         data-target="{{ $stats['upcoming'] ?? 0 }}">0</p>
-                    <p class="text-sm text-neutral-500 mt-1">Chuyến sắp khởi hành</p>
+                    <p class="text-sm text-neutral-500 mt-1">{{ __('client.profile_page.stats.upcoming_desc') }}</p>
                 </div>
 
                 <!-- Card 3 -->
@@ -89,11 +89,11 @@
                             class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-flag-checkered"></i>
                         </div>
-                        <span class="text-xs font-semibold text-neutral-400 uppercase">Hoàn thành</span>
+                        <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.completed') }}</span>
                     </div>
                     <p class="text-4xl font-semibold text-neutral-800 count-up"
                         data-target="{{ $stats['completed'] ?? 0 }}">0</p>
-                    <p class="text-sm text-neutral-500 mt-1">Chuyến đi an toàn</p>
+                    <p class="text-sm text-neutral-500 mt-1">{{ __('client.profile_page.stats.completed_desc') }}</p>
                 </div>
 
                 <!-- Card 4 -->
@@ -104,13 +104,13 @@
                             class="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
-                        <span class="text-xs font-semibold text-neutral-400 uppercase">Chi tiêu</span>
+                        <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.spending') }}</span>
                     </div>
                     <p class="text-3xl font-semibold text-neutral-800 flex items-baseline">
                         <span class="count-up" data-target="{{ $stats['total_spent'] ?? 0 }}">0</span>
                         <span class="text-lg font-medium text-neutral-500 ml-1">đ</span>
                     </p>
-                    <p class="text-sm text-neutral-500 mt-1">Tổng tiền vé</p>
+                    <p class="text-sm text-neutral-500 mt-1">{{ __('client.profile_page.stats.spending_desc') }}</p>
                 </div>
             </div>
 
@@ -123,13 +123,13 @@
                         <button
                             class="tab-btn active whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-lg border-b-2 border-primary-600 text-primary-600 hover:bg-primary-50 transition-colors"
                             data-target="#upcoming">
-                            Sắp khởi hành <span
+                            {{ __('client.profile_page.tabs.upcoming') }} <span
                                 class="ml-2 px-2 py-0.5 rounded-md bg-primary-100 text-primary-600 text-xs">{{ $upcomingBookings->count() }}</span>
                         </button>
                         <button
                             class="tab-btn whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-colors"
                             data-target="#history">
-                            Lịch sử đặt vé <span
+                            {{ __('client.profile_page.tabs.history') }} <span
                                 class="ml-2 px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-500 text-xs">{{ $bookingHistory->count() }}</span>
                         </button>
                     </div>
@@ -144,13 +144,12 @@
                                     class="w-20 h-20 bg-primary-50 rounded-lg flex items-center justify-center mx-auto text-primary-500 mb-4">
                                     <i class="fa-solid fa-suitcase-rolling text-3xl"></i>
                                 </div>
-                                <h3 class="text-xl font-semibold text-neutral-800">Chưa có chuyến đi nào</h3>
-                                <p class="text-neutral-500 mt-2">Hãy lên kế hoạch cho chuyến đi tiếp theo của bạn ngay hôm
-                                    nay.</p>
+                                <h3 class="text-xl font-semibold text-neutral-800">{{ __('client.profile_page.empty_upcoming.title') }}</h3>
+                                <p class="text-neutral-500 mt-2">{{ __('client.profile_page.empty_upcoming.description') }}</p>
                                 <a href="{{ route('client.routes.index') }}"
                                     class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold transition-colors duration-200">
                                     <i class="fa-solid fa-magnifying-glass-location"></i>
-                                    Tìm chuyến xe
+                                    {{ __('client.profile_page.empty_upcoming.cta') }}
                                 </a>
                             </div>
                         @endforelse
@@ -166,9 +165,8 @@
                                     class="w-20 h-20 bg-neutral-50 rounded-lg flex items-center justify-center mx-auto text-neutral-400 mb-4">
                                     <i class="fa-regular fa-calendar-xmark text-3xl"></i>
                                 </div>
-                                <h3 class="text-xl font-semibold text-neutral-800">Lịch sử trống</h3>
-                                <p class="text-neutral-500 mt-2">Bạn chưa thực hiện chuyến đi nào tại King Express Bus.
-                                </p>
+                                <h3 class="text-xl font-semibold text-neutral-800">{{ __('client.profile_page.empty_history.title') }}</h3>
+                                <p class="text-neutral-500 mt-2">{{ __('client.profile_page.empty_history.description') }}</p>
                             </div>
                         @endforelse
                     </div>
@@ -180,7 +178,7 @@
                     @if ($preferredRoutes->isNotEmpty())
                         <div class="bg-white border border-neutral-200 rounded-lg shadow-soft p-6">
                             <h2 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center gap-2">
-                                <i class="fa-solid fa-heart text-red-500"></i> Tuyến đi yêu thích
+                                <i class="fa-solid fa-heart text-red-500"></i> {{ __('client.profile_page.preferred_routes.title') }}
                             </h2>
                             <ul class="space-y-3">
                                 @foreach ($preferredRoutes as $item)
@@ -205,18 +203,15 @@
                     <!-- Quick Actions / Support -->
                     <div
                         class="bg-primary-600 rounded-lg shadow-card p-6 text-white">
-                        <h2 class="text-lg font-semibold mb-4">Bạn cần hỗ trợ?</h2>
+                        <h2 class="text-lg font-semibold mb-4">{{ __('client.profile_page.support.title') }}</h2>
                         <ul class="space-y-3 text-sm text-primary-100 mb-6">
-                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>Thay đổi lịch
-                                    trình dễ dàng</span></li>
-                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>Hỗ trợ hủy vé
-                                    online</span></li>
-                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>Tư vấn qua tổng
-                                    đài 24/7</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>{{ __('client.profile_page.support.item_1') }}</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>{{ __('client.profile_page.support.item_2') }}</span></li>
+                            <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>{{ __('client.profile_page.support.item_3') }}</span></li>
                         </ul>
                         <a href="{{ route('client.contact') }}"
                             class="block w-full text-center px-4 py-3 bg-white text-primary-600 rounded-md font-semibold hover:bg-neutral-50 transition-colors duration-200">
-                            Liên hệ ngay
+                            {{ __('client.profile_page.support.cta') }}
                         </a>
                     </div>
                 </aside>

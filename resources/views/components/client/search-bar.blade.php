@@ -13,9 +13,7 @@
 			'addReturn' => __('client.search.add_return'),
 			'datePlaceholder' => __('client.search.date_placeholder'),
 			'validationSelect' => __('client.search.validation.select_suggestion'),
-			'validationDifferent' => app()->getLocale() === 'en'
-				? 'Origin and destination must be different.'
-				: 'Điểm đi và điểm đến phải khác nhau.',
+			'validationDifferent' => __('client.search.validation.different_locations'),
 			'types' => [
 				'province' => __('client.search.types.province'),
 				'district' => __('client.search.types.district'),

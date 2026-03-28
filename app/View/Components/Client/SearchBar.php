@@ -19,10 +19,10 @@ class SearchBar extends Component
 
     public string $submitLabel;
 
-    public function __construct(array $searchData = [], ?string $action = null, string $submitLabel = 'Tìm kiếm')
+    public function __construct(array $searchData = [], ?string $action = null, ?string $submitLabel = null)
     {
         $this->action = $action ?? route('client.routes.search');
-        $this->submitLabel = $submitLabel;
+        $this->submitLabel = $submitLabel ?: __('client.search.submit');
         $this->searchData = $this->prepareSearchData($searchData);
     }
 
@@ -61,7 +61,7 @@ class SearchBar extends Component
                 'id' => (int) $province->id,
                 'name' => (string) $province->name,
                 'type' => 'province',
-                'type_label' => 'Tỉnh/Thành phố',
+                'type_label' => __('client.search.types.province'),
                 'context' => null,
                 'address' => null,
                 'priority' => (int) ($province->priority ?? 0),
@@ -86,7 +86,7 @@ class SearchBar extends Component
                 'id' => (int) $district->id,
                 'name' => (string) $district->name,
                 'type' => 'district',
-                'type_label' => 'Quận/Huyện',
+                'type_label' => __('client.search.types.district'),
                 'context' => $contextParts ? implode(' · ', $contextParts) : ($district->province_name ?? null),
                 'address' => null,
                 'priority' => (int) ($district->priority ?? 0),
@@ -106,7 +106,7 @@ class SearchBar extends Component
                 'id' => (int) $stop->id,
                 'name' => (string) $stop->name,
                 'type' => 'stop',
-                'type_label' => 'Điểm đón/trả',
+                'type_label' => __('client.search.types.stop'),
                 'context' => trim(sprintf('%s, %s', $stop->district_name, $stop->province_name), ', '),
                 'address' => $stop->address,
                 'priority' => (int) ($stop->priority ?? 0),
@@ -341,9 +341,9 @@ class SearchBar extends Component
     protected function typeLabel(string $type): string
     {
         return match ($type) {
-            'district' => 'Quận/Huyện',
-            'stop' => 'Điểm đón/trả',
-            default => 'Tỉnh/Thành phố',
+            'district' => __('client.search.types.district'),
+            'stop' => __('client.search.types.stop'),
+            default => __('client.search.types.province'),
         };
     }
 

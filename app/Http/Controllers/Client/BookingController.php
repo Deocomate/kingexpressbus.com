@@ -141,7 +141,7 @@ class BookingController extends Controller
 
             return back()->with('error', $result['message'])->withInput();
         } catch (\Exception $e) {
-            Log::error('Đặt vé phía client thất bại', ['error' => $e->getMessage()]);
+            Log::error('Client booking failed', ['error' => $e->getMessage()]);
             return back()->with('error', $e->getMessage())->withInput();
         }
     }

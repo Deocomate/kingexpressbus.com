@@ -65,7 +65,7 @@
             ],
             [
                 'value' => data_get($webProfile, 'whatsapp'),
-                'label' => 'WhatsApp',
+                'label' => __('client.contact.channels.whatsapp'),
                 'href' => data_get($webProfile, 'whatsapp') ? 'https://wa.me/' . preg_replace('/[^\d]/', '', (string) data_get($webProfile, 'whatsapp')) : null,
                 'icon' => 'fa-brands fa-whatsapp',
                 'tone' => 'from-green-100 to-green-50 text-green-700 border-green-200',
@@ -148,26 +148,26 @@
                     <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer"
                         class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
                         <i class="fa-solid fa-comments" aria-hidden="true"></i>
-                        Zalo chat
+                        {{ __('client.contact.hero.zalo_cta') }}
                     </a>
                 @endif
             </div>
 
             <div class="relative z-50 mt-8" style="z-index: 90;">
-                <x-client.search-bar submit-label="Tìm chuyến" />
+                <x-client.search-bar :submit-label="__('client.contact.hero.search_submit')" />
             </div>
 
             <div class="mt-6 grid gap-3 sm:grid-cols-3">
                 <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
-                    <p class="text-xs uppercase tracking-wide text-white/80">Tuyến đang khai thác</p>
+                    <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.routes') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'route_count', 0)) }}+</p>
                 </article>
                 <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
-                    <p class="text-xs uppercase tracking-wide text-white/80">Đội xe hiện có</p>
+                    <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.fleet') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'bus_count', 0)) }}+</p>
                 </article>
                 <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
-                    <p class="text-xs uppercase tracking-wide text-white/80">Chuyến hoạt động</p>
+                    <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.trips') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'trip_count', 0)) }}+</p>
                 </article>
             </div>
@@ -179,7 +179,7 @@
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
             <article class="lg:col-span-7 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.support_channels') }}</p>
-                <h2 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">Kết nối nhanh với đội ngũ hỗ trợ</h2>
+                <h2 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.support_title') }}</h2>
                 <p class="mt-2 text-sm text-slate-500 md:text-base">{{ __('client.contact.support_desc') }}</p>
 
                 <div class="mt-5 grid gap-3 sm:grid-cols-2">
@@ -206,7 +206,7 @@
             <aside class="lg:col-span-5 space-y-6">
                 <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.working_hours') }}</p>
-                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">Khung giờ hỗ trợ khách hàng</h3>
+                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ __('client.contact.working_hours_title') }}</h3>
                     <div class="mt-5 space-y-3">
                         <div class="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3">
                             <p class="text-sm font-semibold text-slate-800">{{ __('client.contact.hours.weekday_label') }}</p>
@@ -225,13 +225,13 @@
 
                 <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.offices') }}</p>
-                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">Danh sách văn phòng nổi bật</h3>
+                    <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ __('client.contact.offices_title') }}</h3>
                     <div class="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
                         @forelse ($officeItems as $office)
                             <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-soft">
-                                <p class="text-sm font-bold text-slate-800">{{ data_get($office, 'name', 'Văn phòng') }}</p>
+                                <p class="text-sm font-bold text-slate-800">{{ data_get($office, 'name', __('client.contact.office_fallback_name')) }}</p>
                                 <p class="mt-1 text-xs text-slate-500 md:text-sm">
-                                    {{ data_get($office, 'address', 'Đang cập nhật') }}, {{ data_get($office, 'district_name', '') }}, {{ data_get($office, 'province_name', '') }}
+                                    {{ data_get($office, 'address', __('client.booking.common.updating')) }}, {{ data_get($office, 'district_name', '') }}, {{ data_get($office, 'province_name', '') }}
                                 </p>
                             </div>
                         @empty
@@ -246,7 +246,7 @@
     <section class="bg-white px-4 py-12 md:py-16">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
             <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-[#fffdf8] p-5 shadow-soft md:p-7" x-data="{ openFaq: 0 }">
-                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">FAQ</p>
+                <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.faq_badge') }}</p>
                 <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.headings.faq') }}</h3>
 
                 <div class="mt-5 space-y-3">
@@ -284,7 +284,7 @@
                     </div>
                 @else
                     <div class="mt-5 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
-                        Bản đồ đang được cập nhật.
+                        {{ __('client.contact.map_updating') }}
                     </div>
                 @endif
             </article>
@@ -297,7 +297,7 @@
                 <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,201,0,0.24),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,155,0,0.28),transparent_44%)]"></div>
                 <div class="relative grid items-center gap-6 p-6 text-white md:p-12 lg:grid-cols-[1.15fr_0.85fr]">
                     <div>
-                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">Support team</p>
+                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">{{ __('client.contact.cta.badge') }}</p>
                         <h3 class="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">{{ __('client.contact.cta.title') }}</h3>
                         <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">{{ __('client.contact.cta.subtitle') }}</p>
                     </div>
