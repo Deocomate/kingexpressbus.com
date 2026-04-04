@@ -1,0 +1,50 @@
+flowchart TB
+    %% Legacy (pre-2026)
+    LEGACY_LABEL["Legacy (pre-2026) - multi-tenant"]
+    COMPANIES["companies\n(id PK, user_id, name, slug, phone, email)"]
+    COMPANY_ROUTES["company_routes\n(id PK, company_id FK, route_id FK, slug, available_hotel_pickup, price, ...)"]
+    COMPANY_ROUTE_STOPS["company_route_stops\n(id PK, company_route_id FK, stop_id FK, stop_type, priority)"]
+    BUS_ROUTES["bus_routes\n(id PK, bus_id FK, company_route_id FK, start_time, end_time, price, is_active)"]
+
+    %% Current (post-2026)
+    CURRENT_LABEL["Current (post-2026) - single-tenant"]
+    ROUTES["routes\n(id PK, province_start_id FK, province_end_id FK, slug, price_default, available_hotel_pickup, ...)"]
+    ROUTE_STOPS["route_stops\n(id PK, route_id FK, stop_id FK, stop_type, priority)"]
+    TRIPS["trips\n(id PK, bus_id FK, route_id FK, start_time, end_time, price, is_active)"]
+    BUSES["buses\n(id PK, name, seat_count, seat_map, services, ...)"]
+    STOPS["stops\n(id PK, district_id FK, name, address)"]
+    BOOKINGS["bookings\n(id PK, booking_code, user_id NULLABLE FK, trip_id FK, pickup_stop_id FK, dropoff_stop_id FK, quantity, total_price, status)"]
+    PROVINCES["provinces\n(id PK, name, slug)"]
+    DISTRICTS["districts\n(id PK, province_id FK, district_type_id FK, name)"]
+    USERS["users\n(id PK, name, email, phone, role)"]
+
+    LEGACY_LABEL --> COMPANIES
+    COMPANIES --> COMPANY_ROUTES
+    COMPANY_ROUTES --> COMPANY_ROUTE_STOPS
+    COMPANY_ROUTES --> BUS_ROUTES
+    COMPANY_ROUTE_STOPS --> STOPS
+    BUS_ROUTES --> BUSES
+
+    CURRENT_LABEL --> ROUTES
+    CURRENT_LABEL --> ROUTE_STOPS
+    CURRENT_LABEL --> TRIPS
+    PROVINCES --> DISTRICTS
+    DISTRICTS --> STOPS
+    ROUTES --> ROUTE_STOPS
+    ROUTE_STOPS --> STOPS
+    ROUTES --> TRIPS
+    TRIPS --> BUSES
+    TRIPS --> BOOKINGS
+    USERS --> BOOKINGS
+    STOPS --> BOOKINGS
+
+    COMPANY_ROUTE_STOPS -.->|migrated into| ROUTE_STOPS
+    BUS_ROUTES -.->|migrated into| TRIPS
+    COMPANY_ROUTES -.->|merged into routes| ROUTES
+    COMPANIES -.->|dropped after migration| ROUTES
+
+    %% Styling for visual separation
+    classDef legacy fill:#fff0f0,stroke:#ff5555,stroke-width:1px;
+    classDef current fill:#f0fff4,stroke:#088f4f,stroke-width:1px;
+    class COMPANIES,COMPANY_ROUTES,COMPANY_ROUTE_STOPS,BUS_ROUTES legacy;
+    class ROUTES,ROUTE_STOPS,TRIPS,BUSES,STOPS,BOOKINGS,PROVINCES,DISTRICTS,USERS current;
