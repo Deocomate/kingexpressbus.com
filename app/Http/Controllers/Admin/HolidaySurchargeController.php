@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\HolidaySurchargeService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 class HolidaySurchargeController extends Controller
@@ -48,7 +49,16 @@ class HolidaySurchargeController extends Controller
         $validated = $this->validatePayload($request);
         $payload = $this->buildPayload($validated, $request);
 
-        $this->holidaySurchargeService->createForAdmin($payload);
+        try {
+            $this->holidaySurchargeService->createForAdmin($payload);
+        } catch (\Throwable $exception) {
+            Log::error('Holiday surcharge create failed', ['error' => $exception->getMessage()]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Không thể tạo quy tắc phụ thu. Vui lòng kiểm tra dữ liệu và thử lại.');
+        }
 
         return redirect()
             ->route('admin.holiday-surcharges.index')
@@ -84,7 +94,22 @@ class HolidaySurchargeController extends Controller
         $validated = $this->validatePayload($request);
         $payload = $this->buildPayload($validated, $request);
 
-        $this->holidaySurchargeService->updateForAdmin((int) $id, $payload);
+        try {
+            $updated = $this->holidaySurchargeService->updateForAdmin((int) $id, $payload);
+        } catch (\Throwable $exception) {
+            Log::error('Holiday surcharge update failed', ['id' => (int) $id, 'error' => $exception->getMessage()]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Không thể cập nhật quy tắc phụ thu. Vui lòng kiểm tra dữ liệu và thử lại.');
+        }
+
+        if (!$updated) {
+            return redirect()
+                ->route('admin.holiday-surcharges.index')
+                ->with('error', 'Không tìm thấy quy tắc phụ thu để cập nhật.');
+        }
 
         return redirect()
             ->route('admin.holiday-surcharges.index')
@@ -116,11 +141,11 @@ class HolidaySurchargeController extends Controller
             'reason' => 'nullable|string|max:1000',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'global_surcharge_amount' => 'required|string',
+            'global_surcharge_amount' => ['required', 'string', 'regex:/^(?=.*\d)[0-9.,\s]+$/'],
             'priority' => 'nullable|integer|min:0|max:9999',
             'is_active' => 'nullable|boolean',
             'route_adjustments' => 'nullable|array',
-            'route_adjustments.*.route_surcharge_amount' => 'nullable|string',
+            'route_adjustments.*.route_surcharge_amount' => ['nullable', 'string', 'regex:/^$|^(?=.*\d)[0-9.,\s]+$/'],
         ]);
     }
 
@@ -128,10 +153,26 @@ class HolidaySurchargeController extends Controller
     {
         $routeAdjustments = [];
         $rawAdjustments = $request->input('route_adjustments', []);
+        $candidateRouteIds = collect($rawAdjustments)
+            ->keys()
+            ->map(fn($routeId) => (int) $routeId)
+            ->filter(fn($routeId) => $routeId > 0)
+            ->values()
+            ->all();
+
+        $validRouteIdMap = DB::table('routes')
+            ->whereIn('id', $candidateRouteIds)
+            ->pluck('id')
+            ->mapWithKeys(fn($routeId) => [(int) $routeId => true])
+            ->all();
 
         foreach ($rawAdjustments as $routeId => $values) {
-            $amount = (int) str_replace(',', '', (string) ($values['route_surcharge_amount'] ?? '0'));
             $routeId = (int) $routeId;
+            if (!isset($validRouteIdMap[$routeId])) {
+                continue;
+            }
+
+            $amount = $this->sanitizeCurrency($values['route_surcharge_amount'] ?? '0');
 
             if ($routeId <= 0 || $amount <= 0) {
                 continue;
@@ -148,11 +189,18 @@ class HolidaySurchargeController extends Controller
             'reason' => $validated['reason'] ?? null,
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
-            'global_surcharge_amount' => (int) str_replace(',', '', (string) $validated['global_surcharge_amount']),
+            'global_surcharge_amount' => $this->sanitizeCurrency($validated['global_surcharge_amount']),
             'priority' => (int) ($validated['priority'] ?? 0),
             'is_active' => $request->boolean('is_active'),
             'route_adjustments' => $routeAdjustments,
         ];
+    }
+
+    private function sanitizeCurrency(string $value): int
+    {
+        $digitsOnly = preg_replace('/[^0-9]/', '', $value);
+
+        return (int) ($digitsOnly ?: '0');
     }
 
     private function getRouteOptions()

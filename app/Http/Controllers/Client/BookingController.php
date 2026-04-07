@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -119,6 +120,19 @@ class BookingController extends Controller
         $bookingDateForDb = Carbon::createFromFormat('d/m/Y', $validated['booking_date'])->format('Y-m-d');
         $submittedTotalPrice = (int) $validated['total_price'];
         $requestedQuantity = (int) $validated['quantity'];
+        $pickupStopId = $isHotelPickup ? null : (int) $validated['pickup_stop_id'];
+        $dropoffStopId = (int) $validated['dropoff_stop_id'];
+
+        $stopValidationError = $this->validateStopSelections(
+            (int) $validated['trip_id'],
+            $isHotelPickup,
+            $pickupStopId,
+            $dropoffStopId
+        );
+
+        if ($stopValidationError !== null) {
+            return back()->with('error', $stopValidationError)->withInput();
+        }
 
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByTripId(
             (int) $validated['trip_id'],
@@ -146,8 +160,8 @@ class BookingController extends Controller
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_email' => $validated['customer_email'],
-                'pickup_stop_id' => $isHotelPickup ? null : $validated['pickup_stop_id'],
-                'dropoff_stop_id' => $validated['dropoff_stop_id'],
+                'pickup_stop_id' => $pickupStopId,
+                'dropoff_stop_id' => $dropoffStopId,
                 'total_price' => $serverTotalPrice,
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? null,
@@ -174,7 +188,7 @@ class BookingController extends Controller
             return back()->with('error', $result['message'])->withInput();
         } catch (\Exception $e) {
             Log::error('Client booking failed', ['error' => $e->getMessage()]);
-            return back()->with('error', $e->getMessage())->withInput();
+            return back()->with('error', __('client.booking.store.system_error'))->withInput();
         }
     }
 
@@ -243,5 +257,61 @@ class BookingController extends Controller
         } catch (\Throwable $exception) {
             abort(400, __('client.booking.create.invalid_date'));
         }
+    }
+
+    private function validateStopSelections(
+        int $tripId,
+        bool $isHotelPickup,
+        ?int $pickupStopId,
+        int $dropoffStopId
+    ): ?string {
+        $trip = DB::table('trips as t')
+            ->join('routes as r', 't.route_id', '=', 'r.id')
+            ->where('t.id', $tripId)
+            ->select('t.route_id', 't.is_active', 'r.available_hotel_pickup')
+            ->first();
+
+        if (!$trip || !$trip->is_active) {
+            return __('client.booking.create.trip_not_found');
+        }
+
+        if ($isHotelPickup && !(bool) $trip->available_hotel_pickup) {
+            return __('client.booking.store.hotel_pickup_not_available');
+        }
+
+        $stopIds = [$dropoffStopId];
+        if (!$isHotelPickup && $pickupStopId !== null) {
+            $stopIds[] = $pickupStopId;
+        }
+
+        $routeStops = DB::table('route_stops')
+            ->where('route_id', (int) $trip->route_id)
+            ->whereIn('stop_id', array_unique($stopIds))
+            ->select('stop_id', 'stop_type')
+            ->get()
+            ->groupBy('stop_id');
+
+        if (!$isHotelPickup && $pickupStopId !== null) {
+            if (!$this->isAllowedRouteStop($routeStops, $pickupStopId, ['pickup', 'both'])) {
+                return __('client.booking.store.invalid_pickup_stop');
+            }
+        }
+
+        if (!$this->isAllowedRouteStop($routeStops, $dropoffStopId, ['dropoff', 'both'])) {
+            return __('client.booking.store.invalid_dropoff_stop');
+        }
+
+        return null;
+    }
+
+    private function isAllowedRouteStop(Collection $routeStops, int $stopId, array $allowedTypes): bool
+    {
+        if (!$routeStops->has($stopId)) {
+            return false;
+        }
+
+        return $routeStops->get($stopId)->contains(function (object $stop) use ($allowedTypes) {
+            return in_array($stop->stop_type, $allowedTypes, true);
+        });
     }
 }

@@ -485,6 +485,9 @@ return [
         ],
         'store' => [
             'not_enough_seats' => 'Chuyến xe không còn đủ :requested vé. Chỉ còn lại :available vé.',
+            'invalid_pickup_stop' => 'Điểm đón không hợp lệ cho chuyến xe này.',
+            'invalid_dropoff_stop' => 'Điểm trả không hợp lệ cho chuyến xe này.',
+            'hotel_pickup_not_available' => 'Chuyến xe này không hỗ trợ đón tại khách sạn.',
             'system_error' => 'Hệ thống đang quá tải, vui lòng thử lại sau.',
         ],
         'success' => [

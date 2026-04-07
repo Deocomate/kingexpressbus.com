@@ -47,7 +47,10 @@ class BookingService
                 ->first();
 
             if (!$trip || !$trip->is_active) {
-                throw new \Exception(__('client.booking.create.trip_not_found'));
+                return [
+                    'success' => false,
+                    'message' => __('client.booking.create.trip_not_found'),
+                ];
             }
 
             // Calculate available seats with lock
@@ -62,10 +65,13 @@ class BookingService
             $requestedQuantity = (int) $data['quantity'];
 
             if ($requestedQuantity > $availableSeats) {
-                throw new \Exception(__('client.booking.store.not_enough_seats', [
-                    'requested' => $requestedQuantity,
-                    'available' => $availableSeats,
-                ]));
+                return [
+                    'success' => false,
+                    'message' => __('client.booking.store.not_enough_seats', [
+                        'requested' => $requestedQuantity,
+                        'available' => $availableSeats,
+                    ]),
+                ];
             }
 
             $baseUnitPrice = (int) ($data['base_unit_price'] ?? 0);

@@ -133,6 +133,12 @@ class HolidaySurchargeService
     public function updateForAdmin(int $id, array $payload): bool
     {
         return DB::transaction(function () use ($id, $payload) {
+            $exists = DB::table('holiday_surcharges')->where('id', $id)->exists();
+
+            if (!$exists) {
+                return false;
+            }
+
             DB::table('holiday_surcharges')
                 ->where('id', $id)
                 ->update([

@@ -485,6 +485,9 @@ return [
         ],
         'store' => [
             'not_enough_seats' => 'The trip does not have enough :requested tickets. Only :available tickets left.',
+            'invalid_pickup_stop' => 'The pickup point is not valid for this trip.',
+            'invalid_dropoff_stop' => 'The drop-off point is not valid for this trip.',
+            'hotel_pickup_not_available' => 'Hotel pickup is not available for this trip.',
             'system_error' => 'The system is currently overloaded, please try again later.',
         ],
         'success' => [
