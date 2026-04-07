@@ -17,7 +17,7 @@
 - Services: `PascalCase` + `Service` suffix
     - Example: `TripService`, `BookingService`
 - Migrations: timestamp + `snake_case`
-    - Example: `2026_01_29_000001_refactor_database_to_single_tenant.php`
+    - Example: `2025_09_22_152829_create_database_tables.php`
 
 ### 2.2 Database
 

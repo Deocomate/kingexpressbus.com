@@ -63,8 +63,6 @@ npm run dev
 
 Source of truth is migrations in `database/migrations`, especially:
 - `2025_09_22_152829_create_database_tables.php`
-- `2025_10_03_052200_modify_bookings_and_company_routes_tables.php`
-- `2026_01_29_000001_refactor_database_to_single_tenant.php`
 
 ### 6.1 Active Tables (Current Single-Tenant)
 
@@ -101,7 +99,7 @@ Business/domain tables:
 - `company_route_stops`
 - `bus_routes`
 
-These tables remain only in historical migrations and dump snapshots for rollback/data-migration history.
+These tables are legacy only and are not created by the current migrations.
 
 ## 7. Notes For Developer AI
 
