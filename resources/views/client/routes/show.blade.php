@@ -1340,7 +1340,13 @@
                                             </div>
                                             <div class="text-right shrink-0 flex flex-col items-end gap-1">
                                                 @if ($trip->has_price)
-                                                    <p class="price-tag">{{ number_format($trip->price) }}<small>đ</small></p>
+                                                    <p class="price-tag">{{ number_format($trip->effective_price ?? $trip->price) }}<small>đ</small></p>
+                                                    @if (!empty($trip->has_surcharge))
+                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                                                            <i class="fa-solid fa-bolt"></i>
+                                                            {{ __('client.route_show.trip_card.holiday_surcharge_badge') }}
+                                                        </span>
+                                                    @endif
                                                 @else
                                                     <p class="text-sm font-bold text-primary-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
@@ -1528,6 +1534,73 @@
                 </div>
             </div>
         </section>
+
+        @if (!empty($returnDate) && isset($returnRoute) && isset($returnTrips))
+            <section class="bg-white py-10 border-t border-amber-100">
+                <div class="container mx-auto max-w-7xl px-4">
+                    <div class="mb-6">
+                        <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            {{ __('client.route_show.return_section.badge') }}
+                        </span>
+                        <h3 class="mt-3 text-2xl font-extrabold text-slate-800">
+                            {{ __('client.route_show.return_section.title') }}
+                        </h3>
+                        <p class="mt-1 text-sm text-slate-500">
+                            {{ __('client.route_show.return_section.subtitle', ['date' => $returnDate]) }}
+                        </p>
+                    </div>
+
+                    @if ($returnTrips->isNotEmpty())
+                        <div class="grid gap-3">
+                            @foreach ($returnTrips as $returnTrip)
+                                @php
+                                    $returnStart = \Carbon\Carbon::createFromFormat('H:i:s', $returnTrip->start_time);
+                                    $returnEnd = \Carbon\Carbon::createFromFormat('H:i:s', $returnTrip->end_time);
+                                    $returnHasSeats = ($returnTrip->seats_available ?? 0) > 0;
+                                    $returnPrice = (int) ($returnTrip->effective_price ?? $returnTrip->price ?? 0);
+                                @endphp
+                                <article class="rounded-2xl border border-amber-100 bg-white p-4 shadow-soft">
+                                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-slate-800">{{ $returnTrip->bus_name }}</p>
+                                            <p class="text-xs text-slate-500 mt-1">
+                                                {{ $returnRoute->name }} · {{ $returnStart->format('H:i') }} - {{ $returnEnd->format('H:i') }}
+                                            </p>
+                                            <div class="mt-2 flex items-center gap-2 text-xs">
+                                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-slate-600">
+                                                    <i class="fa-solid fa-couch"></i>
+                                                    {{ $returnHasSeats ? __('client.route_show.trip_card.seats_available') . ' (' . ($returnTrip->seats_available ?? 0) . ')' : __('client.route_show.trip_card.seats_full') }}
+                                                </span>
+                                                @if (!empty($returnTrip->has_surcharge))
+                                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-700">
+                                                        <i class="fa-solid fa-bolt"></i>
+                                                        {{ __('client.route_show.trip_card.holiday_surcharge_badge') }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 md:justify-end">
+                                            <p class="text-lg font-extrabold text-primary-600">
+                                                {{ $returnPrice > 0 ? number_format($returnPrice) . 'đ' : __('client.route_show.price_contact') }}
+                                            </p>
+                                            <a href="{{ route('client.booking.create', ['trip_id' => $returnTrip->trip_id, 'date' => $returnDate]) }}"
+                                                class="inline-flex items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700 {{ $returnHasSeats ? '' : 'opacity-50 pointer-events-none' }}">
+                                                {{ $returnHasSeats ? __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) : __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-6 text-center text-sm text-amber-700">
+                            {{ __('client.route_show.return_section.no_trips') }}
+                        </div>
+                    @endif
+                </div>
+            </section>
+        @endif
     @else
         {{-- No Results --}}
         <section class="bg-gray-50 py-20">
@@ -2021,7 +2094,7 @@
     {{-- Mobile Sticky Booking Bar --}}
     @if ($trips->isNotEmpty())
         @php
-            $lowestPrice = $trips->min('price');
+            $lowestPrice = $trips->min(fn($trip) => (int) ($trip->effective_price ?? $trip->price ?? 0));
         @endphp
         <div id="mobile-booking-bar"
             class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 transform translate-y-full transition-transform duration-300 lg:hidden">

@@ -151,10 +151,20 @@ class TripController extends Controller
 
         // 2. Get Search Params
         $departureDate = $request->input('departure_date', Carbon::today()->format('d/m/Y'));
+        $returnDate = $request->input('return_date');
         try {
             $parsedDate = Carbon::createFromFormat('d/m/Y', $departureDate)->format('Y-m-d');
         } catch (\Exception $e) {
             $parsedDate = Carbon::today()->format('Y-m-d');
+        }
+
+        $parsedReturnDate = null;
+        if (!empty($returnDate)) {
+            try {
+                $parsedReturnDate = Carbon::createFromFormat('d/m/Y', $returnDate)->format('Y-m-d');
+            } catch (\Exception $e) {
+                $returnDate = null;
+            }
         }
 
         // 3. Get Filters State from request
@@ -202,7 +212,21 @@ class TripController extends Controller
             'origin' => null,
             'destination' => null,
             'departure_date' => $departureDate,
+            'return_date' => $returnDate,
         ];
+
+        $returnRoute = null;
+        $returnTrips = collect();
+        if ($parsedReturnDate) {
+            $returnRoute = $this->routeService->findRouteByProvinces(
+                (int) $route->province_end_id,
+                (int) $route->province_start_id
+            );
+
+            if ($returnRoute) {
+                $returnTrips = $this->tripService->getTripsByRoute((int) $returnRoute->id, $parsedReturnDate);
+            }
+        }
 
         if ($request->has('origin_id')) {
             $originType = $request->input('origin_type', 'province');
@@ -257,6 +281,9 @@ class TripController extends Controller
             'activeFilterCount' => $activeFilterCount,
             'hasActiveFilters' => $activeFilterCount > 0,
             'departureDate' => $departureDate,
+            'returnDate' => $returnDate,
+            'returnRoute' => $returnRoute,
+            'returnTrips' => $returnTrips,
             'travelTips' => $this->travelTips(),
             'frequentlyAskedQuestions' => $this->frequentlyAskedQuestions(),
             'title' => $route->title ?? $route->name,

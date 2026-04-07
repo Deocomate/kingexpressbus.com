@@ -68,6 +68,13 @@ class BookingService
                 ]));
             }
 
+            $baseUnitPrice = (int) ($data['base_unit_price'] ?? 0);
+            $globalSurchargeUnit = (int) ($data['global_surcharge_unit'] ?? 0);
+            $routeSurchargeUnit = (int) ($data['route_surcharge_unit'] ?? 0);
+            $finalUnitPrice = (int) ($data['final_unit_price'] ?? 0);
+            $totalSurchargeAmount = (int) ($data['total_surcharge_amount'] ?? 0);
+            $surchargeReasonSnapshot = $data['surcharge_reason_snapshot'] ?? null;
+
             // Process hotel pickup if applicable
             $pickupStopId = $data['pickup_stop_id'] ?? null;
             $bookingNotes = isset($data['notes']) ? trim(strip_tags($data['notes'])) : null;
@@ -95,6 +102,12 @@ class BookingService
                 'dropoff_stop_id' => $data['dropoff_stop_id'],
                 'quantity' => $requestedQuantity,
                 'total_price' => $data['total_price'],
+                'base_unit_price' => $baseUnitPrice,
+                'global_surcharge_unit' => $globalSurchargeUnit,
+                'route_surcharge_unit' => $routeSurchargeUnit,
+                'final_unit_price' => $finalUnitPrice,
+                'total_surcharge_amount' => $totalSurchargeAmount,
+                'surcharge_reason_snapshot' => $surchargeReasonSnapshot,
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'unpaid',
                 'status' => 'pending',

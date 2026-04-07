@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Services\BookingService;
+use App\Services\HolidaySurchargeService;
 use App\Services\TripService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,11 +18,16 @@ class BookingController extends Controller
 {
     protected BookingService $bookingService;
     protected TripService $tripService;
+    protected HolidaySurchargeService $holidaySurchargeService;
 
-    public function __construct(BookingService $bookingService, TripService $tripService)
-    {
+    public function __construct(
+        BookingService $bookingService,
+        TripService $tripService,
+        HolidaySurchargeService $holidaySurchargeService
+    ) {
         $this->bookingService = $bookingService;
         $this->tripService = $tripService;
+        $this->holidaySurchargeService = $holidaySurchargeService;
     }
 
     public function create(Request $request)
@@ -35,7 +41,7 @@ class BookingController extends Controller
         $bookingDate = $this->parseBookingDate($request->input('date', now()->format('Y-m-d')));
 
         // Get trip details using service
-        $trip = $this->tripService->getTripDetails($tripId);
+        $trip = $this->tripService->getTripDetails($tripId, $bookingDate->format('Y-m-d'));
 
         abort_if(!$trip || !$trip->is_active, 404, __('client.booking.create.trip_not_found'));
 
@@ -111,23 +117,49 @@ class BookingController extends Controller
 
         $validated = $validator->validated();
         $bookingDateForDb = Carbon::createFromFormat('d/m/Y', $validated['booking_date'])->format('Y-m-d');
+        $submittedTotalPrice = (int) $validated['total_price'];
+        $requestedQuantity = (int) $validated['quantity'];
+
+        $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByTripId(
+            (int) $validated['trip_id'],
+            $bookingDateForDb
+        );
+
+        $serverUnitPrice = (int) ($priceBreakdown['final_unit_price'] ?? 0);
+        $serverTotalPrice = $serverUnitPrice * $requestedQuantity;
+        $totalSurchargeAmount = (int) ($priceBreakdown['total_surcharge_unit'] ?? 0) * $requestedQuantity;
+
+        if ($submittedTotalPrice !== $serverTotalPrice) {
+            Log::warning('Client submitted booking total differs from server calculation', [
+                'trip_id' => (int) $validated['trip_id'],
+                'booking_date' => $bookingDateForDb,
+                'submitted_total_price' => $submittedTotalPrice,
+                'server_total_price' => $serverTotalPrice,
+            ]);
+        }
 
         try {
             $bookingData = [
                 'trip_id' => $validated['trip_id'],
                 'booking_date' => $bookingDateForDb,
-                'quantity' => $validated['quantity'],
+                'quantity' => $requestedQuantity,
                 'customer_name' => $validated['customer_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'customer_email' => $validated['customer_email'],
                 'pickup_stop_id' => $isHotelPickup ? null : $validated['pickup_stop_id'],
                 'dropoff_stop_id' => $validated['dropoff_stop_id'],
-                'total_price' => $validated['total_price'],
+                'total_price' => $serverTotalPrice,
                 'payment_method' => $validated['payment_method'],
                 'notes' => $validated['notes'] ?? null,
                 'user_id' => Auth::id(),
                 'is_hotel_pickup' => $isHotelPickup,
                 'hotel_pickup_address' => $validated['hotel_pickup_address'] ?? null,
+                'base_unit_price' => (int) ($priceBreakdown['base_unit_price'] ?? 0),
+                'global_surcharge_unit' => (int) ($priceBreakdown['global_surcharge_unit'] ?? 0),
+                'route_surcharge_unit' => (int) ($priceBreakdown['route_surcharge_unit'] ?? 0),
+                'final_unit_price' => $serverUnitPrice,
+                'total_surcharge_amount' => $totalSurchargeAmount,
+                'surcharge_reason_snapshot' => $priceBreakdown['surcharge_reason_snapshot'] ?? null,
             ];
 
             $result = $this->bookingService->createBooking($bookingData);
@@ -135,7 +167,7 @@ class BookingController extends Controller
             if ($result['success']) {
                 // Send confirmation email
                 $this->bookingService->sendConfirmationEmail($result['booking_id']);
-                
+
                 return redirect()->route('client.booking.success')->with('booking_id', $result['booking_id']);
             }
 
@@ -149,7 +181,7 @@ class BookingController extends Controller
     public function success()
     {
         $bookingId = session('booking_id');
-        
+
         if (!$bookingId) {
             return redirect()->route('client.home');
         }
@@ -197,7 +229,7 @@ class BookingController extends Controller
     private function parseBookingDate(string $value): Carbon
     {
         $patterns = ['d-m-Y', 'd/m/Y', 'Y-m-d'];
-        
+
         foreach ($patterns as $pattern) {
             try {
                 return Carbon::createFromFormat($pattern, $value)->startOfDay();

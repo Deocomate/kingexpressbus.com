@@ -326,7 +326,12 @@
 
     @php
         $busImage = $busImages[0] ?? ($trip->bus_thumbnail ?? '/client/images/kingexpressbus/cabin/1.jpg');
-        $seatPrice = (int) ($trip->price ?? 0);
+        $baseUnitPrice = (int) ($trip->base_price ?? $trip->price ?? 0);
+        $globalSurchargeUnit = (int) ($trip->global_surcharge ?? 0);
+        $routeSurchargeUnit = (int) ($trip->route_surcharge ?? 0);
+        $totalSurchargeUnit = (int) ($trip->surcharge_total ?? ($globalSurchargeUnit + $routeSurchargeUnit));
+        $finalUnitPrice = (int) ($trip->effective_price ?? ($baseUnitPrice + $totalSurchargeUnit));
+        $surchargeSnapshot = $trip->surcharge_reason_snapshot ?? null;
         $pickupStops = $stops->where('stop_type', '!=', 'dropoff');
         $dropoffStops = $stops->where('stop_type', '!=', 'pickup');
     @endphp
@@ -701,9 +706,27 @@
                     {{-- Price Summary --}}
                     <div class="space-y-2 text-sm text-gray-600">
                         <div class="flex items-center justify-between">
+                            <span>{{ __('client.booking.create.summary_base_price') }}</span>
+                            <span class="font-semibold text-gray-900" id="summary-base-price">
+                                {{ $baseUnitPrice > 0 ? number_format($baseUnitPrice) . 'đ' : __('client.booking.create.summary_contact_price') }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>{{ __('client.booking.create.summary_global_surcharge') }}</span>
+                            <span class="font-semibold text-amber-600" id="summary-global-surcharge">
+                                {{ $globalSurchargeUnit > 0 ? '+' . number_format($globalSurchargeUnit) . 'đ' : '0đ' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span>{{ __('client.booking.create.summary_route_surcharge') }}</span>
+                            <span class="font-semibold text-amber-600" id="summary-route-surcharge">
+                                {{ $routeSurchargeUnit > 0 ? '+' . number_format($routeSurchargeUnit) . 'đ' : '0đ' }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
                             <span>{{ __('client.booking.create.summary_price_per_ticket') }}</span>
-                            <span class="font-semibold text-gray-900">
-                                {{ $seatPrice > 0 ? number_format($seatPrice) . 'đ' : __('client.booking.create.summary_contact_price') }}
+                            <span class="font-semibold text-gray-900" id="summary-unit-price">
+                                {{ $finalUnitPrice > 0 ? number_format($finalUnitPrice) . 'đ' : __('client.booking.create.summary_contact_price') }}
                             </span>
                         </div>
                         <div class="flex items-center justify-between">
@@ -715,12 +738,17 @@
                             <span
                                 class="text-green-600 font-semibold">{{ __('client.booking.create.summary_free') }}</span>
                         </div>
+                        @if ($surchargeSnapshot)
+                            <p class="text-xs text-amber-700 leading-relaxed pt-1">
+                                {{ __('client.booking.create.summary_surcharge_note') }}: {{ $surchargeSnapshot }}
+                            </p>
+                        @endif
                     </div>
 
                     <div
                         class="border-t border-gray-200 pt-4 mt-4 flex items-center justify-between text-lg font-bold text-gray-900">
                         <span>{{ __('client.booking.create.summary_total') }}</span>
-                        <span class="text-primary-600" id="summary-total-price">0đ</span>
+                        <span class="text-primary-600" id="summary-total-price">{{ number_format($finalUnitPrice) }}đ</span>
                     </div>
                 </div>
 
@@ -1157,14 +1185,14 @@
                 const decreaseBtn = document.getElementById('decrease-quantity');
                 const increaseBtn = document.getElementById('increase-quantity');
                 const maxQuantity = {{ $availableSeats }};
-                const seatPrice = {{ $seatPrice }};
+                const finalUnitPrice = {{ $finalUnitPrice }};
                 const summaryQuantity = document.getElementById('summary-quantity');
                 const summaryTotalPrice = document.getElementById('summary-total-price');
                 const totalPriceInput = document.getElementById('total-price-input');
 
                 const updateSummary = () => {
                     const quantity = parseInt(quantityInput.value);
-                    const totalPrice = quantity * seatPrice;
+                    const totalPrice = quantity * finalUnitPrice;
                     summaryQuantity.textContent = quantity;
                     summaryTotalPrice.textContent = totalPrice > 0 ? totalPrice.toLocaleString('vi-VN') + 'đ' :
                         '0đ';

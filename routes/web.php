@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\BusController as AdminBusController;
 use App\Http\Controllers\Admin\TripController as AdminTripController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Admin\BusServiceController;
+use App\Http\Controllers\Admin\HolidaySurchargeController;
 
 // Client Controllers
 use App\Http\Controllers\Client\HomeController;
@@ -157,6 +158,9 @@ Route::prefix('admin')
         Route::resource('trips', AdminTripController::class);
         Route::post('/trips/update-order', [AdminTripController::class, 'updateOrder'])->name('trips.updateOrder');
         Route::patch('/trips/{trip}/toggle-status', [AdminTripController::class, 'toggleStatus'])->name('trips.toggleStatus');
+
+        // Holiday surcharge management (phụ thu lễ/tết)
+        Route::resource('holiday-surcharges', HolidaySurchargeController::class)->except(['show']);
 
         // Booking Management (Quản lý đặt vé)
         Route::resource('bookings', AdminBookingController::class);

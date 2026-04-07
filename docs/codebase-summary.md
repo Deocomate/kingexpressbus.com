@@ -17,6 +17,7 @@ Main responsibilities:
 - Route and fleet management (`routes`, `route_stops`, `buses`, `bus_services`)
 - Schedule management (`trips`)
 - Booking operations (`bookings`)
+- Holiday surcharge management (`holiday_surcharges`, `holiday_surcharge_routes`)
 
 ### 2.2 Client Area
 
@@ -69,6 +70,8 @@ Domain/business:
 - `buses`
 - `trips`
 - `bookings`
+- `holiday_surcharges`
+- `holiday_surcharge_routes`
 
 Legacy historical tables (dropped in single-tenant refactor):
 - `companies`
@@ -79,8 +82,9 @@ Legacy historical tables (dropped in single-tenant refactor):
 ## 5. Key Data Flow
 
 - Admin creates and maintains location + route + bus + trip data.
+- Admin configures holiday surcharge windows and optional route-level surcharge overrides.
 - Client searches trips and submits booking requests.
-- Booking references trip and stop points, then moves through status/payment lifecycle.
+- Booking references trip and stop points, resolves effective price by travel date, then moves through status/payment lifecycle.
 
 ## 6. Dependencies
 

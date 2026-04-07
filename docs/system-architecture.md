@@ -37,6 +37,8 @@ graph LR
 - `trips` is the active schedule table.
 - `bookings.trip_id` links booking to a trip.
 - `route_stops` is the active route-stop mapping.
+- Holiday pricing uses `holiday_surcharges` (global by date range) and `holiday_surcharge_routes` (route-level additive surcharge).
+- Client-facing prices are resolved as effective price (base trip price + applicable surcharge).
 - Multi-tenant company-oriented tables were removed in the single-tenant refactor migration.
 
 ## 3. Complete Database Table Catalog
@@ -70,6 +72,8 @@ Application/business:
 - `buses`
 - `trips`
 - `bookings`
+- `holiday_surcharges`
+- `holiday_surcharge_routes`
 
 ### 3.2 Legacy Tables (Historical / Dropped In Current Runtime)
 
@@ -89,6 +93,8 @@ Application/business:
 - `route_stops.stop_id` -> `stops.id`
 - `trips.bus_id` -> `buses.id`
 - `trips.route_id` -> `routes.id`
+- `holiday_surcharge_routes.holiday_surcharge_id` -> `holiday_surcharges.id`
+- `holiday_surcharge_routes.route_id` -> `routes.id`
 - `bookings.user_id` -> `users.id` (nullable)
 - `bookings.trip_id` -> `trips.id`
 - `bookings.pickup_stop_id` -> `stops.id`

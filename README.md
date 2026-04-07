@@ -56,6 +56,7 @@ npm run dev
 - Authentication for Admin and Client.
 - Locale switching (`en`, `vi`).
 - Admin CRUD: web profiles, menus, provinces, districts, stops, routes, buses, trips, bookings.
+- Admin pricing module: holiday surcharge windows (global and route-specific additive adjustments).
 - Client flow: search route/trip -> create booking -> success page.
 
 ## 6. Full Database Table Inventory

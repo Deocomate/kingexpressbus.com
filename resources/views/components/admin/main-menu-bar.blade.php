@@ -33,6 +33,12 @@
         icon="fas fa-calendar-alt"
         :route-group="['admin.trips.*']"/>
 
+    <x-menus.menu-bar
+        :route="route('admin.holiday-surcharges.index')"
+        name="Quản lý Phụ thu Lễ/Tết"
+        icon="fas fa-money-bill-wave"
+        :route-group="['admin.holiday-surcharges.*']"/>
+
     <li class="nav-header">QUẢN LÝ DANH MỤC</li>
 
     <x-menus.menu-bar

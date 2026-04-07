@@ -22,6 +22,12 @@ class Booking extends Model
         'dropoff_stop_id',
         'quantity',
         'total_price',
+        'base_unit_price',
+        'global_surcharge_unit',
+        'route_surcharge_unit',
+        'final_unit_price',
+        'total_surcharge_amount',
+        'surcharge_reason_snapshot',
         'status',
         'payment_method',
         'payment_status',
@@ -32,6 +38,11 @@ class Booking extends Model
         'booking_date' => 'date',
         'quantity' => 'integer',
         'total_price' => 'integer',
+        'base_unit_price' => 'integer',
+        'global_surcharge_unit' => 'integer',
+        'route_surcharge_unit' => 'integer',
+        'final_unit_price' => 'integer',
+        'total_surcharge_amount' => 'integer',
     ];
 
     /**

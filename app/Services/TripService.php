@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\DB;
  */
 class TripService
 {
+    protected HolidaySurchargeService $holidaySurchargeService;
+
+    public function __construct(HolidaySurchargeService $holidaySurchargeService)
+    {
+        $this->holidaySurchargeService = $holidaySurchargeService;
+    }
+
     /**
      * Search trips by origin and destination province IDs.
      */
@@ -89,7 +96,7 @@ class TripService
     /**
      * Get single trip with full details.
      */
-    public function getTripDetails(int $tripId): ?object
+    public function getTripDetails(int $tripId, ?string $date = null): ?object
     {
         $trip = DB::table('trips as t')
             ->join('buses as b', 't.bus_id', '=', 'b.id')
@@ -133,6 +140,23 @@ class TripService
         $trip->bus_services = json_decode($trip->bus_services, true) ?? [];
         $trip->bus_images = json_decode($trip->bus_images, true) ?? [];
         $trip->seat_map = json_decode($trip->seat_map, true) ?? [];
+
+        $targetDate = $date ? Carbon::parse($date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+        $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByRouteAndBasePrice(
+            (int) $trip->route_id,
+            (int) ($trip->price ?? 0),
+            $targetDate
+        );
+
+        $trip->base_price = $priceBreakdown['base_unit_price'];
+        $trip->global_surcharge = $priceBreakdown['global_surcharge_unit'];
+        $trip->route_surcharge = $priceBreakdown['route_surcharge_unit'];
+        $trip->surcharge_total = $priceBreakdown['total_surcharge_unit'];
+        $trip->effective_price = $priceBreakdown['final_unit_price'];
+        $trip->has_surcharge = $priceBreakdown['has_surcharge'];
+        $trip->surcharge_reasons = $priceBreakdown['surcharge_reasons'];
+        $trip->surcharge_reason_snapshot = $priceBreakdown['surcharge_reason_snapshot'];
+        $trip->has_price = $trip->effective_price > 0;
 
         return $trip;
     }
@@ -185,6 +209,12 @@ class TripService
      */
     private function enrichTripData(object $trip, string $date): object
     {
+        $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByRouteAndBasePrice(
+            (int) $trip->route_id,
+            (int) ($trip->price ?? 0),
+            $date
+        );
+
         // Calculate duration
         $start = Carbon::parse($trip->start_time);
         $end = Carbon::parse($trip->end_time);
@@ -195,7 +225,15 @@ class TripService
 
         // Calculate available seats
         $trip->seats_available = $this->calculateAvailableSeats($trip->trip_id, $date, $trip->seat_count);
-        $trip->has_price = $trip->price > 0;
+        $trip->base_price = $priceBreakdown['base_unit_price'];
+        $trip->global_surcharge = $priceBreakdown['global_surcharge_unit'];
+        $trip->route_surcharge = $priceBreakdown['route_surcharge_unit'];
+        $trip->surcharge_total = $priceBreakdown['total_surcharge_unit'];
+        $trip->effective_price = $priceBreakdown['final_unit_price'];
+        $trip->has_surcharge = $priceBreakdown['has_surcharge'];
+        $trip->surcharge_reasons = $priceBreakdown['surcharge_reasons'];
+        $trip->surcharge_reason_snapshot = $priceBreakdown['surcharge_reason_snapshot'];
+        $trip->has_price = $trip->effective_price > 0;
 
         // Get stops
         $stops = $this->getRouteStops($trip->route_id);
@@ -301,8 +339,9 @@ class TripService
             }
 
             // Collect prices
-            if ($trip->has_price && $trip->price > 0) {
-                $prices->push((int) $trip->price);
+            $effectivePrice = (int) ($trip->effective_price ?? $trip->price ?? 0);
+            if ($trip->has_price && $effectivePrice > 0) {
+                $prices->push($effectivePrice);
             }
 
             // Collect pickup points
@@ -348,11 +387,13 @@ class TripService
     public function applyFilters(Collection $trips, array $filters): Collection
     {
         return $trips->filter(function ($trip) use ($filters) {
+            $priceToCompare = (int) ($trip->effective_price ?? $trip->price ?? 0);
+
             // Price filter
-            if (!empty($filters['price_min']) && $trip->price < (int) $filters['price_min']) {
+            if (!empty($filters['price_min']) && $priceToCompare < (int) $filters['price_min']) {
                 return false;
             }
-            if (!empty($filters['price_max']) && $trip->price > (int) $filters['price_max']) {
+            if (!empty($filters['price_max']) && $priceToCompare > (int) $filters['price_max']) {
                 return false;
             }
 
@@ -428,8 +469,8 @@ class TripService
         return match ($sortBy) {
             'earliest' => $trips->sortBy(fn($trip) => Carbon::parse($trip->start_time))->values(),
             'latest' => $trips->sortByDesc(fn($trip) => Carbon::parse($trip->start_time))->values(),
-            'price_low' => $trips->sortBy(fn($trip) => $trip->price ?? PHP_INT_MAX)->values(),
-            'price_high' => $trips->sortByDesc(fn($trip) => $trip->price ?? 0)->values(),
+            'price_low' => $trips->sortBy(fn($trip) => $trip->effective_price ?? $trip->price ?? PHP_INT_MAX)->values(),
+            'price_high' => $trips->sortByDesc(fn($trip) => $trip->effective_price ?? $trip->price ?? 0)->values(),
             'seats_available' => $trips->sortByDesc(fn($trip) => $trip->seats_available ?? 0)->values(),
             default => $trips->sortByDesc(fn($trip) => $trip->priority ?? 0)->values(), // recommended
         };
