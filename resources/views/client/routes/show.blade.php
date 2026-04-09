@@ -321,14 +321,6 @@
                                         <img id="trip-image-{{ $trip->trip_id }}" src="{{ $primaryImage }}"
                                             alt="{{ $trip->bus_name }}" loading="lazy"
                                             class="h-full w-full object-cover">
-                                        @if ($hasSeats && ($trip->seats_available ?? 0) <= 5 && ($trip->seats_available ?? 0) > 0)
-                                            <div class="absolute right-1.5 top-1.5">
-                                                <span class="inline-flex items-center gap-1 rounded bg-red-500/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                                                    <i class="fa-solid fa-fire"></i>
-                                                    {{ __('client.route_show.trip_card.seats_left', ['count' => $trip->seats_available, 'default' => 'Còn ' . $trip->seats_available . ' chỗ']) }}
-                                                </span>
-                                            </div>
-                                        @endif
                                     </div>
 
                                     <div class="trip-body flex min-w-0 flex-1 flex-col gap-2.5">
@@ -354,7 +346,7 @@
                                                 <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $hasSeats ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
                                                     @if ($hasSeats)
-                                                        {{ __('client.route_show.trip_card.seats_available') }} ({{ $trip->seats_available }})
+                                                        {{ __('client.route_show.trip_card.seats_available') }}
                                                     @else
                                                         {{ __('client.route_show.trip_card.seats_full') }}
                                                     @endif
@@ -568,7 +560,7 @@
                                             <div class="mt-2 flex items-center gap-2 text-xs">
                                                 <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-slate-600">
                                                     <i class="fa-solid fa-couch"></i>
-                                                    {{ $returnHasSeats ? __('client.route_show.trip_card.seats_available') . ' (' . ($returnTrip->seats_available ?? 0) . ')' : __('client.route_show.trip_card.seats_full') }}
+                                                    {{ $returnHasSeats ? __('client.route_show.trip_card.seats_available') : __('client.route_show.trip_card.seats_full') }}
                                                 </span>
                                                 @if (!empty($returnTrip->has_surcharge))
                                                     <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-700">
