@@ -10,7 +10,7 @@
                 background-size: cover;
                 background-position: center;
                 background-attachment: fixed;
-                min-height: 85vh;
+                min-height: clamp(420px, 66vh, 620px);
                 position: relative;
                 overflow: hidden;
             }
@@ -75,25 +75,12 @@
                 background: linear-gradient(0deg, rgba(0, 0, 0, 0.65) 0%, transparent 60%);
             }
 
-            /* STATS */
-            .stat-card {
-                background: #ffffff;
-                border-radius: 1rem;
-                padding: 1.5rem;
-                text-align: center;
-                border: 1px solid #f1d7a0;
-                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
-            }
-
-            .stat-icon {
-                width: 56px;
-                height: 56px;
-                border-radius: 0.9rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 16px;
-                font-size: 22px;
+            .hero-search-shell {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 1.15rem;
+                padding: 0.85rem;
+                border: 1px solid rgba(255, 255, 255, 0.75);
+                box-shadow: 0 18px 34px -22px rgba(15, 23, 42, 0.5);
             }
 
             /* PROVINCE TABS */
@@ -169,51 +156,11 @@
                 font-weight: 700;
                 font-size: 14px;
             }
-
-            /* FEATURES */
-            .feature-card {
-                padding: 24px;
-                border-radius: 1rem;
-                transition: all 0.25s ease;
-                border: 1px solid #f4e3bf;
-                background: #ffffff;
-            }
-
-            .feature-card:hover {
-                background: #fffcf3;
-                border-color: #ffdd99;
-                transform: translateY(-3px);
-            }
-
-            .feature-icon-wrapper {
-                width: 56px;
-                height: 56px;
-                border-radius: 1rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-            }
-
-            /* FOOTER CTA */
-            .cta-section {
-                background: linear-gradient(120deg, #FF9B00 0%, #FFC900 56%, #FFE100 100%);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .cta-section::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: radial-gradient(circle at 10% 16%, rgba(255, 255, 255, 0.35), transparent 40%),
-                    radial-gradient(circle at 90% 100%, rgba(255, 255, 255, 0.22), transparent 44%);
-            }
         </style>
     @endpush
 
     {{-- Hero Section --}}
-    <section class="hero-routes flex flex-col items-center justify-center px-4 py-24 lg:py-32">
+    <section class="hero-routes flex flex-col items-center justify-center px-4 py-20 lg:py-24">
         <div class="container mx-auto max-w-7xl relative z-10 w-full text-center space-y-8">
 
             {{-- Badge --}}
@@ -235,7 +182,7 @@
             </p>
 
             {{-- Search Bar --}}
-            <div class="mt-10 mx-auto w-full max-w-6xl text-left">
+            <div class="hero-search-shell mt-8 mx-auto w-full max-w-6xl text-left">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label', ['default' => 'Tìm chuyến'])" />
             </div>
 
@@ -245,7 +192,7 @@
                     <span class="mr-2 self-center text-sm font-semibold text-white/70">
                         {{ __('client.routes.index.popular_searches', ['default' => 'Phổ biến:']) }}
                     </span>
-                    @foreach ($quickRouteSuggestions->take(4) as $suggestion)
+                    @foreach ($quickRouteSuggestions->take(6) as $suggestion)
                         <a href="{{ route('client.routes.show', ['slug' => $suggestion->slug]) }}"
                             class="quick-route-pill">
                             <i class="fa-solid fa-location-arrow text-white/70 text-xs"></i>
@@ -257,104 +204,40 @@
         </div>
     </section>
 
-    {{-- Stats Section --}}
-    <section class="relative z-20 -mt-14 bg-[#F8FAFC] py-12">
-        <div class="container mx-auto max-w-7xl px-4">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <div class="stat-card" x-data="statsCounter(100, 2, 30)">
-                    <div class="stat-icon bg-accent-100 text-accent-600">
-                        <i class="fa-solid fa-route"></i>
-                    </div>
-                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
-                        <span x-text="displayCount">0</span>+
-                    </p>
-                    <p class="text-neutral-500 text-sm mt-2 font-medium">
-                        {{ __('client.routes.index.stat_routes', ['default' => 'Tuyến đường']) }}
-                    </p>
-                </div>
-                <div class="stat-card" x-data="statsCounter(50, 1, 40)">
-                    <div class="stat-icon bg-primary-50 text-primary-600">
-                        <i class="fa-solid fa-bus"></i>
-                    </div>
-                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
-                        <span x-text="displayCount">0</span>+
-                    </p>
-                    <p class="text-neutral-500 text-sm mt-2 font-medium">
-                        {{ __('client.routes.index.stat_fleet', ['default' => 'Đội xe']) }}
-                    </p>
-                </div>
-                <div class="stat-card" x-data="statsCounter(10000, 200, 30, true)">
-                    <div class="stat-icon bg-emerald-50 text-emerald-600">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
-                        <span x-text="displayCount">0</span>+
-                    </p>
-                    <p class="text-neutral-500 text-sm mt-2 font-medium">
-                        {{ __('client.routes.index.stat_customers', ['default' => 'Khách hàng mỗi năm']) }}
-                    </p>
-                </div>
-                <div class="stat-card" x-data="statsCounter(98, 2, 30)">
-                    <div class="stat-icon bg-purple-50 text-purple-600">
-                        <i class="fa-solid fa-star"></i>
-                    </div>
-                    <p class="text-3xl font-extrabold text-slate-800 md:text-4xl">
-                        <span x-text="displayCount">0</span>%
-                    </p>
-                    <p class="text-neutral-500 text-sm mt-2 font-medium">
-                        {{ __('client.routes.index.stat_satisfaction', ['default' => 'Hài lòng']) }}
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
     {{-- Popular Routes Section --}}
-    @if (isset($popularRoutes) && $popularRoutes->isNotEmpty())
-        <section class="bg-[#F8FAFC] py-16 md:py-24">
-            <div class="container mx-auto max-w-7xl px-4">
+    <section class="bg-[#F8FAFC] py-10 md:py-14">
+        <div class="container mx-auto max-w-7xl px-4">
+            {{-- Section Header --}}
+            <div class="mb-8 md:mb-10">
+                <h2 class="text-2xl font-extrabold text-slate-800 md:text-3xl">
+                    {{ __('client.routes.index.popular_title', ['default' => 'Tuyến đường']) }}
+                    <span class="text-primary-600">{{ __('client.routes.index.popular_highlight', ['default' => 'Phổ biến']) }}</span>
+                </h2>
+                <p class="mt-2 max-w-2xl text-sm text-slate-500 md:text-base">
+                    {{ __('client.routes.index.popular_subtitle', ['default' => 'Các tuyến đường được khách hàng yêu thích nhất']) }}
+                </p>
+            </div>
 
-                {{-- Province Filter Tabs --}}
-                @if (isset($provinces) && $provinces->isNotEmpty())
-                    <div class="mb-10">
-                        <div class="province-tabs">
-                            <a href="{{ route('client.routes.index') }}"
-                                class="province-tab {{ !$selectedProvince ? 'active' : '' }}">
-                                <i class="fa-solid fa-globe mr-1"></i>
-                                {{ __('client.routes.index.all_provinces', ['default' => 'Tất cả']) }}
+            {{-- Province Filter Tabs --}}
+            @if (isset($provinces) && $provinces->isNotEmpty())
+                <div class="mb-8">
+                    <div class="province-tabs">
+                        <a href="{{ route('client.routes.index') }}"
+                            class="province-tab {{ !$selectedProvince ? 'active' : '' }}">
+                            <i class="fa-solid fa-globe mr-1"></i>
+                            {{ __('client.routes.index.all_provinces', ['default' => 'Tất cả']) }}
+                        </a>
+                        @foreach ($provinces as $province)
+                            <a href="{{ route('client.routes.index', ['province' => $province->id]) }}"
+                                class="province-tab {{ $selectedProvince == $province->id ? 'active' : '' }}">
+                                {{ $province->name }}
                             </a>
-                            @foreach ($provinces as $province)
-                                <a href="{{ route('client.routes.index', ['province' => $province->id]) }}"
-                                    class="province-tab {{ $selectedProvince == $province->id ? 'active' : '' }}">
-                                    {{ $province->name }}
-                                </a>
-                            @endforeach
-                        </div>
+                        @endforeach
                     </div>
-                @endif
-
-                {{-- Section Header --}}
-                <div class="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
-                    <div class="space-y-3">
-                        <span class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-sm font-bold text-primary-700">
-                            <i class="fa-solid fa-fire"></i>
-                            {{ __('client.routes.index.trending_badge', ['default' => 'Được yêu thích']) }}
-                        </span>
-                        <h2 class="text-3xl font-extrabold text-slate-800 md:text-4xl">
-                            {{ __('client.routes.index.popular_title', ['default' => 'Tuyến đường']) }}
-                            <span class="text-primary-600">{{ __('client.routes.index.popular_highlight', ['default' => 'Phổ biến']) }}</span>
-                        </h2>
-                        <p class="max-w-lg text-base text-slate-500 md:text-lg">
-                            {{ __('client.routes.index.popular_subtitle', ['default' => 'Các tuyến đường được khách hàng yêu thích nhất']) }}
-                        </p>
-                    </div>
-                    <a href="{{ route('client.routes.index') }}"
-                        class="hidden items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95 md:inline-flex">
-                        {{ __('client.routes.index.view_all', ['default' => 'Xem tất cả']) }}
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </a>
                 </div>
+            @endif
 
+            @if (isset($popularRoutes) && $popularRoutes->isNotEmpty())
                 {{-- Routes Grid --}}
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     @foreach ($popularRoutes as $route)
@@ -416,176 +299,12 @@
                         </a>
                     @endforeach
                 </div>
-
-                {{-- Mobile View All --}}
-                <div class="mt-10 text-center md:hidden">
-                    <a href="{{ route('client.routes.index') }}"
-                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-4 font-bold text-white shadow-soft active:scale-95">
-                        {{ __('client.routes.index.view_all_routes', ['default' => 'Xem tất cả tuyến đường']) }}
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </a>
+            @else
+                <div class="rounded-2xl border border-dashed border-amber-200 bg-white p-8 text-center text-sm text-slate-500 md:text-base">
+                    <p>{{ __('client.routes.index.empty', ['default' => 'Hiện chưa có tuyến phù hợp. Vui lòng đổi bộ lọc hoặc thử lại sau.']) }}</p>
                 </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- Why Choose Us Section --}}
-    <section class="relative bg-white py-20">
-        <div class="container mx-auto max-w-7xl px-4 relative z-10">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-                {{-- Text Content --}}
-                <div class="space-y-8">
-                    <div class="space-y-4">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-4 py-2 text-sm font-bold text-primary-700">
-                            <i class="fa-solid fa-award"></i>
-                            {{ __('client.about.subtitle', ['default' => 'Về King Express Bus']) }}
-                        </span>
-                        <h2 class="text-3xl font-extrabold leading-tight text-slate-800 md:text-4xl">
-                            {{ __('client.about.title', ['default' => 'Tại sao nên chọn chúng tôi?']) }}
-                        </h2>
-                        <p class="text-lg text-neutral-600 leading-relaxed">
-                            {{ __('client.about.description', ['default' => 'King Express Bus cam kết mang đến trải nghiệm hành trình an toàn, tiện nghi và đẳng cấp nhất.']) }}
-                        </p>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div class="feature-card flex items-start gap-5">
-                            <div class="feature-icon-wrapper bg-accent-100 text-accent-600">
-                                <i class="fa-solid fa-star text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold text-neutral-800 mb-2">
-                                    {{ __('client.about.feature_1_title', ['default' => 'Dịch vụ 5 sao']) }}
-                                </h4>
-                                <p class="text-neutral-600 leading-relaxed">
-                                    {{ __('client.about.feature_1_desc', ['default' => 'Hệ thống xe cabin VIP và limousine đời mới, được trang bị đầy đủ tiện nghi hiện đại.']) }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="feature-card flex items-start gap-5">
-                            <div class="feature-icon-wrapper bg-primary-50 text-primary-600">
-                                <i class="fa-solid fa-shield-halved text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold text-neutral-800 mb-2">
-                                    {{ __('client.about.feature_2_title', ['default' => 'An toàn tuyệt đối']) }}
-                                </h4>
-                                <p class="text-neutral-600 leading-relaxed">
-                                    {{ __('client.about.feature_2_desc', ['default' => 'Đội ngũ tài xế chuyên nghiệp, giàu kinh nghiệm. Kiểm tra kỹ thuật xe nghiêm ngặt.']) }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="feature-card flex items-start gap-5">
-                            <div class="feature-icon-wrapper bg-emerald-50 text-emerald-600">
-                                <i class="fa-solid fa-headset text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-semibold text-neutral-800 mb-2">
-                                    {{ __('client.about.feature_3_title', ['default' => 'Hỗ trợ 24/7']) }}
-                                </h4>
-                                <p class="text-neutral-600 leading-relaxed">
-                                    {{ __('client.about.feature_3_desc', ['default' => 'Tổng đài chăm sóc khách hàng hoạt động 24/7, sẵn sàng giải đáp mọi thắc mắc.']) }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Image --}}
-                <div class="relative">
-                    <div class="relative aspect-4/3 overflow-hidden rounded-2xl shadow-soft">
-                        <img src="/client/images/city_imgs/sapa.jpg"
-                            alt="{{ __('client.about.image_alt', ['default' => 'Nội thất xe King Express Bus']) }}"
-                            class="w-full h-full object-cover">
-                    </div>
-
-                    {{-- Badge --}}
-                    <div class="absolute -bottom-6 -left-4 z-10 hidden items-center gap-4 rounded-2xl bg-white p-5 shadow-soft lg:flex">
-                        <div class="rounded-xl bg-primary-600 p-4 text-white">
-                            <i class="fa-solid fa-thumbs-up text-2xl"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-neutral-500 font-medium">
-                                {{ __('client.about.badge_subtitle', ['default' => 'Hài lòng']) }}</p>
-                            <p class="text-xl font-semibold text-neutral-800">98% Review 5★</p>
-                        </div>
-                    </div>
-
-                    {{-- Badge 2 --}}
-                    <div class="absolute -right-4 -top-4 hidden rounded-2xl bg-primary-600 p-5 text-white shadow-soft lg:block">
-                        <div class="text-center">
-                            <p class="text-3xl font-extrabold">7+</p>
-                            <p class="text-xs font-medium opacity-90">
-                                {{ __('client.about.years_experience', ['default' => 'Năm kinh nghiệm']) }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
     </section>
-
-    {{-- CTA Section --}}
-    <section class="cta-section py-16 md:py-20 relative">
-        <div class="container mx-auto max-w-7xl px-4 relative z-10">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
-                <div class="space-y-3 max-w-xl">
-                    <h2 class="text-2xl font-extrabold text-white md:text-4xl">
-                        {{ __('client.routes.index.cta_title', ['default' => 'Sẵn sàng cho chuyến đi tiếp theo?']) }}
-                    </h2>
-                    <p class="text-lg text-slate-900/75 md:text-xl">
-                        {{ __('client.routes.index.cta_subtitle', ['default' => 'Đặt vé ngay hôm nay để nhận ưu đãi hấp dẫn']) }}
-                    </p>
-                </div>
-                <a href="#top"
-                    class="inline-flex items-center gap-3 rounded-xl border border-white/35 bg-slate-900 px-10 py-5 text-lg font-bold text-white shadow-soft transition hover:bg-slate-800 active:scale-95">
-                    <i class="fa-solid fa-ticket"></i>
-                    {{ __('client.routes.index.cta_button', ['default' => 'Đặt vé ngay']) }}
-                </a>
-            </div>
-        </div>
-    </section>
-
-    @push('scripts')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                // Stats Counter Component with IntersectionObserver
-                Alpine.data('statsCounter', (target, step = 1, speed = 30, formatNumber = false) => ({
-                    count: 0,
-                    target: target,
-                    step: step,
-                    speed: speed,
-                    formatNumber: formatNumber,
-                    started: false,
-                    get displayCount() {
-                        return this.formatNumber ? this.count.toLocaleString('vi-VN') : this.count;
-                    },
-                    init() {
-                        const observer = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting && !this.started) {
-                                    this.started = true;
-                                    this.animate();
-                                }
-                            });
-                        }, {
-                            threshold: 0.3
-                        });
-                        observer.observe(this.$el);
-                    },
-                    animate() {
-                        const interval = setInterval(() => {
-                            if (this.count < this.target) {
-                                this.count = Math.min(this.count + this.step, this.target);
-                            } else {
-                                clearInterval(interval);
-                            }
-                        }, this.speed);
-                    }
-                }));
-            })
-        </script>
-    @endpush
 
 </x-client.layout>

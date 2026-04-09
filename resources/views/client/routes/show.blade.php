@@ -1,4 +1,4 @@
-﻿{{-- ===== resources\views\client\routes\show.blade.php ===== --}}
+{{-- ===== resources\views\client\routes\show.blade.php ===== --}}
 <x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.route_show.meta_title')" :description="$description ?? ''">
     @php
         $heroImage = $route->banner_url ?? ($route->thumbnail_url ?? '/client/images/city_imgs/ha-noi.jpg');
@@ -7,35 +7,6 @@
             $minPrice > 0
                 ? __('client.route_show.price_from', ['price' => number_format($minPrice) . 'đ'])
                 : __('client.route_show.price_contact');
-        $routeHighlights = [
-            [
-                'icon' => 'fa-solid fa-location-dot',
-                'color' => 'from-primary-500 to-primary-700',
-                'label' => __('client.route_show.hero_origin'),
-                'value' => $route->start_province_name,
-            ],
-            [
-                'icon' => 'fa-solid fa-map-marker-alt',
-                'color' => 'from-emerald-400 to-emerald-600',
-                'label' => __('client.route_show.hero_destination'),
-                'value' => $route->end_province_name,
-            ],
-            [
-                'icon' => 'fa-solid fa-bus',
-                'color' => 'from-purple-400 to-purple-600',
-                'label' => __('client.route_show.hero_trips', ['default' => 'Chuyến xe']),
-                'value' => __('client.route_show.hero_trip_count', [
-                    'count' => $trips->count(),
-                    'default' => $trips->count() . ' chuyến',
-                ]),
-            ],
-            [
-                'icon' => 'fa-solid fa-tag',
-                'color' => 'from-yellow-400 to-amber-500',
-                'label' => __('client.route_show.hero_price_label'),
-                'value' => $priceDisplay,
-            ],
-        ];
 
         $filterKeys = [
             'sort',
@@ -46,6 +17,7 @@
             'dropoff_points',
             'bus_categories',
             'time_ranges',
+            'has_seats',
         ];
         $filterDefaults = [
             'sort' => 'recommended',
@@ -56,6 +28,7 @@
             'dropoff_points' => [],
             'bus_categories' => [],
             'time_ranges' => [],
+            'has_seats' => false,
         ];
 
         $filterState = array_merge($filterDefaults, $filterState ?? []);
@@ -100,1052 +73,71 @@
 
     @push('styles')
         <style>
-            /* HERO/SEARCH */
             .route-hero {
-                background: linear-gradient(110deg, rgba(8, 23, 43, 0.78), rgba(255, 155, 0, 0.56)),
-                    url('{{ $heroImage }}');
+                background: linear-gradient(110deg, rgba(8, 23, 43, 0.78), rgba(255, 155, 0, 0.56)), url('{{ $heroImage }}');
                 background-size: cover;
                 background-position: center;
-                min-height: 168px;
                 background-attachment: fixed;
             }
 
             @media (max-width: 768px) {
                 .route-hero {
                     background-attachment: scroll;
-                    min-height: 140px;
                 }
             }
 
-            /* Filter Sidebar */
-            .filters-sidebar {
-                background: #ffffff;
-                border-radius: 16px;
-                border: 1px solid #f4d8a2;
-                box-shadow: 0 14px 30px -20px rgba(15, 23, 42, 0.28);
-                position: sticky;
-                top: 100px;
-                max-height: calc(100vh - 120px);
-                display: flex;
-                flex-direction: column;
-            }
-
-            .filters-sidebar form {
-                display: flex;
-                flex-direction: column;
-                max-height: calc(100vh - 120px);
-                overflow: hidden;
-            }
-
-            .filters-scrollable {
-                flex: 1;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #cbd5e1 transparent;
-            }
-
-            .filters-scrollable::-webkit-scrollbar {
-                width: 5px;
-            }
-
-            .filters-scrollable::-webkit-scrollbar-track {
-                background: transparent;
-            }
-
-            .filters-scrollable::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 4px;
-            }
-
-            .filters-scrollable::-webkit-scrollbar-thumb:hover {
-                background: #94a3b8;
-            }
-
-            .filters-sticky-footer {
-                position: sticky;
-                bottom: 0;
-                background: #fffcf3;
-                border-top: 1px solid #f4d8a2;
-                border-radius: 0 0 16px 16px;
-                padding: 16px 20px;
-                z-index: 2;
-            }
-
-            .filter-section {
-                padding: 20px;
-                border-bottom: 1px solid #f1f5f9;
-            }
-
-            .filter-section:last-child {
-                border-bottom: none;
-            }
-
-            .filter-title {
-                font-size: 13px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: #64748b;
-                margin-bottom: 14px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 10px;
-            }
-
-            .filter-toggle {
-                cursor: pointer;
-                user-select: none;
-                margin-bottom: 0;
-                transition: color 0.2s ease;
-            }
-
-            .filter-toggle:hover {
-                color: #475569;
-            }
-
-            .filter-collapsible .filter-content {
-                max-height: 500px;
-                overflow: hidden;
-                transition: max-height 0.3s ease, margin-top 0.3s ease, opacity 0.2s ease;
-                opacity: 1;
-                margin-top: 14px;
-            }
-
-            .filter-collapsible.collapsed .filter-content {
-                max-height: 0;
-                opacity: 0;
-                margin-top: 0;
-            }
-
-            .filter-collapsible.collapsed .filter-chevron {
-                transform: rotate(-90deg);
-            }
-
-            .filter-pill {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 8px 14px;
-                border-radius: 9999px;
-                border: 1px solid #e2e8f0;
-                background: #f8fafc;
-                color: #475569;
-                font-size: 13px;
-                font-weight: 500;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-
-            .filter-pill:hover {
-                border-color: #FF9B00;
-                background: #fffcf0;
-            }
-
-            .filter-pill.active,
-            .filter-pill:has(input:checked) {
-                background: #FF9B00;
-                border-color: #FF9B00;
-                color: #ffffff;
-            }
-
-            .filter-pill input {
-                position: absolute;
-                opacity: 0;
-                pointer-events: none;
-            }
-
-            /* Trip Cards - Compact Horizontal Layout */
-            .trip-card {
-                background: #ffffff;
-                border: 1px solid #e5e7eb;
-                border-radius: 12px;
-                transition: box-shadow 0.2s ease, border-color 0.2s ease;
-            }
-
-            .trip-card:hover {
-                border-color: #d1d5db;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            }
-
-            .trip-card-inner {
-                display: flex;
-                flex-direction: row;
-                align-items: stretch;
-                padding: 12px;
-                gap: 14px;
-            }
-
-            .trip-image-wrapper {
-                position: relative;
-                width: 130px;
-                flex-shrink: 0;
-                overflow: hidden;
-                border-radius: 8px;
-                aspect-ratio: 1 / 1;
-                align-self: center;
-            }
-
-            .trip-image-wrapper img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 8px;
-            }
-
-            .trip-body {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                min-width: 0;
-                gap: 6px;
-            }
-
-            /* Horizontal Time Display */
-            .trip-time-route {
-                display: flex;
-                align-items: center;
-                gap: 0;
-                margin: 2px 0;
-                padding: 8px 12px;
-                background: #f8fafc;
-                border-radius: 8px;
-                border: 1px solid #f1f5f9;
-            }
-
-            .trip-time-block {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                min-width: 0;
-            }
-
-            .trip-time-block .time-val {
-                font-size: 17px;
-                font-weight: 800;
-                color: #0f172a;
-                white-space: nowrap;
-                line-height: 1;
-            }
-
-            .trip-time-block .time-dot {
-                width: 9px;
-                height: 9px;
-                border-radius: 50%;
-                flex-shrink: 0;
-            }
-
-            .trip-time-block .time-dot.departure {
-                background: #FF9B00;
-                border: 2px solid #FFE8B3;
-            }
-
-            .trip-time-block .time-dot.arrival {
-                background: #10b981;
-                border: 2px solid #6ee7b7;
-            }
-
-            .trip-time-block .time-location {
-                color: #475569;
-                font-size: 12px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 140px;
-                line-height: 1.2;
-            }
-
-            .trip-duration-connector {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                flex: 1;
-                min-width: 60px;
-                padding: 0 8px;
-            }
-
-            .trip-duration-connector .duration-text {
-                font-size: 11px;
-                font-weight: 600;
-                color: #64748b;
-                white-space: nowrap;
-                margin-bottom: 3px;
-            }
-
-            .trip-duration-connector .duration-line {
-                width: 100%;
-                height: 0;
-                border-top: 2px dashed #cbd5e1;
-                position: relative;
-            }
-
-            .trip-duration-connector .duration-line::before,
-            .trip-duration-connector .duration-line::after {
-                content: '';
-                position: absolute;
-                top: -4px;
-                width: 6px;
-                height: 6px;
-                border-radius: 50%;
-                background: #cbd5e1;
-            }
-
-            .trip-duration-connector .duration-line::before {
-                left: -3px;
-            }
-
-            .trip-duration-connector .duration-line::after {
-                right: -3px;
-            }
-
-            /* Price Display - Compact */
-            .price-tag {
-                font-size: 20px;
-                font-weight: 800;
-                color: #D97706;
-                line-height: 1.1;
-            }
-
-            .price-tag small {
-                font-size: 12px;
-                font-weight: 500;
-                color: #64748b;
-            }
-
-            /* Availability Badge */
-            .availability-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                padding: 3px 8px;
-                border-radius: 9999px;
-                font-size: 11px;
-                font-weight: 600;
-            }
-
-            .availability-badge.available {
-                background: #dcfce7;
-                color: #166534;
-            }
-
-            .availability-badge.unavailable {
-                background: #fee2e2;
-                color: #991b1b;
-            }
-
-            /* Services */
-            .service-chip {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 3px 8px;
-                background: #f1f5f9;
-                border-radius: 6px;
-                font-size: 11px;
-                font-weight: 500;
-                color: #475569;
-            }
-
-            .service-chip i {
-                color: #FF9B00;
-                font-size: 9px;
-            }
-
-            /* Action Buttons - Compact */
-            .btn-book {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                gap: 6px;
-                padding: 8px 18px;
-                background: #D97706;
-                color: #ffffff;
-                font-weight: 600;
-                font-size: 13px;
-                border-radius: 6px;
-                transition: background 0.2s ease;
-                white-space: nowrap;
-            }
-
-            .btn-book:hover {
-                background: #B45309;
-            }
-
-            .btn-book:active {
-                background: #92400E;
-            }
-
-            /* Details Toggle Button */
-            .btn-details-toggle {
-                display: inline-flex;
-                align-items: center;
-                gap: 5px;
-                padding: 7px 12px;
-                background: transparent;
-                color: #FF9B00;
-                border: 1px solid #ffe3a6;
-                font-weight: 600;
-                font-size: 12px;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                white-space: nowrap;
-            }
-
-            .btn-details-toggle:hover {
-                background: #fffcf0;
-                border-color: #FFE8B3;
-            }
-
-            .btn-details-toggle .chevron-icon {
-                transition: transform 0.3s ease;
-                font-size: 10px;
-            }
-
-            .btn-details-toggle.is-expanded .chevron-icon {
-                transform: rotate(180deg);
-            }
-
-            /* Expandable Details Section */
             .trip-card-details {
                 max-height: 0;
                 overflow: hidden;
-                transition: max-height 0.4s ease;
-                background: #fafbfc;
+                transition: max-height 0.35s ease;
             }
 
             .trip-card-details.is-open {
-                max-height: 800px;
+                max-height: 5000px;
                 border-top: 1px solid #e5e7eb;
             }
 
-            .trip-card-details-inner {
-                padding: 16px;
-            }
-
-            /* Route Timeline in Details */
-            .route-timeline {
-                position: relative;
-                padding-left: 24px;
-            }
-
-            .route-timeline::before {
-                content: '';
-                position: absolute;
-                left: 7px;
-                top: 8px;
-                bottom: 8px;
-                width: 2px;
-                background: linear-gradient(to bottom, #FF9B00, #10b981);
-                border-radius: 1px;
-            }
-
-            .route-timeline-stop {
-                position: relative;
-                padding: 6px 0;
-            }
-
-            .route-timeline-stop::before {
-                content: '';
-                position: absolute;
-                left: -20px;
-                top: 12px;
-                width: 10px;
-                height: 10px;
-                border-radius: 50%;
-                border: 2px solid;
-            }
-
-            .route-timeline-stop.is-origin::before {
-                background: #FF9B00;
-                border-color: #FFE8B3;
-            }
-
-            .route-timeline-stop.is-destination::before {
-                background: #10b981;
-                border-color: #6ee7b7;
-            }
-
-            .route-timeline-stop .stop-time {
-                font-size: 14px;
-                font-weight: 700;
-                color: #0f172a;
-            }
-
-            .route-timeline-stop .stop-name {
-                font-size: 13px;
-                color: #475569;
-            }
-
-            /* Points Display in Details */
-            .points-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-            }
-
-            .point-card {
-                padding: 12px;
-                border-radius: 8px;
-                border: 1px solid;
-            }
-
-            .point-card.pickup {
-                background: #fffcf0;
-                border-color: #ffe3a6;
-            }
-
-            .point-card.dropoff {
-                background: #f0fdf4;
-                border-color: #bbf7d0;
-            }
-
-            .point-title {
-                font-size: 11px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                margin-bottom: 6px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .point-card.pickup .point-title {
-                color: #b86100;
-            }
-
-            .point-card.dropoff .point-title {
-                color: #15803d;
-            }
-
-            .point-item {
-                font-size: 12px;
-                color: #475569;
-                padding-left: 12px;
-                position: relative;
-                margin-bottom: 3px;
-            }
-
-            .point-item::before {
-                content: '•';
-                position: absolute;
-                left: 0;
-                color: #94a3b8;
-            }
-
-            /* Gallery in Details */
-            .detail-gallery {
-                display: flex;
-                gap: 8px;
-                overflow-x: auto;
-                padding-bottom: 4px;
-            }
-
-            .detail-gallery-thumb {
-                width: 80px;
-                height: 60px;
-                border-radius: 6px;
-                overflow: hidden;
-                flex-shrink: 0;
-                cursor: pointer;
-                border: 2px solid transparent;
-                transition: border-color 0.2s ease;
-            }
-
-            .detail-gallery-thumb:hover,
-            .detail-gallery-thumb.active {
-                border-color: #FF9B00;
-            }
-
-            .detail-gallery-thumb img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            /* Responsive: Mobile stacks vertically */
-            @media (max-width: 639px) {
-                .trip-card-inner {
-                    flex-direction: column;
-                    padding: 10px;
-                    gap: 10px;
-                }
-
-                .trip-image-wrapper {
-                    width: 100%;
-                    height: auto;
-                    aspect-ratio: 16 / 9;
-                }
-
-                .trip-card-header {
-                    flex-direction: column;
-                    gap: 4px;
-                }
-
-                .trip-card-header .text-right {
-                    text-align: left;
-                }
-
-                .trip-time-route {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: 4px;
-                    padding: 8px 10px;
-                }
-
-                .trip-time-block {
-                    justify-content: flex-start;
-                }
-
-                .trip-time-block .time-location {
-                    max-width: none;
-                }
-
-                .trip-duration-connector {
-                    flex-direction: row;
-                    align-items: center;
-                    min-width: auto;
-                    padding: 4px 0;
-                    gap: 8px;
-                }
-
-                .trip-duration-connector .duration-line {
-                    flex: 1;
-                }
-
-                .trip-duration-connector .duration-text {
-                    margin-bottom: 0;
-                }
-
-                .points-grid {
-                    grid-template-columns: 1fr;
-                }
-
-                .trip-card-actions {
-                    flex-direction: column;
-                }
-
-                .trip-card-actions .btn-book,
-                .trip-card-actions .btn-details-toggle {
-                    width: 100%;
-                    justify-content: center;
-                }
-            }
-
-            /* Quick Filter Pills */
-            .quick-filter-pill {
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                padding: 8px 16px;
-                background: #ffffff;
-                border: 1px solid #e5e7eb;
-                border-radius: 9999px;
-                color: #374151;
-                font-size: 13px;
-                font-weight: 600;
-                white-space: nowrap;
-                transition: all 0.2s ease;
-                cursor: pointer;
-            }
-
-            .quick-filter-pill:hover {
-                background: #f3f4f6;
-                border-color: #d1d5db;
-            }
-
-            .quick-filter-pill.active {
-                background: #FF9B00;
-                border-color: #FF9B00;
-                color: #ffffff;
-            }
-
-            .quick-filter-pill.active:hover {
-                background: #e68a00;
-            }
-
-            .quick-filter-pill.clear-pill {
-                background: #fef2f2;
-                border-color: #fecaca;
-                color: #dc2626;
-            }
-
-            .quick-filter-pill.clear-pill:hover {
-                background: #fee2e2;
-                border-color: #f87171;
-            }
-
-            /* Mobile Filter */
-            .mobile-filter-backdrop {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 100;
-            }
-
-            .mobile-filter-panel {
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                width: 320px;
-                max-width: 90vw;
-                background: #ffffff;
-                z-index: 110;
-                overflow-y: auto;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .mobile-filter-panel.open {
-                transform: translateX(0);
-            }
-
-            @media (min-width: 1024px) {
-                .lg\:mobile-filter-panel-reset {
-                    position: static;
-                    width: auto;
-                    max-width: none;
-                    transform: none;
-                    z-index: auto;
-                    overflow: visible;
-                }
-            }
-
-            .scrollbar-thin::-webkit-scrollbar {
-                height: 4px;
-            }
-
-            .scrollbar-thin::-webkit-scrollbar-track {
-                background: #f1f5f9;
-                border-radius: 4px;
-            }
-
-            .scrollbar-thin::-webkit-scrollbar-thumb {
-                background: #cbd5e1;
-                border-radius: 4px;
-            }
-
-            /* Trust Badges */
-            .trust-bar {
-                background: #ffffff;
-                border-bottom: 1px solid #e5e7eb;
-            }
-
-            .trust-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-size: 13px;
-                font-weight: 600;
-                color: #475569;
-                white-space: nowrap;
-            }
-
-            .trust-icon {
-                width: 28px;
-                height: 28px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-shrink: 0;
-                font-size: 12px;
-            }
-
-            /* Active Filters Count Badge */
-            .filter-sidebar-header {
-                padding: 16px 20px;
-                border-bottom: 1px solid #f1f5f9;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                background: #fffcf3;
-                border-radius: 16px 16px 0 0;
-            }
-
-            .filter-sidebar-header h3 {
-                font-size: 15px;
-                font-weight: 700;
-                color: #1e293b;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            /* Trip Card Enhancements */
-            .trip-card-badge {
-                position: absolute;
-                top: 12px;
-                right: 12px;
-                padding: 4px 10px;
-                border-radius: 8px;
-                font-size: 11px;
-                font-weight: 700;
-                backdrop-filter: blur(8px);
-            }
-
-            .trip-card-badge.hot {
-                background: rgba(239, 68, 68, 0.9);
-                color: #ffffff;
-            }
-
-            .trip-card-badge.new {
-                background: rgba(16, 185, 129, 0.9);
-                color: #ffffff;
-            }
-
-            /* Modal */
-            .modal-overlay {
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, 0.6);
-                backdrop-filter: blur(4px);
-                z-index: 120;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-
-            .modal-overlay:not(.hidden) {
-                display: flex;
-            }
-
-            .modal-content {
-                background: #ffffff;
-                border-radius: 8px;
-                width: 100%;
-                max-width: 900px;
-                max-height: 90vh;
-                overflow: hidden;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .modal-header {
-                padding: 24px;
-                border-bottom: 1px solid #e5e7eb;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .modal-body {
-                padding: 24px;
-                overflow-y: auto;
-                flex: 1;
-            }
-
-            .modal-thumb {
-                width: 80px;
-                height: 80px;
-                border-radius: 12px;
-                overflow: hidden;
-                border: 2px solid transparent;
-                cursor: pointer;
-                transition: border-color 0.2s ease;
-            }
-
-            .modal-thumb.is-active {
-                border-color: #FF9B00;
-            }
-
-            /* Fullscreen Image Lightbox */
-            .image-lightbox {
-                position: fixed;
-                inset: 0;
-                z-index: 200;
-                background: rgba(0, 0, 0, 0.92);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease, visibility 0.3s ease;
-            }
-
-            .image-lightbox.is-visible {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            .image-lightbox__close {
-                position: absolute;
-                top: 16px;
-                right: 16px;
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(8px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                color: #ffffff;
-                font-size: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: background 0.2s ease;
-                z-index: 210;
-            }
-
-            .image-lightbox__close:hover {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            .image-lightbox__img {
-                max-width: 90vw;
-                max-height: 85vh;
-                object-fit: contain;
-                border-radius: 8px;
-                box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
-                transform: scale(0.92);
-                transition: transform 0.3s ease;
-            }
-
-            .image-lightbox.is-visible .image-lightbox__img {
-                transform: scale(1);
-            }
-
-            .image-lightbox__nav {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(8px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                color: #ffffff;
-                font-size: 18px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: background 0.2s ease;
-                z-index: 210;
-            }
-
-            .image-lightbox__nav:hover {
-                background: rgba(255, 255, 255, 0.3);
-            }
-
-            .image-lightbox__nav--prev {
-                left: 16px;
-            }
-
-            .image-lightbox__nav--next {
-                right: 16px;
-            }
-
-            .image-lightbox__counter {
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: rgba(255, 255, 255, 0.7);
-                font-size: 13px;
-                font-weight: 600;
-                background: rgba(0, 0, 0, 0.4);
-                backdrop-filter: blur(8px);
-                padding: 6px 16px;
-                border-radius: 9999px;
-            }
-
-            .detail-gallery-thumb {
-                position: relative;
-            }
-
-            .detail-gallery-thumb::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: rgba(0, 0, 0, 0);
-                transition: background 0.2s ease;
-                border-radius: 4px;
-                pointer-events: none;
-            }
-
-            .detail-gallery-thumb:hover::after {
-                background: rgba(0, 0, 0, 0.1);
+            .is-expanded .chevron-icon {
+                transform: rotate(180deg);
             }
         </style>
     @endpush
 
-    {{-- Hero Section - Compact Banner --}}
-    <section class="route-hero flex items-center text-white">
-        <div class="container mx-auto px-4 py-6 lg:py-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    {{-- Hero + Search --}}
+    <section id="search-section" class="route-hero text-white">
+        <div class="container mx-auto max-w-7xl px-4 py-6 lg:py-8">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/70 mb-1">
+                    <span class="mb-1 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-white/70">
                         <i class="fa-solid fa-map-location-dot"></i>
                         {{ __('client.route_show.hero_brand') }}
                     </span>
-                    <h1 class="text-2xl md:text-3xl font-semibold leading-tight">{{ $route->name }}</h1>
+                    <h1 class="text-2xl font-semibold leading-tight md:text-3xl">{{ $route->name }}</h1>
                 </div>
-                <div class="flex items-center gap-4 text-sm text-white/80">
-                    <span class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/85">
+                    <span class="inline-flex items-center gap-2">
                         <i class="fa-solid fa-bus"></i>
                         {{ $trips->count() }} {{ __('client.route_show.hero_trips', ['default' => 'chuyến']) }}
                     </span>
-                    <span class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-2">
                         <i class="fa-solid fa-tag"></i>
                         {{ $priceDisplay }}
                     </span>
                 </div>
             </div>
-        </div>
-    </section>
 
-    {{-- Search Section - Compact --}}
-    <section id="search-section" class="border-b border-amber-100 bg-white py-4">
-        <div class="container mx-auto max-w-7xl px-4">
-            <div class="">
+            <div class="mt-5 rounded-2xl border border-white/30 bg-white/95 p-3 text-slate-800 shadow-soft lg:p-4">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
-            </div>
-        </div>
-    </section>
-
-    {{-- Trust Bar --}}
-    <section class="trust-bar py-3">
-        <div class="container mx-auto max-w-7xl px-4">
-            <div class="flex items-center justify-center gap-6 md:gap-10 overflow-x-auto scrollbar-thin pb-1">
-                <div class="trust-item">
-                    <span class="trust-icon bg-emerald-100 text-emerald-600">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </span>
-                    <span>{{ __('client.route_show.trust.safe_booking', ['default' => 'Đặt vé an toàn']) }}</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon bg-primary-100 text-primary-600">
-                        <i class="fa-solid fa-headset"></i>
-                    </span>
-                    <span>{{ __('client.route_show.trust.support_247', ['default' => 'Hỗ trợ 24/7']) }}</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon bg-amber-100 text-amber-600">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </span>
-                    <span>{{ __('client.route_show.trust.easy_refund', ['default' => 'Hoàn vé dễ dàng']) }}</span>
-                </div>
-                <div class="trust-item">
-                    <span class="trust-icon bg-purple-100 text-purple-600">
-                        <i class="fa-solid fa-percent"></i>
-                    </span>
-                    <span>{{ __('client.route_show.trust.best_price', ['default' => 'Giá tốt nhất']) }}</span>
-                </div>
             </div>
         </div>
     </section>
 
     @if ($trips->isNotEmpty() || $hasActiveFilters)
         {{-- Quick Filter Pills --}}
-        <section class="sticky top-20 xl:top-[124px] z-40 border-b border-amber-100 bg-white py-3 shadow-sm">
+        <section class="border-y border-amber-100 bg-white py-3">
             <div class="container mx-auto max-w-7xl px-4">
-                <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
-                    <span class="text-sm font-semibold text-gray-500 whitespace-nowrap mr-1">
+                <div class="flex items-center gap-2 overflow-x-auto pb-1">
+                    <span class="mr-1 whitespace-nowrap text-sm font-semibold text-gray-500">
                         {{ __('client.route_show.quick_filters.label', ['default' => 'Lọc nhanh:']) }}
                     </span>
 
@@ -1167,8 +159,9 @@
                                 : array_merge($filterState['time_ranges'] ?? [], [$key]);
                             $filterUrl = request()->fullUrlWithQuery(['time_ranges' => $newTimeRanges]);
                         @endphp
-                        <a href="{{ $filterUrl }}" class="quick-filter-pill {{ $isActive ? 'active' : '' }}"
-                            aria-pressed="{{ $isActive ? 'true' : 'false' }}">
+                        <a href="{{ $filterUrl }}"
+                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition {{ $isActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
+                            @if ($isActive) aria-current="true" @endif>
                             <i class="fa-solid {{ $filter['icon'] }}"></i>
                             {{ $filter['label'] }}
                         </a>
@@ -1179,15 +172,17 @@
                         $hasSeatsActive = $filterState['has_seats'] ?? false;
                         $seatsUrl = request()->fullUrlWithQuery(['has_seats' => $hasSeatsActive ? null : 1]);
                     @endphp
-                    <a href="{{ $seatsUrl }}" class="quick-filter-pill {{ $hasSeatsActive ? 'active' : '' }}"
-                        aria-pressed="{{ $hasSeatsActive ? 'true' : 'false' }}">
+                    <a href="{{ $seatsUrl }}"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition {{ $hasSeatsActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
+                        @if ($hasSeatsActive) aria-current="true" @endif>
                         <i class="fa-solid fa-chair"></i>
                         {{ __('client.route_show.quick_filters.has_seats', ['default' => 'Còn chỗ']) }}
                     </a>
 
                     {{-- Clear All Filters --}}
                     @if ($hasActiveFilters)
-                        <a href="{{ $clearFiltersUrl }}" class="quick-filter-pill clear-pill">
+                        <a href="{{ $clearFiltersUrl }}"
+                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
                             <i class="fa-solid fa-xmark"></i>
                             {{ __('client.route_show.quick_filters.clear_all', ['default' => 'Xóa lọc']) }}
                         </a>
@@ -1214,7 +209,8 @@
                         </p>
                     </div>
                     <button id="mobile-filter-toggle"
-                        class="lg:hidden inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 shadow-sm">
+                        class="lg:hidden inline-flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 rounded-xl font-semibold text-gray-700 shadow-sm"
+                        aria-controls="filter-panel-mobile" aria-expanded="false">
                         <i class="fa-solid fa-sliders"></i>
                         <span>{{ __('client.route_show.filters.mobile_button') }}</span>
                         @if ($hasActiveFilters)
@@ -1225,18 +221,21 @@
                 </div>
 
                 {{-- Mobile Filter Backdrop --}}
-                <div id="mobile-filter-backdrop" class="mobile-filter-backdrop hidden lg:hidden"></div>
+                <div id="mobile-filter-backdrop" class="fixed inset-0 z-40 hidden bg-slate-900/50 lg:hidden" style="z-index: 100000;"></div>
 
                 {{-- Mobile Filter Slide-in Panel --}}
-                <div id="filter-panel-mobile" class="mobile-filter-panel lg:hidden">
+                <div id="filter-panel-mobile"
+                    class="fixed inset-y-0 left-0 z-50 w-[320px] max-w-[90vw] -translate-x-full overflow-y-auto bg-white transition-transform duration-300 lg:hidden" style="z-index: 100010;"
+                    role="dialog" aria-modal="true" aria-hidden="true" aria-label="Bộ lọc chuyến xe" tabindex="-1">
                     {{-- Mobile Header --}}
                     <div class="flex justify-between items-center p-5 border-b border-gray-100">
                         <h3 class="text-lg font-bold">{{ __('client.route_show.filters.mobile_title') }}</h3>
                         <button id="mobile-filter-close"
-                            class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                                class="text-gray-400 hover:text-gray-600 text-2xl"
+                                aria-label="Đóng bộ lọc">&times;</button>
                     </div>
                     <form id="filter-form-mobile" action="{{ $clearFiltersUrl }}" method="GET"
-                        class="overflow-y-auto max-h-[calc(100vh-70px)]">
+                        class="h-[calc(100vh-72px)] overflow-y-auto">
                         @include('client.routes.partials.filter-form', [
                             'filterState' => $filterState,
                             'sortOptions' => $sortOptions,
@@ -1244,6 +243,7 @@
                             'timeRangeOptions' => $timeRangeOptions,
                             'availableServices' => $availableServices,
                             'busCategoryOptions' => $busCategoryOptions,
+                            'filterIdPrefix' => 'mobile-',
                             'clearFiltersUrl' => $clearFiltersUrl,
                         ])
                     </form>
@@ -1251,10 +251,10 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {{-- Filters Sidebar (Desktop only) --}}
-                    <aside class="hidden lg:block lg:col-span-3">
-                        <div id="filter-panel-desktop" class="filters-sidebar">
-                            <div class="filter-sidebar-header">
-                                <h3>
+                    <aside class="hidden lg:col-span-3 lg:block">
+                        <div id="filter-panel-desktop" class="h-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-soft">
+                            <div class="flex items-center justify-between border-b border-slate-100 bg-amber-50/60 px-5 py-4">
+                                <h3 class="flex items-center gap-2 text-sm font-bold text-slate-700">
                                     <i class="fa-solid fa-sliders text-primary-600"></i>
                                     {{ __('client.route_show.filters.sidebar_title', ['default' => 'Bộ lọc']) }}
                                 </h3>
@@ -1264,7 +264,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET">
+                            <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET" class="flex h-full flex-col">
                                 @include('client.routes.partials.filter-form', [
                                     'filterState' => $filterState,
                                     'sortOptions' => $sortOptions,
@@ -1272,6 +272,7 @@
                                     'timeRangeOptions' => $timeRangeOptions,
                                     'availableServices' => $availableServices,
                                     'busCategoryOptions' => $busCategoryOptions,
+                                    'filterIdPrefix' => 'desktop-',
                                     'clearFiltersUrl' => $clearFiltersUrl,
                                 ])
                             </form>
@@ -1313,16 +314,16 @@
                                 $hasSeats = ($trip->seats_available ?? 0) > 0;
                             @endphp
 
-                            <article class="trip-card" id="trip-card-{{ $trip->trip_id }}">
-                                {{-- Main Card Row --}}
-                                <div class="trip-card-inner">
-                                    {{-- Square Image with padding --}}
-                                    <div class="trip-image-wrapper">
+                            <article class="trip-card overflow-hidden rounded-xl border border-slate-200 bg-white transition hover:border-slate-300 hover:shadow-md"
+                                id="trip-card-{{ $trip->trip_id }}">
+                                <div class="trip-card-inner flex flex-col gap-3 p-3 sm:flex-row sm:gap-4">
+                                    <div class="trip-image-wrapper relative aspect-video w-full overflow-hidden rounded-lg sm:aspect-square sm:w-32 sm:shrink-0 sm:self-center">
                                         <img id="trip-image-{{ $trip->trip_id }}" src="{{ $primaryImage }}"
-                                            alt="{{ $trip->bus_name }}" loading="lazy">
+                                            alt="{{ $trip->bus_name }}" loading="lazy"
+                                            class="h-full w-full object-cover">
                                         @if ($hasSeats && ($trip->seats_available ?? 0) <= 5 && ($trip->seats_available ?? 0) > 0)
-                                            <div class="absolute top-1.5 right-1.5">
-                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-500/90 text-white rounded text-[10px] font-bold">
+                                            <div class="absolute right-1.5 top-1.5">
+                                                <span class="inline-flex items-center gap-1 rounded bg-red-500/90 px-1.5 py-0.5 text-[10px] font-bold text-white">
                                                     <i class="fa-solid fa-fire"></i>
                                                     {{ __('client.route_show.trip_card.seats_left', ['count' => $trip->seats_available, 'default' => 'Còn ' . $trip->seats_available . ' chỗ']) }}
                                                 </span>
@@ -1330,17 +331,17 @@
                                         @endif
                                     </div>
 
-                                    {{-- Content --}}
-                                    <div class="trip-body">
-                                        {{-- Header: Bus info + Price + Availability --}}
-                                        <div class="flex items-start justify-between gap-3 trip-card-header">
+                                    <div class="trip-body flex min-w-0 flex-1 flex-col gap-2.5">
+                                        <div class="trip-card-header flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div class="min-w-0">
-                                                <h3 class="text-sm font-bold text-gray-900 truncate leading-tight">{{ $trip->bus_name }}</h3>
-                                                <p class="text-xs text-gray-400 mt-0.5">{{ $trip->bus_model ?? __('client.booking.service.not_available') }}</p>
+                                                <h3 class="truncate text-sm font-bold leading-tight text-gray-900">{{ $trip->bus_name }}</h3>
+                                                <p class="mt-0.5 text-xs text-gray-400">{{ $trip->bus_model ?? __('client.booking.service.not_available') }}</p>
                                             </div>
-                                            <div class="text-right shrink-0 flex flex-col items-end gap-1">
+                                            <div class="flex shrink-0 flex-col items-start gap-1 sm:items-end sm:text-right">
                                                 @if ($trip->has_price)
-                                                    <p class="price-tag">{{ number_format($trip->effective_price ?? $trip->price) }}<small>đ</small></p>
+                                                    <p class="text-xl font-extrabold leading-none text-amber-600">
+                                                        {{ number_format($trip->effective_price ?? $trip->price) }}<span class="text-xs font-medium text-slate-500">đ</span>
+                                                    </p>
                                                     @if (!empty($trip->has_surcharge))
                                                         <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                                                             <i class="fa-solid fa-bolt"></i>
@@ -1350,11 +351,10 @@
                                                 @else
                                                     <p class="text-sm font-bold text-primary-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
-                                                <span class="availability-badge {{ $hasSeats ? 'available' : 'unavailable' }}">
+                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $hasSeats ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
                                                     @if ($hasSeats)
-                                                        {{ __('client.route_show.trip_card.seats_available') }}
-                                                        ({{ $trip->seats_available }})
+                                                        {{ __('client.route_show.trip_card.seats_available') }} ({{ $trip->seats_available }})
                                                     @else
                                                         {{ __('client.route_show.trip_card.seats_full') }}
                                                     @endif
@@ -1362,55 +362,53 @@
                                             </div>
                                         </div>
 
-                                        {{-- Time & Route - Horizontal --}}
-                                        <div class="trip-time-route">
-                                            <div class="trip-time-block">
-                                                <span class="time-dot departure"></span>
-                                                <div>
-                                                    <span class="time-val">{{ $tripStart->format('H:i') }}</span>
-                                                    <span class="time-location block" title="{{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}">
+                                        <div class="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                                <div class="min-w-0">
+                                                    <p class="text-base font-extrabold leading-none text-slate-900">{{ $tripStart->format('H:i') }}</p>
+                                                    <p class="mt-0.5 truncate text-xs text-slate-500" title="{{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}">
                                                         {{ $firstPickup->name ?? __('client.route_show.trip_card.pickup_point') }}
-                                                    </span>
+                                                    </p>
                                                 </div>
-                                            </div>
-                                            <div class="trip-duration-connector">
-                                                <span class="duration-text">{{ $durationLabel }}</span>
-                                                <div class="duration-line"></div>
-                                            </div>
-                                            <div class="trip-time-block">
-                                                <span class="time-dot arrival"></span>
-                                                <div>
-                                                    <span class="time-val">{{ $tripEnd->format('H:i') }}</span>
-                                                    <span class="time-location block" title="{{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}">
+                                                <div class="flex items-center gap-2 sm:flex-1 sm:px-2">
+                                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                                    <span class="h-px flex-1 border-t border-dashed border-slate-300"></span>
+                                                    <span class="whitespace-nowrap text-[11px] font-semibold text-slate-500">{{ $durationLabel }}</span>
+                                                    <span class="h-px flex-1 border-t border-dashed border-slate-300"></span>
+                                                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                                </div>
+                                                <div class="min-w-0 sm:text-right">
+                                                    <p class="text-base font-extrabold leading-none text-slate-900">{{ $tripEnd->format('H:i') }}</p>
+                                                    <p class="mt-0.5 truncate text-xs text-slate-500" title="{{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}">
                                                         {{ $firstDropoff->name ?? __('client.route_show.trip_card.dropoff_point') }}
-                                                    </span>
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {{-- Footer: Services + Actions --}}
-                                        <div class="flex items-center justify-between gap-2 mt-auto">
-                                            <div class="flex items-center gap-1.5 flex-wrap min-w-0">
+                                        <div class="mt-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <div class="flex min-w-0 flex-wrap items-center gap-1.5">
                                                 @foreach ($serviceList->take(3) as $service)
-                                                    <span class="service-chip hidden sm:inline-flex">
-                                                        <i class="fa-solid fa-check-circle"></i>
+                                                    <span class="hidden items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 sm:inline-flex">
+                                                        <i class="fa-solid fa-check-circle text-[9px] text-primary-600"></i>
                                                         {{ $service }}
                                                     </span>
                                                 @endforeach
                                                 @if ($serviceList->count() > 3)
-                                                    <span class="service-chip hidden sm:inline-flex">+{{ $serviceList->count() - 3 }}</span>
+                                                    <span class="hidden rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 sm:inline-flex">+{{ $serviceList->count() - 3 }}</span>
                                                 @endif
                                             </div>
-                                            <div class="flex items-center gap-2 shrink-0 trip-card-actions">
+                                            <div class="trip-card-actions flex flex-col gap-2 sm:flex-row sm:items-center">
                                                 <button type="button"
-                                                    class="btn-details-toggle"
+                                                    class="btn-details-toggle inline-flex items-center justify-center gap-1 rounded-lg border border-amber-200 px-3 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-50"
+                                                    aria-expanded="false"
+                                                    aria-controls="trip-details-{{ $trip->trip_id }}"
                                                     data-toggle-details="#trip-details-{{ $trip->trip_id }}">
                                                     {{ __('client.route_show.trip_card.details_button', ['default' => 'Chi tiết']) }}
-                                                    <i class="fa-solid fa-chevron-down chevron-icon"></i>
+                                                    <i class="fa-solid fa-chevron-down chevron-icon text-[10px] transition-transform duration-300"></i>
                                                 </button>
                                                 <a href="{{ route('client.booking.create', ['trip_id' => $trip->trip_id, 'date' => $departureDate]) }}"
-                                                    class="btn-book"
-                                                    @if (!$hasSeats) style="opacity: 0.5; pointer-events: none;" @endif>
+                                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 {{ $hasSeats ? '' : 'pointer-events-none opacity-50' }}">
                                                     <i class="fa-solid fa-ticket"></i>
                                                     {{ $hasSeats ? __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) : __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
                                                 </a>
@@ -1419,67 +417,65 @@
                                     </div>
                                 </div>
 
-                                {{-- Expandable Details Section --}}
-                                <div class="trip-card-details" id="trip-details-{{ $trip->trip_id }}">
-                                    <div class="trip-card-details-inner">
-                                        {{-- Route Timeline --}}
-                                        <div class="mb-4">
-                                            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 flex items-center gap-1.5">
+                                <div class="trip-card-details bg-slate-50/70" id="trip-details-{{ $trip->trip_id }}" aria-hidden="true">
+                                    <div class="space-y-4 p-4">
+                                        <div>
+                                            <h4 class="mb-3 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
                                                 <i class="fa-solid fa-route text-primary-600"></i>
                                                 {{ __('client.route_show.trip_card.route_timeline_title') }}
                                             </h4>
-                                            <div class="route-timeline">
-                                                <div class="route-timeline-stop is-origin">
-                                                    <span class="stop-time">{{ $tripStart->format('H:i') }}</span>
-                                                    <span class="stop-name">{{ $firstPickup->name ?? __('client.route_show.hero_origin') }}</span>
+                                            <div class="relative pl-6">
+                                                <span class="absolute bottom-2 left-[7px] top-2 w-0.5 rounded bg-linear-to-b from-amber-500 to-emerald-500"></span>
+                                                <div class="relative py-1.5">
+                                                    <span class="absolute -left-[17px] top-2.5 h-2.5 w-2.5 rounded-full border-2 border-amber-200 bg-amber-500"></span>
+                                                    <p class="text-sm font-bold text-slate-800">{{ $tripStart->format('H:i') }}</p>
+                                                    <p class="text-xs text-slate-600">{{ $firstPickup->name ?? __('client.route_show.hero_origin') }}</p>
                                                 </div>
-                                                <div class="route-timeline-stop is-destination">
-                                                    <span class="stop-time">{{ $tripEnd->format('H:i') }}</span>
-                                                    <span class="stop-name">{{ $firstDropoff->name ?? __('client.route_show.hero_destination') }}</span>
-                                                    <span class="text-xs text-gray-400 ml-1">({{ $durationLabel }})</span>
+                                                <div class="relative py-1.5">
+                                                    <span class="absolute -left-[17px] top-2.5 h-2.5 w-2.5 rounded-full border-2 border-emerald-200 bg-emerald-500"></span>
+                                                    <p class="text-sm font-bold text-slate-800">{{ $tripEnd->format('H:i') }}</p>
+                                                    <p class="text-xs text-slate-600">{{ $firstDropoff->name ?? __('client.route_show.hero_destination') }} <span class="ml-1 text-[11px] text-slate-400">({{ $durationLabel }})</span></p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {{-- Pickup & Dropoff Points --}}
-                                        <div class="points-grid mb-4">
-                                            <div class="point-card pickup">
-                                                <h4 class="point-title">
+                                        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                            <div class="rounded-lg border border-amber-200 bg-amber-50/70 p-3">
+                                                <h4 class="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-700">
                                                     <i class="fa-solid fa-location-dot"></i>
                                                     {{ __('client.route_show.trip_card.pickup_point', ['default' => 'Điểm đón']) }}
-                                                    <span class="text-[10px] font-normal text-primary-500">({{ __('client.route_show.trip_card.point_count', ['count' => $pickupPoints->count()]) }})</span>
+                                                    <span class="text-[10px] font-normal text-amber-500">({{ __('client.route_show.trip_card.point_count', ['count' => $pickupPoints->count()]) }})</span>
                                                 </h4>
                                                 @forelse ($pickupPoints as $pickup)
-                                                    <p class="point-item">{{ $pickup->name }}</p>
+                                                    <p class="text-xs text-slate-600">• {{ $pickup->name }}</p>
                                                 @empty
-                                                    <p class="text-xs text-gray-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
+                                                    <p class="text-xs text-slate-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
                                                 @endforelse
                                             </div>
-                                            <div class="point-card dropoff">
-                                                <h4 class="point-title">
+                                            <div class="rounded-lg border border-emerald-200 bg-emerald-50/70 p-3">
+                                                <h4 class="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
                                                     <i class="fa-solid fa-flag-checkered"></i>
                                                     {{ __('client.route_show.trip_card.dropoff_point', ['default' => 'Điểm trả']) }}
-                                                    <span class="text-[10px] font-normal text-green-500">({{ __('client.route_show.trip_card.point_count', ['count' => $dropoffPoints->count()]) }})</span>
+                                                    <span class="text-[10px] font-normal text-emerald-500">({{ __('client.route_show.trip_card.point_count', ['count' => $dropoffPoints->count()]) }})</span>
                                                 </h4>
                                                 @forelse ($dropoffPoints as $dropoff)
-                                                    <p class="point-item">{{ $dropoff->name }}</p>
+                                                    <p class="text-xs text-slate-600">• {{ $dropoff->name }}</p>
                                                 @empty
-                                                    <p class="text-xs text-gray-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
+                                                    <p class="text-xs text-slate-400">{{ __('client.route_show.trip_card.not_updated') }}</p>
                                                 @endforelse
                                             </div>
                                         </div>
 
-                                        {{-- Services & Bus Info Row --}}
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                             <div>
-                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
+                                                <h4 class="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
                                                     <i class="fa-solid fa-star text-amber-400"></i>
                                                     {{ __('client.route_show.details_modal.services_title', ['default' => 'Tiện ích']) }}
                                                 </h4>
                                                 <div class="flex flex-wrap gap-1.5">
                                                     @forelse ($serviceList as $service)
-                                                        <span class="service-chip">
-                                                            <i class="fa-solid fa-check-circle"></i>
+                                                        <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                                                            <i class="fa-solid fa-check-circle text-[9px] text-primary-600"></i>
                                                             {{ $service }}
                                                         </span>
                                                     @empty
@@ -1488,35 +484,37 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1.5">
+                                                <h4 class="mb-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-500">
                                                     <i class="fa-solid fa-bus text-primary-500"></i>
                                                     {{ __('client.route_show.details_modal.bus_info_title') }}
                                                 </h4>
-                                                <div class="text-xs text-gray-500 space-y-1">
+                                                <div class="space-y-1 text-xs text-gray-500">
                                                     <p><span class="font-semibold text-gray-600">{{ __('client.route_show.details_modal.bus_type', ['default' => 'Loại xe']) }}:</span> {{ $trip->bus_model ?? __('client.booking.service.not_available') }}</p>
                                                     <p><span class="font-semibold text-gray-600">{{ __('client.route_show.trip_card.trip_code') }}:</span> #{{ $trip->trip_id }}</p>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {{-- Gallery --}}
                                         @if ($imageGallery->count() > 1)
                                             <div class="mt-4">
-                                                <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">{{ __('client.route_show.details_modal.gallery_title') }}</h4>
-                                                <div class="detail-gallery scrollbar-thin">
+                                                <h4 class="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">{{ __('client.route_show.details_modal.gallery_title') }}</h4>
+                                                <div class="detail-gallery mt-1 flex gap-2 overflow-x-auto pb-1">
                                                     @foreach ($imageGallery->take(6) as $idx => $image)
-                                                        <button type="button" class="detail-gallery-thumb"
+                                                        <button type="button"
+                                                            class="detail-gallery-thumb h-16 w-20 shrink-0 overflow-hidden rounded-md border border-transparent transition hover:border-amber-300"
                                                             data-image-trigger
                                                             data-target="#trip-image-{{ $trip->trip_id }}"
                                                             data-image="{{ $image }}"
                                                             data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
                                                             data-lightbox-index="{{ $idx }}"
-                                                            data-lightbox-images='@json($imageGallery->take(6)->values())'>
-                                                            <img src="{{ $image }}" alt="{{ __('client.route_show.trip_card.bus_image_alt') }}" loading="lazy">
+                                                            data-lightbox-images='@json($imageGallery->values())'>
+                                                            <img src="{{ $image }}" alt="{{ __('client.route_show.trip_card.bus_image_alt') }}" loading="lazy"
+                                                                class="h-full w-full object-cover">
                                                         </button>
                                                     @endforeach
                                                     @if ($imageGallery->count() > 6)
-                                                        <button type="button" class="detail-gallery-thumb bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500"
+                                                        <button type="button"
+                                                            class="detail-gallery-thumb flex h-16 w-20 shrink-0 items-center justify-center rounded-md border border-transparent bg-gray-100 text-xs font-bold text-gray-500 transition hover:border-amber-300"
                                                             data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
                                                             data-lightbox-index="6"
                                                             data-lightbox-images='@json($imageGallery->values())'>
@@ -1645,118 +643,24 @@
         </section>
     @endif
 
-    {{-- Travel Tips --}}
-    @if (!empty($travelTips))
-        <section id="travel-tips" class="bg-[#F8FAFC] py-16 md:py-20">
-            <div class="container mx-auto max-w-7xl px-4">
-                <div class="mb-10 flex flex-col gap-3 md:mb-12 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <span class="inline-flex items-center gap-2 rounded-full bg-primary-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-primary-700">
-                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-                            {{ __('client.route_show.tips.title') }}
-                        </span>
-                        <h2 class="mt-3 text-2xl font-extrabold text-slate-800 md:text-3xl">
-                            {{ __('client.route_show.tips.title') }}
-                        </h2>
-                        <p class="mt-2 text-sm text-slate-500 md:text-base">
-                            {{ __('client.route_show.tips.description') }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-                    @foreach ($travelTips as $tip)
-                        <article class="rounded-2xl border border-amber-100 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-xl">
-                            <div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF5DC] text-primary-700">
-                                <i class="fa-solid fa-star text-sm" aria-hidden="true"></i>
-                            </div>
-                            <h3 class="mb-2 text-lg font-bold text-slate-800">{{ $tip['title'] }}</h3>
-                            <p class="text-sm leading-relaxed text-slate-600 md:text-base">{{ $tip['content'] }}</p>
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </section>
-    @endif
-
-    {{-- Trip Details Modal --}}
-    <div id="trip-details-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="text-xl font-bold text-gray-900">{{ __('client.route_show.details_modal.title') }}</h3>
-                <button id="close-modal-btn"
-                    class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h4 class="font-bold text-gray-800 mb-4">
-                            {{ __('client.route_show.details_modal.bus_info_title') }}</h4>
-                        <img id="modal-bus-image" src=""
-                            alt="{{ __('client.route_show.details_modal.bus_image_alt') }}"
-                            class="w-full h-52 object-cover rounded-xl mb-4 bg-gray-100">
-                        <div id="modal-gallery" class="flex gap-3 overflow-x-auto pb-2 scrollbar-thin"></div>
-                        <ul class="space-y-3 text-sm mt-5">
-                            <li class="flex gap-2"><span
-                                    class="font-semibold text-gray-700 w-20">{{ __('client.route_show.details_modal.company') }}</span><span
-                                    id="modal-company-name" class="text-gray-600"></span></li>
-                            <li class="flex gap-2"><span
-                                    class="font-semibold text-gray-700 w-20">{{ __('client.route_show.details_modal.bus_type') }}</span><span
-                                    id="modal-bus-category" class="text-gray-600"></span></li>
-                            <li class="flex gap-2"><span
-                                    class="font-semibold text-gray-700 w-20">{{ __('client.route_show.details_modal.bus_details') }}</span><span
-                                    id="modal-bus-name" class="text-gray-600"></span> (<span id="modal-bus-model"
-                                    class="text-gray-600"></span>)</li>
-                        </ul>
-                        <h4 class="font-bold text-gray-800 mt-6 mb-3">
-                            {{ __('client.route_show.details_modal.services_title') }}</h4>
-                        <div id="modal-services" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    <div class="space-y-6">
-                        <div>
-                            <h4 class="font-bold text-gray-800 mb-4">
-                                {{ __('client.route_show.details_modal.stops_info_title') }}</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div class="point-card pickup">
-                                    <h5 class="point-title">
-                                        {{ __('client.route_show.details_modal.pickup_points_title') }}</h5>
-                                    <ul id="modal-pickup-points" class="space-y-1"></ul>
-                                </div>
-                                <div class="point-card dropoff">
-                                    <h5 class="point-title">
-                                        {{ __('client.route_show.details_modal.dropoff_points_title') }}</h5>
-                                    <ul id="modal-dropoff-points" class="space-y-1"></ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-4">
-                            <p class="text-sm text-gray-600">{{ __('client.route_show.details_modal.status') }}
-                                <span id="modal-availability" class="font-bold text-emerald-600"></span>
-                            </p>
-                        </div>
-                        <a id="modal-booking-link" href="#" class="btn-book w-full text-center">
-                            <i class="fa-solid fa-ticket"></i>
-                            {{ __('client.route_show.details_modal.book_now_button') }}
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const body = document.body;
-
                 // Collapsible Filter Sections
                 document.querySelectorAll('.filter-toggle').forEach(function(toggle) {
+                    const targetId = toggle.getAttribute('data-target');
+                    const content = targetId ? document.getElementById(targetId) : null;
+                    const chevron = toggle.querySelector('.filter-chevron');
+
+                    if (!content) {
+                        return;
+                    }
+
                     toggle.addEventListener('click', function() {
-                        const section = toggle.closest('.filter-collapsible');
-                        if (section) {
-                            section.classList.toggle('collapsed');
+                        const isHidden = content.classList.toggle('hidden');
+                        toggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+                        if (chevron) {
+                            chevron.classList.toggle('-rotate-90', isHidden);
                         }
                     });
                 });
@@ -1773,9 +677,9 @@
                         // Update active state
                         const gallery = button.closest('.detail-gallery');
                         if (gallery) {
-                            gallery.querySelectorAll('.detail-gallery-thumb').forEach(t => t.classList.remove('active'));
+                            gallery.querySelectorAll('.detail-gallery-thumb').forEach(t => t.classList.remove('ring-2', 'ring-primary-600'));
                         }
-                        button.classList.add('active');
+                        button.classList.add('ring-2', 'ring-primary-600');
                     });
                 });
 
@@ -1790,141 +694,14 @@
                         if (isOpen) {
                             detailsPanel.classList.remove('is-open');
                             button.classList.remove('is-expanded');
+                            button.setAttribute('aria-expanded', 'false');
+                            detailsPanel.setAttribute('aria-hidden', 'true');
                         } else {
                             detailsPanel.classList.add('is-open');
                             button.classList.add('is-expanded');
+                            button.setAttribute('aria-expanded', 'true');
+                            detailsPanel.setAttribute('aria-hidden', 'false');
                         }
-                    });
-                });
-
-                // Modal
-                const modal = document.getElementById('trip-details-modal');
-                const closeModalBtn = document.getElementById('close-modal-btn');
-                const modalCompanyName = document.getElementById('modal-company-name');
-                const modalBusName = document.getElementById('modal-bus-name');
-                const modalBusModel = document.getElementById('modal-bus-model');
-                const modalBusCategory = document.getElementById('modal-bus-category');
-                const modalServices = document.getElementById('modal-services');
-                const modalBusImage = document.getElementById('modal-bus-image');
-                const modalGallery = document.getElementById('modal-gallery');
-                const modalPickupPoints = document.getElementById('modal-pickup-points');
-                const modalDropoffPoints = document.getElementById('modal-dropoff-points');
-                const modalAvailability = document.getElementById('modal-availability');
-                const modalBookingLink = document.getElementById('modal-booking-link');
-
-                // Ensure modal never auto-opens from stale state.
-                if (modal) {
-                    modal.classList.add('hidden');
-                }
-                body.classList.remove('overflow-hidden');
-
-                function openModal() {
-                    modal?.classList.remove('hidden');
-                    body.classList.add('overflow-hidden');
-                }
-
-                function closeModal() {
-                    modal?.classList.add('hidden');
-                    body.classList.remove('overflow-hidden');
-                }
-
-                closeModalBtn?.addEventListener('click', closeModal);
-                modal?.addEventListener('click', function(event) {
-                    if (event.target === modal) closeModal();
-                });
-
-                document.querySelectorAll('.view-trip-details-btn').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const rawData = button.getAttribute('data-trip');
-                        if (!rawData) return;
-                        const tripData = JSON.parse(rawData);
-                        if (!tripData) return;
-
-                        modalCompanyName.textContent = "{{ config('app.name') }}";
-                        modalBusName.textContent = tripData.bus_model || '';
-                        modalBusModel.textContent = tripData.bus_model || '';
-                        modalBusCategory.textContent = tripData.bus_category ||
-                            "{{ __('client.route_show.details_modal.not_updated') }}";
-
-                        const galleryImages = Array.isArray(tripData.image_gallery) ? tripData
-                            .image_gallery : [];
-                        let initialImage = tripData.primary_bus_image || galleryImages[0] || tripData
-                            .bus_thumbnail || '{{ $galleryFallback }}';
-                        modalBusImage.src = initialImage;
-
-                        modalGallery.innerHTML = '';
-                        if (galleryImages.length > 0) {
-                            let activeThumb = null;
-                            galleryImages.forEach(function(src) {
-                                const thumbBtn = document.createElement('button');
-                                thumbBtn.type = 'button';
-                                thumbBtn.className = 'modal-thumb';
-                                thumbBtn.innerHTML = '<img src="' + src +
-                                    '" alt="{{ __('client.route_show.details_modal.bus_image_alt') }}">';
-                                if (src === initialImage) {
-                                    thumbBtn.classList.add('is-active');
-                                    activeThumb = thumbBtn;
-                                }
-                                thumbBtn.addEventListener('click', function() {
-                                    modalBusImage.src = src;
-                                    if (activeThumb) activeThumb.classList.remove(
-                                        'is-active');
-                                    thumbBtn.classList.add('is-active');
-                                    activeThumb = thumbBtn;
-                                });
-                                modalGallery.appendChild(thumbBtn);
-                            });
-                        } else {
-                            modalGallery.innerHTML = '<p class="text-sm text-gray-500">' +
-                                "{{ __('client.route_show.details_modal.no_gallery') }}" + '</p>';
-                        }
-
-                        modalServices.innerHTML = '';
-                        if (tripData.services && tripData.services.length > 0) {
-                            tripData.services.forEach(function(service) {
-                                const chip = document.createElement('span');
-                                chip.className = 'service-chip';
-                                chip.innerHTML = '<i class="fa-solid fa-check-circle"></i> ' +
-                                    service;
-                                modalServices.appendChild(chip);
-                            });
-                        } else {
-                            modalServices.innerHTML = '<p class="text-sm text-gray-500">' +
-                                "{{ __('client.route_show.details_modal.no_services') }}" + '</p>';
-                        }
-
-                        modalPickupPoints.innerHTML = '';
-                        if (tripData.pickup_points) {
-                            tripData.pickup_points.forEach(function(point) {
-                                const item = document.createElement('li');
-                                item.className = 'point-item';
-                                item.textContent = point.name || '';
-                                modalPickupPoints.appendChild(item);
-                            });
-                        }
-
-                        modalDropoffPoints.innerHTML = '';
-                        if (tripData.dropoff_points) {
-                            tripData.dropoff_points.forEach(function(point) {
-                                const item = document.createElement('li');
-                                item.className = 'point-item';
-                                item.textContent = point.name || '';
-                                modalDropoffPoints.appendChild(item);
-                            });
-                        }
-
-                        const seatsAvailable = Number(tripData.seats_available ?? 0);
-                        modalAvailability.textContent = seatsAvailable > 0 ?
-                            "{{ __('client.route_show.trip_card.seats_available') }}" :
-                            "{{ __('client.route_show.trip_card.seats_full') }}";
-
-                        const bookingUrl = new URL("{{ route('client.booking.create') }}", window
-                            .location.origin);
-                        bookingUrl.searchParams.set('trip_id', tripData.trip_id);
-                        bookingUrl.searchParams.set('date', '{{ $departureDate }}');
-                        modalBookingLink.href = bookingUrl.toString();
-
-                        openModal();
                     });
                 });
             });
@@ -1934,11 +711,11 @@
                 const lightbox = document.getElementById('image-lightbox');
                 if (!lightbox) return;
 
-                const lightboxImg = lightbox.querySelector('.image-lightbox__img');
-                const lightboxClose = lightbox.querySelector('.image-lightbox__close');
-                const lightboxPrev = lightbox.querySelector('.image-lightbox__nav--prev');
-                const lightboxNext = lightbox.querySelector('.image-lightbox__nav--next');
-                const lightboxCounter = lightbox.querySelector('.image-lightbox__counter');
+                const lightboxImg = lightbox.querySelector('[data-lightbox-image]');
+                const lightboxClose = lightbox.querySelector('[data-lightbox-close]');
+                const lightboxPrev = lightbox.querySelector('[data-lightbox-prev]');
+                const lightboxNext = lightbox.querySelector('[data-lightbox-next]');
+                const lightboxCounter = lightbox.querySelector('[data-lightbox-counter]');
 
                 let currentImages = [];
                 let currentIndex = 0;
@@ -1947,12 +724,14 @@
                     currentImages = images;
                     currentIndex = index;
                     updateLightboxImage();
-                    lightbox.classList.add('is-visible');
+                    lightbox.classList.remove('hidden');
+                    lightbox.classList.add('flex');
                     document.body.classList.add('overflow-hidden');
                 }
 
                 function hideLightbox() {
-                    lightbox.classList.remove('is-visible');
+                    lightbox.classList.add('hidden');
+                    lightbox.classList.remove('flex');
                     document.body.classList.remove('overflow-hidden');
                 }
 
@@ -1960,8 +739,17 @@
                     if (currentImages.length === 0) return;
                     lightboxImg.src = currentImages[currentIndex];
                     lightboxCounter.textContent = (currentIndex + 1) + ' / ' + currentImages.length;
-                    lightboxPrev.style.display = currentImages.length > 1 ? 'flex' : 'none';
-                    lightboxNext.style.display = currentImages.length > 1 ? 'flex' : 'none';
+                    if (currentImages.length > 1) {
+                        lightboxPrev.classList.remove('hidden');
+                        lightboxNext.classList.remove('hidden');
+                        lightboxPrev.classList.add('flex');
+                        lightboxNext.classList.add('flex');
+                    } else {
+                        lightboxPrev.classList.add('hidden');
+                        lightboxNext.classList.add('hidden');
+                        lightboxPrev.classList.remove('flex');
+                        lightboxNext.classList.remove('flex');
+                    }
                 }
 
                 function nextImage() {
@@ -2028,7 +816,7 @@
                 });
 
                 document.addEventListener('keydown', function(e) {
-                    if (!lightbox.classList.contains('is-visible')) return;
+                    if (lightbox.classList.contains('hidden')) return;
                     if (e.key === 'Escape') hideLightbox();
                     if (e.key === 'ArrowRight') nextImage();
                     if (e.key === 'ArrowLeft') prevImage();
@@ -2041,18 +829,65 @@
                 const filterPanel = document.getElementById('filter-panel-mobile');
                 const filterBackdrop = document.getElementById('mobile-filter-backdrop');
                 const filterClose = document.getElementById('mobile-filter-close');
+                let previousFocusedElement = null;
+
+                if (!filterPanel || !filterBackdrop) {
+                    return;
+                }
 
                 function openFilterPanel() {
-                    filterPanel.classList.add('open');
+                    previousFocusedElement = document.activeElement;
+                    filterPanel.classList.remove('-translate-x-full');
+                    filterPanel.classList.add('translate-x-0');
                     filterBackdrop.classList.remove('hidden');
+                    filterPanel.setAttribute('aria-hidden', 'false');
+                    if (filterToggle) {
+                        filterToggle.setAttribute('aria-expanded', 'true');
+                    }
                     document.body.style.overflow = 'hidden';
+                    if (filterClose) {
+                        filterClose.focus();
+                    }
                 }
 
                 function closeFilterPanel() {
-                    filterPanel.classList.remove('open');
+                    filterPanel.classList.add('-translate-x-full');
+                    filterPanel.classList.remove('translate-x-0');
                     filterBackdrop.classList.add('hidden');
+                    filterPanel.setAttribute('aria-hidden', 'true');
+                    if (filterToggle) {
+                        filterToggle.setAttribute('aria-expanded', 'false');
+                    }
                     document.body.style.overflow = '';
+                    if (previousFocusedElement && typeof previousFocusedElement.focus === 'function') {
+                        previousFocusedElement.focus();
+                    }
                 }
+
+                filterPanel.addEventListener('keydown', function(e) {
+                    if (e.key !== 'Tab' || filterPanel.classList.contains('-translate-x-full')) {
+                        return;
+                    }
+
+                    const focusable = filterPanel.querySelectorAll(
+                        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                    );
+
+                    if (focusable.length === 0) {
+                        return;
+                    }
+
+                    const firstFocusable = focusable[0];
+                    const lastFocusable = focusable[focusable.length - 1];
+
+                    if (e.shiftKey && document.activeElement === firstFocusable) {
+                        e.preventDefault();
+                        lastFocusable.focus();
+                    } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                });
 
                 if (filterToggle) {
                     filterToggle.addEventListener('click', openFilterPanel);
@@ -2068,7 +903,7 @@
 
                 // Close on Escape key
                 document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape' && filterPanel.classList.contains('open')) {
+                    if (e.key === 'Escape' && !filterPanel.classList.contains('-translate-x-full')) {
                         closeFilterPanel();
                     }
                 });
@@ -2077,18 +912,24 @@
     @endpush
 
     {{-- Fullscreen Image Lightbox --}}
-    <div id="image-lightbox" class="image-lightbox" role="dialog" aria-modal="true" aria-label="Image preview">
-        <button type="button" class="image-lightbox__close" aria-label="Close">
+    <div id="image-lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4" style="z-index: 100020;" role="dialog" aria-modal="true" aria-label="Image preview">
+        <button type="button"
+            class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-close aria-label="Close">
             <i class="fa-solid fa-xmark"></i>
         </button>
-        <button type="button" class="image-lightbox__nav image-lightbox__nav--prev" aria-label="Previous image">
+        <button type="button"
+            class="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-prev aria-label="Previous image">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <img class="image-lightbox__img" src="" alt="Preview">
-        <button type="button" class="image-lightbox__nav image-lightbox__nav--next" aria-label="Next image">
+        <img class="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl" data-lightbox-image src="" alt="Preview">
+        <button type="button"
+            class="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-next aria-label="Next image">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
-        <div class="image-lightbox__counter"></div>
+        <div class="absolute bottom-5 rounded-full bg-black/45 px-4 py-1.5 text-xs font-semibold text-white/75" data-lightbox-counter></div>
     </div>
 
     {{-- Mobile Sticky Booking Bar --}}
@@ -2108,7 +949,7 @@
                         </p>
                     </div>
                     <a href="#availabilities"
-                        class="inline-flex max-w-40 flex-1 items-center justify-center gap-2 rounded-md bg-accent-500 px-6 py-3 font-semibold text-white transition-colors hover:bg-accent-600">
+                        class="inline-flex max-w-40 flex-1 items-center justify-center gap-2 rounded-md bg-accent px-6 py-3 font-semibold text-slate-900 transition-colors hover:bg-primary-600 hover:text-white">
                         {{ __('client.route_show.mobile_bar.view_trips', ['default' => 'Xem chuyến']) }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>

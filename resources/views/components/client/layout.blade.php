@@ -3,9 +3,9 @@
     $defaultDescription = __('client.seo.default_description', ['default' => 'Đặt vé xe khách trực tuyến - Kết nối hàng nghìn chuyến xe chất lượng cao trên khắp Việt Nam. Đặt vé dễ dàng, thanh toán an toàn.']);
     $defaultKeywords = __('client.seo.default_keywords', ['default' => 'đặt vé xe khách, xe limousine, xe giường nằm, Hà Nội Sa Pa, King Express Bus, vé xe online']);
 
-    $pageTitle = $title ?? data_get($webProfile, 'title', $appName);
-    $pageDescription = $description ?? data_get($webProfile, 'description', $defaultDescription);
-    $pageKeywords = $keywords ?? $defaultKeywords;
+    $pageTitle = trim(strip_tags((string) ($title ?? data_get($webProfile, 'title', $appName))));
+    $pageDescription = trim(strip_tags((string) ($description ?? data_get($webProfile, 'description', $defaultDescription))));
+    $pageKeywords = trim(strip_tags((string) ($keywords ?? $defaultKeywords)));
     $faviconUrl = $favicon ?? data_get($webProfile, 'favicon_url', '/client/icons/logo.ico');
     $bodyClassName = trim($bodyClass ?? '') !== '' ? trim($bodyClass) : 'bg-[#F8FAFC] text-slate-800';
 
@@ -15,7 +15,7 @@
     $shareImage = $ogImage ?? data_get($webProfile, 'share_image_url', $logoUrl);
     $shareImageAlt = $ogImageAlt ?? $pageTitle;
 
-    $siteNameValue = $siteName ?? data_get($webProfile, 'profile_name', $appName);
+    $siteNameValue = trim(strip_tags((string) ($siteName ?? data_get($webProfile, 'profile_name', $appName))));
     $localeValue = $locale ?? (str_replace('-', '_', app()->getLocale()) . '_VN');
     $robotsMeta = $robots ?? 'index, follow';
     $ogTypeValue = $ogType ?? 'website';
@@ -142,6 +142,12 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
         [x-cloak] {
             display: none !important;
         }
