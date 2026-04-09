@@ -252,7 +252,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     {{-- Filters Sidebar (Desktop only) --}}
                     <aside class="hidden lg:col-span-3 lg:block">
-                        <div id="filter-panel-desktop" class="h-full overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-soft">
+                        <div id="filter-panel-desktop" class="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-soft">
                             <div class="flex items-center justify-between border-b border-slate-100 bg-amber-50/60 px-5 py-4">
                                 <h3 class="flex items-center gap-2 text-sm font-bold text-slate-700">
                                     <i class="fa-solid fa-sliders text-primary-600"></i>
