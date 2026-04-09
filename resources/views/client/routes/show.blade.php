@@ -264,7 +264,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET" class="flex h-full flex-col">
+                            <form id="filter-form" action="{{ $clearFiltersUrl }}" method="GET" class="flex flex-col">
                                 @include('client.routes.partials.filter-form', [
                                     'filterState' => $filterState,
                                     'sortOptions' => $sortOptions,
