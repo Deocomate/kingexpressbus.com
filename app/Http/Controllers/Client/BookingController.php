@@ -236,8 +236,26 @@ class BookingController extends Controller
 
         return view('client.booking.success', [
             'booking' => $booking,
+            'isSepayPaymentReturned' => (bool) session('sepay_payment_returned', false),
             'title' => __('client.booking.success.meta_title'),
             'description' => __('client.booking.success.meta_description'),
+        ]);
+    }
+
+    public function paymentStatus(string $code)
+    {
+        $booking = DB::table('bookings')
+            ->where('booking_code', $code)
+            ->select('booking_code', 'status', 'payment_method', 'payment_status')
+            ->first();
+
+        abort_if(!$booking, 404);
+
+        return response()->json([
+            'booking_code' => $booking->booking_code,
+            'status' => $booking->status,
+            'payment_method' => $booking->payment_method,
+            'payment_status' => $booking->payment_status,
         ]);
     }
 

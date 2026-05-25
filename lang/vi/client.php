@@ -548,6 +548,8 @@ return [
             'payment_method_cash' => 'Thanh toán tại văn phòng nhà xe',
             'online_payment_note' => 'Yêu cầu đang được xử lý. Chúng tôi sẽ gửi email yêu cầu thanh toán sau khi xác nhận còn chỗ.',
             'online_payment_pending_message' => 'Yêu cầu đang được xử lý. Chúng tôi sẽ gửi email yêu cầu thanh toán sau khi xác nhận còn chỗ.',
+            'online_payment_verifying_note' => 'Thanh toán đã được gửi về hệ thống. Trang này sẽ tự cập nhật khi SePay xác nhận giao dịch.',
+            'online_payment_verifying_message' => 'Thanh toán đang được SePay xác nhận. Vui lòng giữ nguyên trang này trong giây lát.',
             'online_payment_success_message' => 'Cảm ơn bạn, đơn hàng đã được thanh toán trực tuyến thành công. Vé điện tử đã được gửi về email của bạn.',
             'support_title' => 'Cần hỗ trợ chung?',
             'support_description' => 'Đội ngũ chăm sóc khách hàng của King Express Bus luôn sẵn sàng trợ giúp bạn 24/7.',

@@ -4,6 +4,7 @@
         $isPaid = $booking->payment_status === 'paid';
         $isOnlineBanking = $booking->payment_method === 'online_banking';
         $isAwaitingPaymentRequest = $isOnlineBanking && !$isPaid;
+        $isPaymentVerificationPending = $isAwaitingPaymentRequest && ($isSepayPaymentReturned ?? false);
     @endphp
 
     <section class="border-b border-amber-100 bg-amber-50">
@@ -25,15 +26,17 @@
                     ]) !!}
                 </p>
 
-                @if ($isPaid)
-                    <div class="mx-auto mt-5 max-w-2xl rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-semibold leading-relaxed text-green-800">
-                        <i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>
-                        {{ __('client.booking.success.online_payment_success_message') }}
-                    </div>
-                @elseif ($isAwaitingPaymentRequest)
-                    <div class="mx-auto mt-5 max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold leading-relaxed text-amber-800">
+                <div id="online-payment-success-message"
+                    class="{{ $isPaid ? '' : 'hidden' }} mx-auto mt-5 max-w-2xl rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-semibold leading-relaxed text-green-800">
+                    <i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>
+                    {{ __('client.booking.success.online_payment_success_message') }}
+                </div>
+
+                @if ($isAwaitingPaymentRequest)
+                    <div id="online-payment-pending-message"
+                        class="mx-auto mt-5 max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold leading-relaxed text-amber-800">
                         <i class="fa-solid fa-clock mr-2" aria-hidden="true"></i>
-                        {{ __('client.booking.success.online_payment_pending_message') }}
+                        {{ $isPaymentVerificationPending ? __('client.booking.success.online_payment_verifying_message') : __('client.booking.success.online_payment_pending_message') }}
                     </div>
                 @endif
             </div>
@@ -49,6 +52,7 @@
                         </p>
                     </div>
                     <span
+                        data-payment-status-badge
                         class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold {{ $isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
                         <i class="fa-solid {{ $isPaid ? 'fa-check' : 'fa-clock' }}" aria-hidden="true"></i>
                         {{ $isPaid ? __('client.booking.success.paid') : __('client.booking.success.unpaid') }}
@@ -258,6 +262,7 @@
                         <div class="flex items-center justify-between gap-3">
                             <span class="text-gray-600">{{ __('client.booking.success.payment_status') }}</span>
                             <span
+                                data-payment-status-badge
                                 class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold {{ $isPaid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
                                 <i class="fa-solid {{ $isPaid ? 'fa-check' : 'fa-clock' }}" aria-hidden="true"></i>
                                 {{ $isPaid ? __('client.booking.success.paid') : __('client.booking.success.unpaid') }}
@@ -266,9 +271,9 @@
                     </div>
 
                     @if ($isAwaitingPaymentRequest)
-                        <div class="mt-4 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-xs text-primary-700">
+                        <div id="online-payment-note" class="mt-4 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-xs text-primary-700">
                             <i class="fa-solid fa-info-circle mr-1" aria-hidden="true"></i>
-                            {{ __('client.booking.success.online_payment_note') }}
+                            {{ $isPaymentVerificationPending ? __('client.booking.success.online_payment_verifying_note') : __('client.booking.success.online_payment_note') }}
                         </div>
                     @endif
                 </section>
@@ -310,4 +315,56 @@
             </aside>
         </div>
     </section>
+
+    @if ($isAwaitingPaymentRequest && !empty($booking->booking_code))
+        @push('scripts')
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const endpoint = @json(route('client.booking.payment_status', ['code' => $booking->booking_code]));
+                    const paidText = @json(__('client.booking.success.paid'));
+                    let attempts = 0;
+                    const maxAttempts = 20;
+
+                    function markPaid() {
+                        document.querySelectorAll('[data-payment-status-badge]').forEach(function (badge) {
+                            badge.classList.remove('bg-amber-100', 'text-amber-700');
+                            badge.classList.add('bg-green-100', 'text-green-700');
+                            badge.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> ' + paidText;
+                        });
+
+                        document.getElementById('online-payment-pending-message')?.classList.add('hidden');
+                        document.getElementById('online-payment-note')?.classList.add('hidden');
+                        document.getElementById('online-payment-success-message')?.classList.remove('hidden');
+                    }
+
+                    async function pollPaymentStatus() {
+                        attempts += 1;
+
+                        try {
+                            const response = await fetch(endpoint, {
+                                headers: { 'Accept': 'application/json' },
+                                cache: 'no-store',
+                            });
+
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data.payment_status === 'paid') {
+                                    markPaid();
+                                    return;
+                                }
+                            }
+                        } catch (error) {
+                            // Keep polling for a short window; IPN may still arrive after redirect.
+                        }
+
+                        if (attempts < maxAttempts) {
+                            window.setTimeout(pollPaymentStatus, 3000);
+                        }
+                    }
+
+                    window.setTimeout(pollPaymentStatus, 1500);
+                });
+            </script>
+        @endpush
+    @endif
 </x-client.layout>

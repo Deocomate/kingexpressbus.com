@@ -52,8 +52,12 @@ class SePayController extends Controller
     public function success(string $code)
     {
         $booking = Booking::where('booking_code', $code)->firstOrFail();
+        $booking = $this->waitForPaidStatus($booking);
 
-        return redirect()->route('client.booking.success')->with('booking_id', $booking->id);
+        return redirect()
+            ->route('client.booking.success')
+            ->with('booking_id', $booking->id)
+            ->with('sepay_payment_returned', true);
     }
 
     public function error(string $code)
@@ -174,5 +178,23 @@ class SePayController extends Controller
         }
 
         return (int) round((float) $amount);
+    }
+
+    private function waitForPaidStatus(Booking $booking): Booking
+    {
+        if ($booking->payment_status === 'paid') {
+            return $booking;
+        }
+
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            usleep(500000);
+            $booking->refresh();
+
+            if ($booking->payment_status === 'paid') {
+                break;
+            }
+        }
+
+        return $booking;
     }
 }

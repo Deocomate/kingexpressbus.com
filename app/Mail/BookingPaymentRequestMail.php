@@ -24,7 +24,7 @@ class BookingPaymentRequestMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         $subject = sprintf(
-            'Yeu cau thanh toan ve #%s - %s di %s ngay %s',
+            'Yêu cầu thanh toán vé #%s - %s đi %s ngày %s',
             $this->bookingDetails['booking_code'] ?? 'N/A',
             $this->bookingDetails['start_province'] ?? 'N/A',
             $this->bookingDetails['end_province'] ?? 'N/A',
@@ -50,7 +50,7 @@ class BookingPaymentRequestMail extends Mailable implements ShouldQueue
 
     public function failed(\Throwable $exception): void
     {
-        Log::error('Job gui mail yeu cau thanh toan that bai', [
+        Log::error('Job gửi mail yêu cầu thanh toán thất bại', [
             'booking_code' => $this->bookingDetails['booking_code'] ?? 'N/A',
             'error' => $exception->getMessage(),
         ]);

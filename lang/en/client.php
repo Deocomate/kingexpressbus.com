@@ -548,6 +548,8 @@ return [
             'payment_method_cash' => 'Pay at Bus Operator Office',
             'online_payment_note' => 'Your request is being processed. We will send a payment request email after confirming seat availability.',
             'online_payment_pending_message' => 'Your request is being processed. We will send a payment request email after confirming seat availability.',
+            'online_payment_verifying_note' => 'Your payment was returned to the system. This page will update automatically after SePay confirms the transaction.',
+            'online_payment_verifying_message' => 'SePay is confirming your payment. Please keep this page open for a moment.',
             'online_payment_success_message' => 'Thank you, your order has been paid online successfully. Your e-ticket has been sent to your email.',
             'support_title' => 'Need General Support?',
             'support_description' => 'The King Express Bus customer care team is always ready to help you 24/7.',

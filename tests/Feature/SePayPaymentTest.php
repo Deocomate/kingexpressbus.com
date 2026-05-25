@@ -304,6 +304,23 @@ it('redirects already paid bookings away from the payment page', function () {
     $response->assertRedirect(route('client.booking.success'));
 });
 
+it('returns the latest payment status for the success page poller', function () {
+    $booking = createSePayPendingBooking('poll-paid', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+        'payment_status' => 'paid',
+    ]);
+
+    $this->getJson(route('client.booking.payment_status', ['code' => $booking->booking_code]))
+        ->assertSuccessful()
+        ->assertJson([
+            'booking_code' => $booking->booking_code,
+            'status' => 'confirmed',
+            'payment_method' => 'online_banking',
+            'payment_status' => 'paid',
+        ]);
+});
+
 it('rejects SePay IPN requests with missing or invalid secrets', function (array $headers) {
     config(['sepay.secret_key' => 'test-secret']);
 

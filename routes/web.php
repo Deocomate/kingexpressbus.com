@@ -81,6 +81,7 @@ Route::name('client.')->group(function () {
     Route::get('/dat-ve', [ClientBookingController::class, 'create'])->name('booking.create');
     Route::post('/dat-ve', [ClientBookingController::class, 'store'])->name('booking.store');
     Route::get('/dat-ve/thanh-cong', [ClientBookingController::class, 'success'])->name('booking.success');
+    Route::get('/dat-ve/trang-thai-thanh-toan/{code}', [ClientBookingController::class, 'paymentStatus'])->name('booking.payment_status');
 
     // SePay callbacks and IPN
     Route::get('/dat-ve/chuyen-huong-sepay/{code}', [ClientSePayController::class, 'redirect'])->name('sepay.redirect');
