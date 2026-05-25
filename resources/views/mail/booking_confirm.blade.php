@@ -126,35 +126,6 @@
                             </tr>
                         </table>
 
-                        @if ($bookingDetails['needs_bank_transfer_info'])
-                            <div
-                                style="padding: 20px; background-color: #e3f2fd; border: 1px solid #bbdefb; border-radius: 5px; margin: 20px 0;">
-                                <h3 style="color: #0d47a1; margin-top: 0; font-size: 16px;">Thông tin thanh toán / Payment Information</h3>
-                                <p style="font-size: 14px; margin-bottom: 15px;">
-                                    Quý khách vui lòng chuyển khoản theo thông tin dưới đây với nội dung:
-                                    <br>Please make a bank transfer with the information below and transfer note:
-                                    <b style="color: #D9534F;">{{ $bookingDetails['customer_name'] }}
-                                        - {{ $bookingDetails['customer_phone'] }}</b>
-                                </p>
-                                <table width="100%" border="0" cellpadding="8" cellspacing="0" style="font-size: 14px;">
-                                    <tr>
-                                        <td style="padding: 8px; font-weight: bold; color: #555; width: 150px;">Ngân
-                                            hàng / Bank:
-                                        </td>
-                                        <td style="padding: 8px;">Vietcombank</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px; font-weight: bold; color: #555;">Số tài khoản / Account Number:</td>
-                                        <td style="padding: 8px; font-weight: bold; color: #1e88e5;">2924300366</td>
-                                    </tr>
-                                    <tr>
-                                        <td style="padding: 8px; font-weight: bold; color: #555;">Chủ tài khoản / Account Name:</td>
-                                        <td style="padding: 8px;">Nguyen Vu Ha My</td>
-                                    </tr>
-                                </table>
-                            </div>
-                        @endif
-
                         <p style="font-weight: bold; margin-top: 25px; font-size: 15px;">
                             Cần hỗ trợ? Vui lòng liên hệ Hotline / Need support? Please contact Hotline: <a href="tel:{{ $bookingDetails['web_phone'] ?? '' }}"
                                                                                                                style="color: #1e88e5; text-decoration: none;">{{ $bookingDetails['web_phone'] ?? 'N/A' }}</a>

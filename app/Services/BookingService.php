@@ -6,6 +6,7 @@ use App\Helpers\SystemHelper;
 use App\Mail\BookingApprovedMail;
 use App\Mail\BookingCancelledMail;
 use App\Mail\BookingConfirmMail;
+use App\Mail\BookingPaymentRequestMail;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -205,6 +206,7 @@ class BookingService
         $result['web_email'] = $webProfile->email ?? __('client.booking.service.not_available');
         $result['web_link'] = url('/');
         $result['web_logo'] = !empty($webProfile->logo_url) ? url($webProfile->logo_url) : null;
+        $result['payment_url'] = route('client.sepay.redirect', ['code' => $result['booking_code']]);
 
         $result['departure_date'] = Carbon::parse($result['booking_date'])->format('d/m/Y');
         $result['start_time'] = Carbon::parse($result['start_time'])->format('H:i');
@@ -222,9 +224,43 @@ class BookingService
             );
         }
 
-        $result['needs_bank_transfer_info'] = ($result['payment_method'] === 'online_banking' && $result['payment_status'] !== 'paid');
+        $result['needs_bank_transfer_info'] = false;
 
         return $result;
+    }
+
+    /**
+     * Send payment request email to customer after admin confirmation.
+     */
+    public function sendPaymentRequestEmail(int $bookingId): bool
+    {
+        try {
+            $mailDetails = $this->prepareMailDetails($bookingId);
+
+            if (!$mailDetails) {
+                Log::error('Cannot prepare booking payment request mail data: ' . $bookingId);
+                return false;
+            }
+
+            Mail::to($mailDetails['customer_email'])->queue(new BookingPaymentRequestMail($mailDetails));
+
+            $adminEmail = config('mail.admin_email', 'kingexpressbus@gmail.com');
+            Mail::to($adminEmail)->queue(new BookingPaymentRequestMail($mailDetails));
+
+            Log::info('Booking payment request emails sent successfully', [
+                'booking_id' => $bookingId,
+                'booking_code' => $mailDetails['booking_code'] ?? __('client.booking.service.not_available'),
+                'customer_email' => $mailDetails['customer_email'] ?? __('client.booking.service.not_available'),
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Error while sending booking payment request emails', [
+                'booking_id' => $bookingId,
+                'error' => $e->getMessage(),
+            ]);
+            return false;
+        }
     }
 
     /**
@@ -349,6 +385,12 @@ class BookingService
             'updated_at' => now(),
         ];
 
+        $isPendingToConfirmed = $status === 'confirmed' && $booking->status === 'pending';
+
+        if ($isPendingToConfirmed) {
+            $updateData['confirmed_at'] = now();
+        }
+
         // Handle cancellation notes
         if ($status === 'cancelled') {
             $existingNotes = $booking->notes ?? '';
@@ -377,9 +419,13 @@ class BookingService
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
 
-        // Auto send approval email when moving from pending to confirmed
-        if ($status === 'confirmed' && $booking->status === 'pending') {
-            $this->sendApprovalEmail($bookingId);
+        // Auto send the correct email when moving from pending to confirmed
+        if ($isPendingToConfirmed) {
+            if ($booking->payment_method === 'online_banking') {
+                $this->sendPaymentRequestEmail($bookingId);
+            } else {
+                $this->sendApprovalEmail($bookingId);
+            }
         }
 
         // Auto send cancellation email when status is cancelled
@@ -463,6 +509,7 @@ class BookingService
                 'b.created_at',
                 'b.total_price',
                 'b.status',
+                'b.confirmed_at',
                 'b.payment_method',
                 'b.payment_status',
                 'b.payment_transaction_id',

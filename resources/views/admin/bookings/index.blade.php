@@ -189,7 +189,14 @@
                             }
                         @endphp
                         @forelse($bookings as $booking)
-                            <tr id="booking-row-{{ $booking->id }}">
+                            @php
+                                $isPaymentOverdue = $booking->status === 'confirmed'
+                                    && $booking->payment_method === 'online_banking'
+                                    && $booking->payment_status === 'unpaid'
+                                    && !empty($booking->confirmed_at)
+                                    && \Carbon\Carbon::parse($booking->confirmed_at)->lte(now()->subHours(3));
+                            @endphp
+                            <tr id="booking-row-{{ $booking->id }}" class="{{ $isPaymentOverdue ? 'table-danger' : '' }}">
                                 <td>{{ $loop->iteration + ($bookings->currentPage() - 1) * $bookings->perPage() }}</td>
                                 <td>
                                     <strong>#{{ $booking->booking_code }}</strong>
@@ -218,6 +225,9 @@
                                 <td class="text-center status-cell">{!! getStatusBadge($booking->status) !!}</td>
                                 <td class="text-center payment-cell">
                                     {!! \App\Helpers\SystemHelper::getPaymentStatusBadge($booking->payment_status, $booking->payment_method) !!}
+                                    @if($isPaymentOverdue)
+                                        <br><span class="badge badge-warning mt-1"><i class="fas fa-exclamation-triangle"></i> Quá hạn thanh toán 3h</span>
+                                    @endif
                                 </td>
                                 <td class="text-center action-buttons">
                                     <div class="btn-group">
@@ -508,7 +518,7 @@
                     let ajaxData = { status: newStatus };
 
                     if (newStatus === 'confirmed') {
-                        swalConfig.text = "Xác nhận đặt vé này? Một email thông báo xác nhận thành công sẽ tự động được gửi đến khách hàng.";
+                        swalConfig.text = "Xác nhận đặt vé này? Hệ thống sẽ tự động gửi email phù hợp cho khách hàng: yêu cầu thanh toán với vé SePay hoặc xác nhận vé với vé tiền mặt.";
                         swalConfig.confirmButtonColor = '#28a745';
                         swalConfig.confirmButtonText = 'Xác nhận';
                     } else if (newStatus === 'cancelled') {

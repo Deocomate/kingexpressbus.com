@@ -2,6 +2,8 @@
 
 use App\Mail\BookingApprovedMail;
 use App\Mail\BookingConfirmMail;
+use App\Mail\BookingPaymentRequestMail;
+use App\Services\BookingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -144,11 +146,11 @@ function sePayBookingRequestPayload(array $fixture, string $paymentMethod): arra
     ];
 }
 
-function createSePayPendingBooking(string $suffix = 'ipn'): object
+function createSePayPendingBooking(string $suffix = 'ipn', array $overrides = []): object
 {
     $fixture = seedSePayTripFixture($suffix);
     $now = now();
-    $bookingId = DB::table('bookings')->insertGetId([
+    $bookingData = [
         'booking_code' => 'SEPAY-' . strtoupper($suffix),
         'trip_id' => $fixture['trip_id'],
         'booking_date' => '2026-02-02',
@@ -162,9 +164,12 @@ function createSePayPendingBooking(string $suffix = 'ipn'): object
         'payment_method' => 'online_banking',
         'payment_status' => 'unpaid',
         'status' => 'pending',
+        'confirmed_at' => null,
         'created_at' => $now,
         'updated_at' => $now,
-    ]);
+    ];
+
+    $bookingId = DB::table('bookings')->insertGetId(array_merge($bookingData, $overrides));
 
     return DB::table('bookings')->where('id', $bookingId)->first();
 }
@@ -189,7 +194,7 @@ function sePayIpnPayload(string $bookingCode, int $amount = 300000, string $tran
     ];
 }
 
-it('redirects online banking bookings to SePay without sending the confirmation email yet', function () {
+it('keeps online banking bookings on the success flow and sends the confirmation email', function () {
     Mail::fake();
 
     $fixture = seedSePayTripFixture('online');
@@ -197,10 +202,10 @@ it('redirects online banking bookings to SePay without sending the confirmation 
 
     $booking = DB::table('bookings')->first();
 
-    $response->assertRedirect(route('client.sepay.redirect', ['code' => $booking->booking_code]));
+    $response->assertRedirect(route('client.booking.success'));
     expect($booking->payment_status)->toBe('unpaid')
         ->and($booking->status)->toBe('pending');
-    Mail::assertNotQueued(BookingConfirmMail::class);
+    Mail::assertQueued(BookingConfirmMail::class, 2);
 });
 
 it('keeps cash bookings on the existing success flow and sends the confirmation email', function () {
@@ -211,6 +216,92 @@ it('keeps cash bookings on the existing success flow and sends the confirmation 
 
     $response->assertRedirect(route('client.booking.success'));
     Mail::assertQueued(BookingConfirmMail::class, 2);
+});
+
+it('sends a payment request email when admin confirms an online banking booking', function () {
+    Mail::fake();
+
+    $booking = createSePayPendingBooking('confirm-online');
+
+    app(BookingService::class)->updateStatus($booking->id, 'confirmed');
+
+    $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
+
+    expect($updatedBooking->status)->toBe('confirmed')
+        ->and($updatedBooking->confirmed_at)->not->toBeNull();
+
+    Mail::assertQueued(BookingPaymentRequestMail::class, 2);
+    Mail::assertNotQueued(BookingApprovedMail::class);
+});
+
+it('sends approval email when admin confirms a cash booking', function () {
+    Mail::fake();
+
+    $booking = createSePayPendingBooking('confirm-cash', [
+        'payment_method' => 'cash_on_pickup',
+    ]);
+
+    app(BookingService::class)->updateStatus($booking->id, 'confirmed');
+
+    $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
+
+    expect($updatedBooking->status)->toBe('confirmed')
+        ->and($updatedBooking->confirmed_at)->not->toBeNull();
+
+    Mail::assertQueued(BookingApprovedMail::class, 2);
+    Mail::assertNotQueued(BookingPaymentRequestMail::class);
+});
+
+it('does not reset confirmed time or resend payment request when status is not pending to confirmed', function () {
+    Mail::fake();
+
+    $confirmedAt = now()->subHours(2)->startOfSecond();
+    $booking = createSePayPendingBooking('reconfirm', [
+        'status' => 'confirmed',
+        'confirmed_at' => $confirmedAt,
+    ]);
+
+    app(BookingService::class)->updateStatus($booking->id, 'confirmed');
+
+    $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
+
+    expect(\Carbon\Carbon::parse($updatedBooking->confirmed_at)->eq($confirmedAt))->toBeTrue();
+    Mail::assertNotQueued(BookingPaymentRequestMail::class);
+});
+
+it('blocks payment redirect for bookings that are not payable', function (array $overrides) {
+    $booking = createSePayPendingBooking('redirect-' . strtolower($overrides['status'] ?? $overrides['payment_method']), $overrides);
+
+    $response = $this->get(route('client.sepay.redirect', ['code' => $booking->booking_code]));
+
+    $response->assertRedirect(route('client.home'));
+    $response->assertSessionHas('error');
+})->with([
+    'cancelled booking' => [[
+        'status' => 'cancelled',
+        'confirmed_at' => null,
+    ]],
+    'pending booking' => [[
+        'status' => 'pending',
+        'confirmed_at' => null,
+    ]],
+    'cash booking' => [[
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+        'payment_method' => 'cash_on_pickup',
+    ]],
+]);
+
+it('redirects already paid bookings away from the payment page', function () {
+    $booking = createSePayPendingBooking('redirect-paid', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+        'payment_status' => 'paid',
+    ]);
+
+    $response = $this->get(route('client.sepay.redirect', ['code' => $booking->booking_code]));
+
+    $response->assertRedirect(route('client.booking.success'));
 });
 
 it('rejects SePay IPN requests with missing or invalid secrets', function (array $headers) {
@@ -230,7 +321,10 @@ it('marks bookings paid from a valid SePay IPN and queues approval email', funct
     Mail::fake();
     config(['sepay.secret_key' => 'test-secret']);
 
-    $booking = createSePayPendingBooking('valid');
+    $booking = createSePayPendingBooking('valid', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+    ]);
     $response = $this->postJson(
         route('client.sepay.ipn'),
         sePayIpnPayload($booking->booking_code, 300000, 'TX-VALID-001'),
@@ -254,7 +348,10 @@ it('does not send duplicate approval emails for repeated SePay IPN payloads', fu
     Mail::fake();
     config(['sepay.secret_key' => 'test-secret']);
 
-    $booking = createSePayPendingBooking('repeat');
+    $booking = createSePayPendingBooking('repeat', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+    ]);
     $payload = sePayIpnPayload($booking->booking_code, 300000, 'TX-REPEAT-001');
 
     $this->postJson(route('client.sepay.ipn'), $payload, ['X-Secret-Key' => 'test-secret'])->assertSuccessful();
@@ -267,7 +364,10 @@ it('does not mark a booking paid when the SePay amount mismatches', function () 
     Mail::fake();
     config(['sepay.secret_key' => 'test-secret']);
 
-    $booking = createSePayPendingBooking('amount');
+    $booking = createSePayPendingBooking('amount', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+    ]);
     $response = $this->postJson(
         route('client.sepay.ipn'),
         sePayIpnPayload($booking->booking_code, 299000, 'TX-WRONG-AMOUNT'),
@@ -279,8 +379,37 @@ it('does not mark a booking paid when the SePay amount mismatches', function () 
     $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
 
     expect($updatedBooking->payment_status)->toBe('unpaid')
-        ->and($updatedBooking->status)->toBe('pending')
+        ->and($updatedBooking->status)->toBe('confirmed')
         ->and($updatedBooking->payment_transaction_id)->toBeNull();
 
     Mail::assertNotQueued(BookingApprovedMail::class);
 });
+
+it('does not mark unconfirmed or cancelled bookings paid from SePay IPN', function (string $suffix, array $overrides) {
+    Mail::fake();
+    config(['sepay.secret_key' => 'test-secret']);
+
+    $booking = createSePayPendingBooking($suffix, $overrides);
+
+    $this->postJson(
+        route('client.sepay.ipn'),
+        sePayIpnPayload($booking->booking_code, 300000, 'TX-' . strtoupper($suffix)),
+        ['X-Secret-Key' => 'test-secret']
+    )->assertSuccessful();
+
+    $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
+
+    expect($updatedBooking->payment_status)->toBe('unpaid')
+        ->and($updatedBooking->status)->toBe($overrides['status']);
+
+    Mail::assertNotQueued(BookingApprovedMail::class);
+})->with([
+    'pending booking' => ['ipn-pending', [
+        'status' => 'pending',
+        'confirmed_at' => null,
+    ]],
+    'cancelled booking' => ['ipn-cancelled', [
+        'status' => 'cancelled',
+        'confirmed_at' => now()->subHours(4),
+    ]],
+]);

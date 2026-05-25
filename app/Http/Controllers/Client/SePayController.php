@@ -21,6 +21,29 @@ class SePayController extends Controller
     public function redirect(string $code)
     {
         $booking = Booking::where('booking_code', $code)->firstOrFail();
+
+        if ($booking->status === 'cancelled') {
+            return redirect()
+                ->route('client.home')
+                ->with('error', __('client.booking.sepay.booking_cancelled'));
+        }
+
+        if ($booking->status !== 'confirmed') {
+            return redirect()
+                ->route('client.home')
+                ->with('error', __('client.booking.sepay.booking_not_confirmed'));
+        }
+
+        if ($booking->payment_status === 'paid') {
+            return redirect()->route('client.booking.success')->with('booking_id', $booking->id);
+        }
+
+        if ($booking->payment_method !== 'online_banking') {
+            return redirect()
+                ->route('client.home')
+                ->with('error', __('client.booking.sepay.invalid_payment_method'));
+        }
+
         $htmlForm = $this->sePayService->createCheckoutHtml($booking);
 
         return view('client.booking.sepay_redirect', compact('booking', 'htmlForm'));
@@ -108,13 +131,23 @@ class SePayController extends Controller
                 return;
             }
 
+            if ($booking->status !== 'confirmed') {
+                Log::warning('SePay IPN skipped because booking is not confirmed for payment.', [
+                    'booking_id' => $booking->id,
+                    'booking_code' => $invoiceNumber,
+                    'booking_status' => $booking->status,
+                    'transaction_id' => $transactionId,
+                ]);
+
+                return;
+            }
+
             if ($booking->payment_status === 'paid') {
                 return;
             }
 
             $booking->update([
                 'payment_status' => 'paid',
-                'status' => 'confirmed',
                 'payment_transaction_id' => is_string($transactionId) ? $transactionId : null,
                 'payment_log' => $payload,
             ]);

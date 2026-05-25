@@ -2,6 +2,8 @@
 <x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.success.meta_title')" :description="$description ?? ''" body-class="bg-[#F8FAFC]">
     @php
         $isPaid = $booking->payment_status === 'paid';
+        $isOnlineBanking = $booking->payment_method === 'online_banking';
+        $isAwaitingPaymentRequest = $isOnlineBanking && !$isPaid;
     @endphp
 
     <section class="border-b border-amber-100 bg-amber-50">
@@ -27,6 +29,11 @@
                     <div class="mx-auto mt-5 max-w-2xl rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-semibold leading-relaxed text-green-800">
                         <i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>
                         {{ __('client.booking.success.online_payment_success_message') }}
+                    </div>
+                @elseif ($isAwaitingPaymentRequest)
+                    <div class="mx-auto mt-5 max-w-2xl rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold leading-relaxed text-amber-800">
+                        <i class="fa-solid fa-clock mr-2" aria-hidden="true"></i>
+                        {{ __('client.booking.success.online_payment_pending_message') }}
                     </div>
                 @endif
             </div>
@@ -207,16 +214,16 @@
                             <span
                                 class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">1</span>
                             <div>
-                                <p class="font-semibold text-gray-900">{{ __('client.booking.success.next_step_1_title') }}</p>
-                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_1_desc') }}</p>
+                                <p class="font-semibold text-gray-900">{{ $isAwaitingPaymentRequest ? __('client.booking.success.next_step_1_online_title') : __('client.booking.success.next_step_1_title') }}</p>
+                                <p class="text-sm text-gray-600">{{ $isAwaitingPaymentRequest ? __('client.booking.success.next_step_1_online_desc') : __('client.booking.success.next_step_1_desc') }}</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
                             <span
                                 class="mt-0.5 inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">2</span>
                             <div>
-                                <p class="font-semibold text-gray-900">{{ __('client.booking.success.next_step_2_title') }}</p>
-                                <p class="text-sm text-gray-600">{{ __('client.booking.success.next_step_2_desc') }}</p>
+                                <p class="font-semibold text-gray-900">{{ $isAwaitingPaymentRequest ? __('client.booking.success.next_step_2_online_title') : __('client.booking.success.next_step_2_title') }}</p>
+                                <p class="text-sm text-gray-600">{{ $isAwaitingPaymentRequest ? __('client.booking.success.next_step_2_online_desc') : __('client.booking.success.next_step_2_desc') }}</p>
                             </div>
                         </div>
                         <div class="flex items-start gap-3">
@@ -258,7 +265,7 @@
                         </div>
                     </div>
 
-                    @if ($booking->payment_method === 'online_banking' && !$isPaid)
+                    @if ($isAwaitingPaymentRequest)
                         <div class="mt-4 rounded-2xl border border-primary-100 bg-primary-50 p-3 text-xs text-primary-700">
                             <i class="fa-solid fa-info-circle mr-1" aria-hidden="true"></i>
                             {{ __('client.booking.success.online_payment_note') }}
