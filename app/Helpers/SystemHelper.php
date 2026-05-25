@@ -95,7 +95,7 @@ class SystemHelper
     /**
      * Get payment status badge HTML.
      */
-    public static function getPaymentStatusBadge(string $status): string
+    public static function getPaymentStatusBadge(string $status, string $method = ''): string
     {
         $config = [
             'unpaid' => ['class' => 'badge-warning', 'text' => 'Chưa thanh toán'],
@@ -103,7 +103,12 @@ class SystemHelper
         ];
 
         $data = $config[$status] ?? ['class' => 'badge-secondary', 'text' => ucfirst($status)];
+        $methodText = match ($method) {
+            'online_banking' => ' (SePay)',
+            'cash_on_pickup' => ' (Tiền mặt)',
+            default => '',
+        };
 
-        return sprintf('<span class="badge %s">%s</span>', $data['class'], $data['text']);
+        return sprintf('<span class="badge %s">%s%s</span>', $data['class'], $data['text'], $methodText);
     }
 }

@@ -22,6 +22,13 @@
                         'email' => $booking->customer_email ?? __('client.booking.success.your_email'),
                     ]) !!}
                 </p>
+
+                @if ($isPaid)
+                    <div class="mx-auto mt-5 max-w-2xl rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-semibold leading-relaxed text-green-800">
+                        <i class="fa-solid fa-circle-check mr-2" aria-hidden="true"></i>
+                        {{ __('client.booking.success.online_payment_success_message') }}
+                    </div>
+                @endif
             </div>
 
             <div class="mx-auto mt-8 max-w-2xl rounded-3xl border border-amber-200 bg-white p-6 shadow-soft">

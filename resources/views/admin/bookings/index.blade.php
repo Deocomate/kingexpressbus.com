@@ -162,6 +162,7 @@
                             <th>Ngày đặt vé</th>
                             <th>Chuyến đi</th>
                             <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Thanh toán</th>
                             <th style="width: 130px" class="text-center">Hành động</th>
                         </tr>
                     </thead>
@@ -215,6 +216,9 @@
                                         &bull; {{ \Carbon\Carbon::parse($booking->booking_date)->format('d/m/Y') }}</small>
                                 </td>
                                 <td class="text-center status-cell">{!! getStatusBadge($booking->status) !!}</td>
+                                <td class="text-center payment-cell">
+                                    {!! \App\Helpers\SystemHelper::getPaymentStatusBadge($booking->payment_status, $booking->payment_method) !!}
+                                </td>
                                 <td class="text-center action-buttons">
                                     <div class="btn-group">
                                         {{-- Nút xem chi tiết --}}
@@ -254,7 +258,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center">Không có dữ liệu đặt vé nào.</td>
+                                <td colspan="8" class="text-center">Không có dữ liệu đặt vé nào.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -303,6 +307,10 @@
                             <dd class="col-sm-7" id="modal-status"></dd>
                             <dt class="col-sm-5">Thanh toán</dt>
                             <dd class="col-sm-7" id="modal-payment-status"></dd>
+                            <dt class="col-sm-5">Mã giao dịch SePay</dt>
+                            <dd class="col-sm-7" id="modal-payment-transaction-id"></dd>
+                            <dt class="col-sm-5">Thời gian thanh toán</dt>
+                            <dd class="col-sm-7" id="modal-sepay-paid-at"></dd>
                             <dt class="col-sm-5">Tổng tiền</dt>
                             <dd class="col-sm-7 font-weight-bold text-success" id="modal-total-price"></dd>
                         </dl>
@@ -374,6 +382,15 @@
                 return `<span class="badge status-badge ${cssClass}">${text}</span>`;
             }
 
+            function getPaymentStatusBadgeHtml(status, method) {
+                const isPaid = status === 'paid';
+                const cssClass = isPaid ? 'badge-success' : 'badge-warning';
+                const statusText = isPaid ? 'Đã thanh toán' : 'Chưa thanh toán';
+                const methodText = method === 'online_banking' ? ' (SePay)' : (method === 'cash_on_pickup' ? ' (Tiền mặt)' : '');
+
+                return `<span class="badge status-badge ${cssClass}">${statusText}${methodText}</span>`;
+            }
+
             // Helper function to generate action buttons HTML based on status
             function getActionButtonsHtml(bookingId, status) {
                 let buttons = `<button type="button" class="btn btn-sm btn-info btn-show-details" data-id="${bookingId}" title="Chi tiết"><i class="fas fa-eye"></i></button>`;
@@ -408,7 +425,8 @@
                     // Reset
                     codeSpan.text('');
                     content.find('dd').text('N/A');
-                    $('#modal-payment-status, #modal-status').html(getStatusBadgeHtml('unknown'));
+                    $('#modal-status').html(getStatusBadgeHtml('unknown'));
+                    $('#modal-payment-status').html(getPaymentStatusBadgeHtml('unpaid', ''));
                     $('#modal-notes').text('Không có');
                     content.hide();
                     loading.show();
@@ -433,10 +451,9 @@
                                     $('#modal-created-at').text('N/A');
                                 }
                                 $('#modal-status').html(getStatusBadgeHtml(data.status));
-                                const paymentStatusHtml = data.payment_status === 'paid'
-                                    ? `<span class="badge status-badge badge-success">Đã thanh toán</span>`
-                                    : `<span class="badge status-badge badge-warning">Chưa thanh toán</span>`;
-                                $('#modal-payment-status').html(paymentStatusHtml);
+                                $('#modal-payment-status').html(getPaymentStatusBadgeHtml(data.payment_status, data.payment_method));
+                                $('#modal-payment-transaction-id').text(data.payment_transaction_id || 'N/A');
+                                $('#modal-sepay-paid-at').text(data.sepay_paid_at || 'N/A');
                                 $('#modal-total-price').text(data.total_price ? new Intl.NumberFormat('vi-VN').format(data.total_price) + 'đ' : 'N/A');
 
                                 // Block 2: Thông tin Chuyến đi

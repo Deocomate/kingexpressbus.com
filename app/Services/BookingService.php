@@ -22,6 +22,7 @@ class BookingService
     private const NOTE_CUSTOMER_PREFIX = '[CUSTOMER_NOTE]: ';
     private const NOTE_CANCEL_PREFIX = '[CANCEL_REASON]: ';
     private const NOTE_ADMIN_CANCEL_PREFIX = '[ADMIN_CANCEL_REASON]: ';
+    private const NOTE_SEPAY_REFUND_PREFIX = '[SEPAY_REFUND_REQUIRED]: ';
 
     private const LEGACY_NOTE_HOTEL_PICKUP_PREFIX = '[Đón tại khách sạn]: ';
     private const LEGACY_NOTE_ADMIN_CANCEL_PREFIX = '[Lý do hủy Admin]: ';
@@ -95,12 +96,14 @@ class BookingService
                 $pickupStopId = null;
             }
 
+            $bookingCode = SystemHelper::generateBookingCode();
+
             // Create the booking
             $bookingId = DB::table('bookings')->insertGetId([
                 'user_id' => $data['user_id'] ?? null,
                 'trip_id' => $data['trip_id'],
                 'booking_date' => $data['booking_date'],
-                'booking_code' => SystemHelper::generateBookingCode(),
+                'booking_code' => $bookingCode,
                 'customer_name' => $data['customer_name'],
                 'customer_phone' => $data['customer_phone'],
                 'customer_email' => $data['customer_email'],
@@ -125,6 +128,7 @@ class BookingService
             return [
                 'success' => true,
                 'booking_id' => $bookingId,
+                'booking_code' => $bookingCode,
                 'message' => __('client.booking.service.create_success'),
             ];
         });
@@ -346,10 +350,28 @@ class BookingService
         ];
 
         // Handle cancellation notes
-        if ($status === 'cancelled' && $notes) {
+        if ($status === 'cancelled') {
             $existingNotes = $booking->notes ?? '';
-            if (!Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
-                $updateData['notes'] = $existingNotes . "\n" . self::NOTE_ADMIN_CANCEL_PREFIX . trim($notes);
+            $notesToAppend = [];
+
+            if ($notes && !Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
+                $notesToAppend[] = self::NOTE_ADMIN_CANCEL_PREFIX . trim($notes);
+            }
+
+            if (
+                $booking->payment_method === 'online_banking'
+                && $booking->payment_status === 'paid'
+                && !empty($booking->payment_transaction_id)
+                && !Str::contains($existingNotes, self::NOTE_SEPAY_REFUND_PREFIX)
+            ) {
+                $notesToAppend[] = self::NOTE_SEPAY_REFUND_PREFIX
+                    . 'Manual refund/reconciliation required for SePay transaction '
+                    . $booking->payment_transaction_id
+                    . '.';
+            }
+
+            if (!empty($notesToAppend)) {
+                $updateData['notes'] = trim($existingNotes . "\n" . implode("\n", $notesToAppend));
             }
         }
 
@@ -441,6 +463,9 @@ class BookingService
                 'b.created_at',
                 'b.total_price',
                 'b.status',
+                'b.payment_method',
+                'b.payment_status',
+                'b.payment_transaction_id',
                 'r.name as route_name',
                 't.start_time',
             ]);

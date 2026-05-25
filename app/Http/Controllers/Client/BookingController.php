@@ -179,7 +179,10 @@ class BookingController extends Controller
             $result = $this->bookingService->createBooking($bookingData);
 
             if ($result['success']) {
-                // Send confirmation email
+                if ($validated['payment_method'] === 'online_banking') {
+                    return redirect()->route('client.sepay.redirect', ['code' => $result['booking_code']]);
+                }
+
                 $this->bookingService->sendConfirmationEmail($result['booking_id']);
 
                 return redirect()->route('client.booking.success')->with('booking_id', $result['booking_id']);

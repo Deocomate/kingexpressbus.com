@@ -48,8 +48,26 @@ class BookingController extends Controller
         }
 
         $booking->notes_display = $this->extractDisplayNotes($booking->notes ?? null);
+        $paymentLog = $this->decodePaymentLog($booking->payment_log ?? null);
+        $booking->payment_log = $paymentLog;
+        $booking->sepay_paid_at = data_get($paymentLog, 'transaction.transaction_date');
 
         return response()->json(['success' => true, 'data' => $booking]);
+    }
+
+    private function decodePaymentLog(mixed $paymentLog): array
+    {
+        if (is_array($paymentLog)) {
+            return $paymentLog;
+        }
+
+        if (!is_string($paymentLog) || trim($paymentLog) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($paymentLog, true);
+
+        return is_array($decoded) ? $decoded : [];
     }
 
     private function extractDisplayNotes(?string $notes): string

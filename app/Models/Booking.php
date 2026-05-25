@@ -31,6 +31,8 @@ class Booking extends Model
         'status',
         'payment_method',
         'payment_status',
+        'payment_transaction_id',
+        'payment_log',
         'notes',
     ];
 
@@ -43,6 +45,7 @@ class Booking extends Model
         'route_surcharge_unit' => 'integer',
         'final_unit_price' => 'integer',
         'total_surcharge_amount' => 'integer',
+        'payment_log' => 'array',
     ];
 
     /**

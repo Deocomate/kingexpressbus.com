@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\HolidaySurchargeController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\Client\TripController as ClientTripController;
 use App\Http\Controllers\Client\BookingController as ClientBookingController;
+use App\Http\Controllers\Client\SePayController as ClientSePayController;
 use App\Http\Controllers\Client\ContactController;
 use App\Http\Controllers\Client\PageController;
 use App\Http\Controllers\Client\AuthController as ClientAuthController;
@@ -80,6 +81,13 @@ Route::name('client.')->group(function () {
     Route::get('/dat-ve', [ClientBookingController::class, 'create'])->name('booking.create');
     Route::post('/dat-ve', [ClientBookingController::class, 'store'])->name('booking.store');
     Route::get('/dat-ve/thanh-cong', [ClientBookingController::class, 'success'])->name('booking.success');
+
+    // SePay callbacks and IPN
+    Route::get('/dat-ve/chuyen-huong-sepay/{code}', [ClientSePayController::class, 'redirect'])->name('sepay.redirect');
+    Route::get('/dat-ve/sepay/thanh-cong/{code}', [ClientSePayController::class, 'success'])->name('sepay.success');
+    Route::get('/dat-ve/sepay/that-bai/{code}', [ClientSePayController::class, 'error'])->name('sepay.error');
+    Route::get('/dat-ve/sepay/huy/{code}', [ClientSePayController::class, 'cancel'])->name('sepay.cancel');
+    Route::post('/checkout/sepay/ipn', [ClientSePayController::class, 'ipn'])->name('sepay.ipn');
 
     // Static pages
     Route::get('/lien-he', [ContactController::class, 'index'])->name('contact');

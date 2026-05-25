@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'ckCsrfToken',
         ]);
         $middleware->validateCsrfTokens(
-            except: ['ckfinder/*']
+            except: [
+                'ckfinder/*',
+                'checkout/sepay/ipn',
+            ]
         );
         $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
     })
