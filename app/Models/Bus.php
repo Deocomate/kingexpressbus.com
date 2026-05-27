@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Bus extends Model
@@ -14,8 +15,6 @@ class Bus extends Model
         'name',
         'model_name',
         'seat_count',
-        'seat_map',
-        'services',
         'thumbnail_url',
         'image_list_url',
         'content',
@@ -23,8 +22,6 @@ class Bus extends Model
     ];
 
     protected $casts = [
-        'seat_map' => 'array',
-        'services' => 'array',
         'image_list_url' => 'array',
         'seat_count' => 'integer',
         'priority' => 'integer',
@@ -36,6 +33,11 @@ class Bus extends Model
     public function trips(): HasMany
     {
         return $this->hasMany(Trip::class);
+    }
+
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(BusService::class, 'bus_bus_service');
     }
 
     /**

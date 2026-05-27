@@ -8,17 +8,18 @@ use App\Services\HolidaySurchargeService;
 use App\Services\TripService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
 
 class BookingController extends Controller
 {
     protected BookingService $bookingService;
+
     protected TripService $tripService;
+
     protected HolidaySurchargeService $holidaySurchargeService;
 
     public function __construct(
@@ -44,7 +45,7 @@ class BookingController extends Controller
         // Get trip details using service
         $trip = $this->tripService->getTripDetails($tripId, $bookingDate->format('Y-m-d'));
 
-        abort_if(!$trip || !$trip->is_active, 404, __('client.booking.create.trip_not_found'));
+        abort_if(! $trip || ! $trip->is_active, 404, __('client.booking.create.trip_not_found'));
 
         // Calculate available seats
         $availableSeats = $this->tripService->calculateAvailableSeats(
@@ -76,6 +77,7 @@ class BookingController extends Controller
             'bookingDate' => $bookingDate,
             'stops' => $stops,
             'services' => $trip->bus_services,
+            'serviceDetails' => $trip->bus_service_details,
             'busImages' => $trip->bus_images,
             'paymentMethods' => $paymentMethods,
             'availableSeats' => $availableSeats,
@@ -134,6 +136,16 @@ class BookingController extends Controller
             return back()->with('error', $stopValidationError)->withInput();
         }
 
+        $block = DB::table('trip_blocks')
+            ->where('trip_id', (int) $validated['trip_id'])
+            ->whereDate('start_date', '<=', $bookingDateForDb)
+            ->whereDate('end_date', '>=', $bookingDateForDb)
+            ->first();
+
+        if ($block) {
+            return back()->with('error', __('client.booking.store.trip_blocked'))->withInput();
+        }
+
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByTripId(
             (int) $validated['trip_id'],
             $bookingDateForDb
@@ -187,6 +199,7 @@ class BookingController extends Controller
             return back()->with('error', $result['message'])->withInput();
         } catch (\Exception $e) {
             Log::error('Client booking failed', ['error' => $e->getMessage()]);
+
             return back()->with('error', __('client.booking.store.system_error'))->withInput();
         }
     }
@@ -195,7 +208,7 @@ class BookingController extends Controller
     {
         $bookingId = session('booking_id');
 
-        if (!$bookingId) {
+        if (! $bookingId) {
             return redirect()->route('client.home');
         }
 
@@ -249,7 +262,7 @@ class BookingController extends Controller
             ->select('booking_code', 'status', 'payment_method', 'payment_status')
             ->first();
 
-        abort_if(!$booking, 404);
+        abort_if(! $booking, 404);
 
         return response()->json([
             'booking_code' => $booking->booking_code,
@@ -290,16 +303,16 @@ class BookingController extends Controller
             ->select('t.route_id', 't.is_active', 'r.available_hotel_pickup')
             ->first();
 
-        if (!$trip || !$trip->is_active) {
+        if (! $trip || ! $trip->is_active) {
             return __('client.booking.create.trip_not_found');
         }
 
-        if ($isHotelPickup && !(bool) $trip->available_hotel_pickup) {
+        if ($isHotelPickup && ! (bool) $trip->available_hotel_pickup) {
             return __('client.booking.store.hotel_pickup_not_available');
         }
 
         $stopIds = [$dropoffStopId];
-        if (!$isHotelPickup && $pickupStopId !== null) {
+        if (! $isHotelPickup && $pickupStopId !== null) {
             $stopIds[] = $pickupStopId;
         }
 
@@ -310,13 +323,13 @@ class BookingController extends Controller
             ->get()
             ->groupBy('stop_id');
 
-        if (!$isHotelPickup && $pickupStopId !== null) {
-            if (!$this->isAllowedRouteStop($routeStops, $pickupStopId, ['pickup', 'both'])) {
+        if (! $isHotelPickup && $pickupStopId !== null) {
+            if (! $this->isAllowedRouteStop($routeStops, $pickupStopId, ['pickup', 'both'])) {
                 return __('client.booking.store.invalid_pickup_stop');
             }
         }
 
-        if (!$this->isAllowedRouteStop($routeStops, $dropoffStopId, ['dropoff', 'both'])) {
+        if (! $this->isAllowedRouteStop($routeStops, $dropoffStopId, ['dropoff', 'both'])) {
             return __('client.booking.store.invalid_dropoff_stop');
         }
 
@@ -325,7 +338,7 @@ class BookingController extends Controller
 
     private function isAllowedRouteStop(Collection $routeStops, int $stopId, array $allowedTypes): bool
     {
-        if (!$routeStops->has($stopId)) {
+        if (! $routeStops->has($stopId)) {
             return false;
         }
 

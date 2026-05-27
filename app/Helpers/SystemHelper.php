@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -14,7 +15,7 @@ class SystemHelper
      */
     public static function formatPrice(int|float $price): string
     {
-        return number_format($price, 0, ',', '.') . 'đ';
+        return number_format($price, 0, ',', '.').'đ';
     }
 
     /**
@@ -72,7 +73,31 @@ class SystemHelper
     public static function parseDate(string $date): string
     {
         $parsed = \DateTime::createFromFormat('d/m/Y', $date);
+
         return $parsed ? $parsed->format('Y-m-d') : date('Y-m-d');
+    }
+
+    public static function mediaUrl(?string $path, ?string $fallback = null): ?string
+    {
+        $value = trim((string) $path);
+
+        if ($value === '') {
+            return $fallback;
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://', '//'])) {
+            return $value;
+        }
+
+        if (Str::startsWith($value, '/')) {
+            return asset(ltrim($value, '/'));
+        }
+
+        if (Str::startsWith($value, 'storage/')) {
+            return asset($value);
+        }
+
+        return Storage::disk('public')->url($value);
     }
 
     /**

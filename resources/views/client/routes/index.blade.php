@@ -253,7 +253,7 @@
 
                             {{-- Image --}}
                             <div class="route-card-image-wrapper">
-                                <img src="{{ $route->thumbnail_url ?? '/client/images/city_imgs/ha-noi.jpg' }}"
+                                <img src="{{ \App\Helpers\SystemHelper::mediaUrl($route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/ha-noi.jpg')) }}"
                                     alt="{{ $route->name }}" class="route-card-image" loading="lazy">
                                 <div class="route-card-overlay"></div>
 

@@ -311,6 +311,8 @@ return [
             'select_trip_button' => 'Chọn chuyến',
             'book_button' => 'Chọn chuyến',
             'sold_out_button' => 'Hết chỗ',
+            'off_day_button' => 'Ngừng chạy',
+            'off_day_badge' => 'Ngừng chạy',
             'seats_left' => 'Còn :count chỗ',
             'details_button' => 'Xem chi tiết',
         ],
@@ -488,6 +490,7 @@ return [
             'invalid_pickup_stop' => 'Điểm đón không hợp lệ cho chuyến xe này.',
             'invalid_dropoff_stop' => 'Điểm trả không hợp lệ cho chuyến xe này.',
             'hotel_pickup_not_available' => 'Chuyến xe này không hỗ trợ đón tại khách sạn.',
+            'trip_blocked' => 'Chuyến xe này đã ngừng nhận khách hoặc không hoạt động trong ngày này.',
             'system_error' => 'Hệ thống đang quá tải, vui lòng thử lại sau.',
         ],
         'sepay' => [

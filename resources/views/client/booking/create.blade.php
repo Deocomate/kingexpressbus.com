@@ -754,13 +754,32 @@
 
                 {{-- Amenities --}}
                 <div class="booking-sidebar-card p-5 space-y-3 text-sm text-slate-700 md:p-6 bg-[#fffdf5]">
+                    @php
+                        $amenityServices = collect($serviceDetails ?? [])
+                            ->filter()
+                            ->values();
+
+                        if ($amenityServices->isEmpty()) {
+                            $amenityServices = collect($services ?? [])
+                                ->filter()
+                                ->map(fn ($service) => [
+                                    'name' => $service,
+                                    'icon' => 'fa-solid fa-circle-check',
+                                ])
+                                ->values();
+                        }
+                    @endphp
                     <h3 class="text-sm font-semibold text-slate-800">{{ __('client.booking.create.amenities_title') }}
                     </h3>
                     <ul class="grid grid-cols-2 gap-x-3 gap-y-2">
-                        @forelse ($services as $service)
+                        @forelse ($amenityServices as $service)
+                            @php
+                                $serviceName = is_array($service) ? ($service['name'] ?? '') : $service;
+                                $serviceIcon = is_array($service) ? ($service['icon'] ?? 'fa-solid fa-circle-check') : 'fa-solid fa-circle-check';
+                            @endphp
                             <li class="flex items-center gap-2 text-xs">
-                                <i class="fa-solid fa-circle-check text-primary-600"></i>
-                                {{ $service }}
+                                <i class="{{ $serviceIcon }} text-primary-600"></i>
+                                {{ $serviceName }}
                             </li>
                         @empty
                             <li class="flex items-center gap-2 text-xs"><i

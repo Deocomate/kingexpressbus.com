@@ -260,7 +260,7 @@
                     <a href="{{ route('client.routes.show', ['slug' => $route->slug]) }}"
                         class="about-grid-card overflow-hidden rounded-2xl border border-amber-100 bg-[#fffdf8] shadow-soft hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-44 overflow-hidden">
-                            <img src="{{ $route->thumbnail_url ?: '/client/images/city_imgs/sapa.jpg' }}" alt="{{ $route->name }}" loading="lazy"
+                            <img src="{{ \App\Helpers\SystemHelper::mediaUrl($route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/sapa.jpg')) }}" alt="{{ $route->name }}" loading="lazy"
                                 class="about-grid-image h-full w-full object-cover transition duration-500">
                             <div class="absolute inset-0 bg-linear-to-t from-slate-900/70 via-slate-900/5 to-transparent"></div>
                             <p class="absolute bottom-3 left-3 right-3 line-clamp-1 text-sm font-extrabold text-white">{{ $route->name }}</p>

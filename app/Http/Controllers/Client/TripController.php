@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 class TripController extends Controller
 {
     protected TripService $tripService;
+
     protected RouteService $routeService;
 
     public function __construct(TripService $tripService, RouteService $routeService)
@@ -145,7 +146,7 @@ class TripController extends Controller
         // 1. Get Route info
         $route = $this->routeService->getRouteBySlug($slug);
 
-        if (!$route) {
+        if (! $route) {
             abort(404);
         }
 
@@ -159,7 +160,7 @@ class TripController extends Controller
         }
 
         $parsedReturnDate = null;
-        if (!empty($returnDate)) {
+        if (! empty($returnDate)) {
             try {
                 $parsedReturnDate = Carbon::createFromFormat('d/m/Y', $returnDate)->format('Y-m-d');
             } catch (\Exception $e) {
@@ -172,7 +173,7 @@ class TripController extends Controller
             'sort' => $request->input('sort', 'recommended'),
             'price_min' => $request->input('price_min'),
             'price_max' => $request->input('price_max'),
-            'services' => $request->input('services', []),
+            'services' => $this->normalizeFilterArray($request->input('services', [])),
             'pickup_points' => $request->input('pickup_points', []),
             'dropoff_points' => $request->input('dropoff_points', []),
             'bus_categories' => $request->input('bus_categories', []),
@@ -194,18 +195,24 @@ class TripController extends Controller
 
         // Calculate active filter count for UI
         $activeFilterCount = 0;
-        if (!empty($filterState['price_min']))
+        if (! empty($filterState['price_min'])) {
             $activeFilterCount++;
-        if (!empty($filterState['price_max']))
+        }
+        if (! empty($filterState['price_max'])) {
             $activeFilterCount++;
-        if (!empty($filterState['services']))
+        }
+        if (! empty($filterState['services'])) {
             $activeFilterCount += count($filterState['services']);
-        if (!empty($filterState['bus_categories']))
+        }
+        if (! empty($filterState['bus_categories'])) {
             $activeFilterCount += count($filterState['bus_categories']);
-        if (!empty($filterState['time_ranges']))
+        }
+        if (! empty($filterState['time_ranges'])) {
             $activeFilterCount += count($filterState['time_ranges']);
-        if ($filterState['has_seats'])
+        }
+        if ($filterState['has_seats']) {
             $activeFilterCount++;
+        }
 
         // 5. Prepare Search Data for View
         $searchDefaults = [
@@ -289,6 +296,17 @@ class TripController extends Controller
             'title' => $route->title ?? $route->name,
             'description' => $route->description,
         ]);
+    }
+
+    /**
+     * Normalize query filters that can arrive as a scalar or array.
+     */
+    private function normalizeFilterArray(mixed $value): array
+    {
+        return collect(is_array($value) ? $value : [$value])
+            ->filter(fn ($item) => $item !== null && $item !== '')
+            ->values()
+            ->all();
     }
 
     /**

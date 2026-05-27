@@ -8,7 +8,7 @@ use App\Mail\BookingCancelledMail;
 use App\Mail\BookingConfirmMail;
 use App\Mail\BookingPaymentRequestMail;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -20,12 +20,17 @@ use Illuminate\Support\Str;
 class BookingService
 {
     private const NOTE_HOTEL_PICKUP_PREFIX = '[HOTEL_PICKUP]: ';
+
     private const NOTE_CUSTOMER_PREFIX = '[CUSTOMER_NOTE]: ';
+
     private const NOTE_CANCEL_PREFIX = '[CANCEL_REASON]: ';
+
     private const NOTE_ADMIN_CANCEL_PREFIX = '[ADMIN_CANCEL_REASON]: ';
+
     private const NOTE_SEPAY_REFUND_PREFIX = '[SEPAY_REFUND_REQUIRED]: ';
 
     private const LEGACY_NOTE_HOTEL_PICKUP_PREFIX = '[Đón tại khách sạn]: ';
+
     private const LEGACY_NOTE_ADMIN_CANCEL_PREFIX = '[Lý do hủy Admin]: ';
 
     protected TripService $tripService;
@@ -48,7 +53,7 @@ class BookingService
                 ->select('b.seat_count', 't.is_active')
                 ->first();
 
-            if (!$trip || !$trip->is_active) {
+            if (! $trip || ! $trip->is_active) {
                 return [
                     'success' => false,
                     'message' => __('client.booking.create.trip_not_found'),
@@ -90,9 +95,9 @@ class BookingService
 
             if (isset($data['is_hotel_pickup']) && $data['is_hotel_pickup']) {
                 $hotelAddress = trim(strip_tags($data['hotel_pickup_address'] ?? ''));
-                $hotelNote = self::NOTE_HOTEL_PICKUP_PREFIX . $hotelAddress;
+                $hotelNote = self::NOTE_HOTEL_PICKUP_PREFIX.$hotelAddress;
                 $bookingNotes = $bookingNotes
-                    ? $hotelNote . "\n" . self::NOTE_CUSTOMER_PREFIX . $bookingNotes
+                    ? $hotelNote."\n".self::NOTE_CUSTOMER_PREFIX.$bookingNotes
                     : $hotelNote;
                 $pickupStopId = null;
             }
@@ -143,8 +148,9 @@ class BookingService
         try {
             $mailDetails = $this->prepareMailDetails($bookingId);
 
-            if (!$mailDetails) {
-                Log::error('Cannot prepare booking confirmation mail data: ' . $bookingId);
+            if (! $mailDetails) {
+                Log::error('Cannot prepare booking confirmation mail data: '.$bookingId);
+
                 return false;
             }
 
@@ -161,6 +167,7 @@ class BookingService
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -194,7 +201,7 @@ class BookingService
             ->where('b.id', $bookingId)
             ->first();
 
-        if (!$details) {
+        if (! $details) {
             return null;
         }
 
@@ -205,7 +212,7 @@ class BookingService
         $result['web_phone'] = $webProfile->hotline ?? $webProfile->phone ?? __('client.booking.service.not_available');
         $result['web_email'] = $webProfile->email ?? __('client.booking.service.not_available');
         $result['web_link'] = url('/');
-        $result['web_logo'] = !empty($webProfile->logo_url) ? url($webProfile->logo_url) : null;
+        $result['web_logo'] = SystemHelper::mediaUrl($webProfile->logo_url ?? null);
         $result['payment_url'] = route('client.sepay.redirect', ['code' => $result['booking_code']]);
 
         $result['departure_date'] = Carbon::parse($result['booking_date'])->format('d/m/Y');
@@ -237,8 +244,9 @@ class BookingService
         try {
             $mailDetails = $this->prepareMailDetails($bookingId);
 
-            if (!$mailDetails) {
-                Log::error('Cannot prepare booking payment request mail data: ' . $bookingId);
+            if (! $mailDetails) {
+                Log::error('Cannot prepare booking payment request mail data: '.$bookingId);
+
                 return false;
             }
 
@@ -259,6 +267,7 @@ class BookingService
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -270,7 +279,7 @@ class BookingService
     {
         $booking = DB::table('bookings')->where('id', $bookingId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return ['success' => false, 'message' => __('client.booking.service.cancel_not_found')];
         }
 
@@ -286,7 +295,7 @@ class BookingService
         if ($reason) {
             $existingNotes = $booking->notes ?? '';
             $cancelNote = $adminUserId ? self::NOTE_ADMIN_CANCEL_PREFIX : self::NOTE_CANCEL_PREFIX;
-            $updateData['notes'] = $existingNotes . "\n" . $cancelNote . $reason;
+            $updateData['notes'] = $existingNotes."\n".$cancelNote.$reason;
         }
 
         DB::table('bookings')->where('id', $bookingId)->update($updateData);
@@ -305,8 +314,9 @@ class BookingService
         try {
             $mailDetails = $this->prepareMailDetails($bookingId);
 
-            if (!$mailDetails) {
-                Log::error('Cannot prepare booking cancellation mail data: ' . $bookingId);
+            if (! $mailDetails) {
+                Log::error('Cannot prepare booking cancellation mail data: '.$bookingId);
+
                 return false;
             }
 
@@ -331,6 +341,7 @@ class BookingService
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -343,8 +354,9 @@ class BookingService
         try {
             $mailDetails = $this->prepareMailDetails($bookingId);
 
-            if (!$mailDetails) {
-                Log::error('Cannot prepare booking approval mail data: ' . $bookingId);
+            if (! $mailDetails) {
+                Log::error('Cannot prepare booking approval mail data: '.$bookingId);
+
                 return false;
             }
 
@@ -365,6 +377,7 @@ class BookingService
                 'booking_id' => $bookingId,
                 'error' => $e->getMessage(),
             ]);
+
             return false;
         }
     }
@@ -376,7 +389,7 @@ class BookingService
     {
         $booking = DB::table('bookings')->where('id', $bookingId)->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return ['success' => false, 'message' => __('client.booking.service.status_not_found')];
         }
 
@@ -396,24 +409,24 @@ class BookingService
             $existingNotes = $booking->notes ?? '';
             $notesToAppend = [];
 
-            if ($notes && !Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
-                $notesToAppend[] = self::NOTE_ADMIN_CANCEL_PREFIX . trim($notes);
+            if ($notes && ! Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
+                $notesToAppend[] = self::NOTE_ADMIN_CANCEL_PREFIX.trim($notes);
             }
 
             if (
                 $booking->payment_method === 'online_banking'
                 && $booking->payment_status === 'paid'
-                && !empty($booking->payment_transaction_id)
-                && !Str::contains($existingNotes, self::NOTE_SEPAY_REFUND_PREFIX)
+                && ! empty($booking->payment_transaction_id)
+                && ! Str::contains($existingNotes, self::NOTE_SEPAY_REFUND_PREFIX)
             ) {
                 $notesToAppend[] = self::NOTE_SEPAY_REFUND_PREFIX
-                    . 'Manual refund/reconciliation required for SePay transaction '
-                    . $booking->payment_transaction_id
-                    . '.';
+                    .'Manual refund/reconciliation required for SePay transaction '
+                    .$booking->payment_transaction_id
+                    .'.';
             }
 
-            if (!empty($notesToAppend)) {
-                $updateData['notes'] = trim($existingNotes . "\n" . implode("\n", $notesToAppend));
+            if (! empty($notesToAppend)) {
+                $updateData['notes'] = trim($existingNotes."\n".implode("\n", $notesToAppend));
             }
         }
 
@@ -456,7 +469,7 @@ class BookingService
             ->where('b.id', $bookingId)
             ->first();
 
-        if (!$booking) {
+        if (! $booking) {
             return null;
         }
 
@@ -480,7 +493,7 @@ class BookingService
         if ($booking->pickup_stop_id && isset($booking->pickup_stop_name)) {
             $booking->pickup_display = $booking->pickup_stop_name;
             if ($booking->pickup_stop_address) {
-                $booking->pickup_display .= ' - ' . $booking->pickup_stop_address;
+                $booking->pickup_display .= ' - '.$booking->pickup_stop_address;
             }
         } elseif (is_null($booking->pickup_stop_id)) {
             $hotelAddress = $this->extractHotelPickupAddress($booking->notes ?? null);
@@ -495,7 +508,7 @@ class BookingService
     /**
      * Get bookings for admin listing with filters.
      */
-    public function getBookingsForAdmin(array $filters = []): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function getBookingsForAdmin(array $filters = []): LengthAwarePaginator
     {
         $query = DB::table('bookings as b')
             ->join('trips as t', 'b.trip_id', '=', 't.id')
@@ -518,7 +531,7 @@ class BookingService
             ]);
 
         // Apply filters
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('b.booking_code', 'like', "%{$search}%")
@@ -527,15 +540,15 @@ class BookingService
             });
         }
 
-        if (!empty($filters['status']) && $filters['status'] !== 'all') {
+        if (! empty($filters['status']) && $filters['status'] !== 'all') {
             $query->where('b.status', $filters['status']);
         }
 
-        if (!empty($filters['start_date'])) {
+        if (! empty($filters['start_date'])) {
             $query->whereDate('b.booking_date', '>=', Carbon::parse($filters['start_date']));
         }
 
-        if (!empty($filters['end_date'])) {
+        if (! empty($filters['end_date'])) {
             $query->whereDate('b.booking_date', '<=', Carbon::parse($filters['end_date']));
         }
 
@@ -567,7 +580,7 @@ class BookingService
 
     private function extractHotelPickupAddress(?string $notes): ?string
     {
-        if (!is_string($notes) || trim($notes) === '') {
+        if (! is_string($notes) || trim($notes) === '') {
             return null;
         }
 
@@ -579,6 +592,7 @@ class BookingService
         foreach ($prefixes as $prefix) {
             if (Str::contains($notes, $prefix)) {
                 $segment = Str::after($notes, $prefix);
+
                 return trim(Str::before($segment, "\n"));
             }
         }

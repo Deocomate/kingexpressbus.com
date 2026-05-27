@@ -26,7 +26,7 @@ class TripService
     {
         $parsedDate = Carbon::parse($date)->format('Y-m-d');
 
-        return DB::table('trips as t')
+        $trips = DB::table('trips as t')
             ->join('routes as r', 't.route_id', '=', 'r.id')
             ->join('buses as b', 't.bus_id', '=', 'b.id')
             ->where('r.province_start_id', $originProvinceId)
@@ -48,14 +48,18 @@ class TripService
                 'b.name as bus_name',
                 'b.model_name as bus_model',
                 'b.seat_count',
-                'b.services as bus_services',
                 'b.thumbnail_url as bus_thumbnail',
                 'b.image_list_url as bus_images',
             ])
             ->orderBy('t.priority', 'desc')
             ->orderBy('t.start_time')
-            ->get()
-            ->map(fn($trip) => $this->enrichTripData($trip, $parsedDate));
+            ->get();
+
+        $tripIds = $trips->pluck('trip_id')->all();
+        $busServicesMap = $this->getBusServicesMap($trips->pluck('bus_id')->all());
+        $tripBlocksMap = $this->getTripBlocksMap($tripIds, $parsedDate);
+
+        return $trips->map(fn ($trip) => $this->enrichTripData($trip, $parsedDate, $busServicesMap, $tripBlocksMap));
     }
 
     /**
@@ -65,7 +69,7 @@ class TripService
     {
         $parsedDate = $date ? Carbon::parse($date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
 
-        return DB::table('trips as t')
+        $trips = DB::table('trips as t')
             ->join('buses as b', 't.bus_id', '=', 'b.id')
             ->join('routes as r', 't.route_id', '=', 'r.id')
             ->where('t.route_id', $routeId)
@@ -83,14 +87,18 @@ class TripService
                 'b.name as bus_name',
                 'b.model_name as bus_model',
                 'b.seat_count',
-                'b.services as bus_services',
                 'b.thumbnail_url as bus_thumbnail',
                 'b.image_list_url as bus_images',
             ])
             ->orderBy('t.priority', 'desc')
             ->orderBy('t.start_time')
-            ->get()
-            ->map(fn($trip) => $this->enrichTripData($trip, $parsedDate));
+            ->get();
+
+        $tripIds = $trips->pluck('trip_id')->all();
+        $busServicesMap = $this->getBusServicesMap($trips->pluck('bus_id')->all());
+        $tripBlocksMap = $this->getTripBlocksMap($tripIds, $parsedDate);
+
+        return $trips->map(fn ($trip) => $this->enrichTripData($trip, $parsedDate, $busServicesMap, $tripBlocksMap));
     }
 
     /**
@@ -123,23 +131,42 @@ class TripService
                 'b.name as bus_name',
                 'b.model_name as bus_model',
                 'b.seat_count',
-                'b.seat_map',
-                'b.services as bus_services',
                 'b.thumbnail_url as bus_thumbnail',
                 'b.image_list_url as bus_images',
                 'b.content as bus_content',
             ])
             ->first();
 
-        if (!$trip) {
+        if (! $trip) {
             return null;
+        }
+
+        $targetDate = $date ? Carbon::parse($date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
+        
+        $block = DB::table('trip_blocks')
+            ->where('trip_id', $trip->trip_id)
+            ->whereDate('start_date', '<=', $targetDate)
+            ->whereDate('end_date', '>=', $targetDate)
+            ->first();
+
+        if ($block && $block->block_type === 'off_day') {
+            $trip->is_off_day = true;
+            $trip->block_note = $block->note;
+        } else {
+            $trip->is_off_day = false;
+            $trip->block_note = null;
         }
 
         // Get route stops
         $trip->stops = $this->getRouteStops($trip->route_id);
-        $trip->bus_services = json_decode($trip->bus_services, true) ?? [];
+        $serviceDetails = $this->getBusServicesMap([$trip->bus_id])[$trip->bus_id] ?? [];
+        $trip->bus_service_details = $this->withoutServicePriority($serviceDetails);
+        $trip->bus_service_ids = collect($serviceDetails)->pluck('id')->values()->all();
+        $trip->bus_services = collect($serviceDetails)->pluck('name')->values()->all();
+        $trip->service_details = $trip->bus_service_details;
+        $trip->service_ids = $trip->bus_service_ids;
+        $trip->services = $trip->bus_services;
         $trip->bus_images = json_decode($trip->bus_images, true) ?? [];
-        $trip->seat_map = json_decode($trip->seat_map, true) ?? [];
 
         $targetDate = $date ? Carbon::parse($date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByRouteAndBasePrice(
@@ -166,6 +193,17 @@ class TripService
      */
     public function calculateAvailableSeats(int $tripId, string $date, ?int $totalSeats = null): int
     {
+        // Check for trip block
+        $block = DB::table('trip_blocks')
+            ->where('trip_id', $tripId)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->first();
+
+        if ($block && in_array($block->block_type, ['sold_out', 'off_day'])) {
+            return 0;
+        }
+
         if ($totalSeats === null) {
             $totalSeats = DB::table('trips as t')
                 ->join('buses as b', 't.bus_id', '=', 'b.id')
@@ -207,13 +245,23 @@ class TripService
     /**
      * Enrich trip data with additional calculated fields.
      */
-    private function enrichTripData(object $trip, string $date): object
+    private function enrichTripData(object $trip, string $date, array $busServicesMap = [], array $tripBlocksMap = []): object
     {
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByRouteAndBasePrice(
             (int) $trip->route_id,
             (int) ($trip->price ?? 0),
             $date
         );
+
+        $block = $tripBlocksMap[$trip->trip_id] ?? null;
+
+        if ($block && $block->block_type === 'off_day') {
+            $trip->is_off_day = true;
+            $trip->block_note = $block->note;
+        } else {
+            $trip->is_off_day = false;
+            $trip->block_note = null;
+        }
 
         // Calculate duration
         $start = Carbon::parse($trip->start_time);
@@ -241,7 +289,10 @@ class TripService
         $trip->dropoff_points = $stops->whereIn('stop_type', ['dropoff', 'both'])->values();
 
         // Parse JSON fields
-        $trip->services = json_decode($trip->bus_services, true) ?? [];
+        $serviceDetails = $busServicesMap[$trip->bus_id] ?? [];
+        $trip->service_details = $this->withoutServicePriority($serviceDetails);
+        $trip->service_ids = collect($serviceDetails)->pluck('id')->values()->all();
+        $trip->services = collect($serviceDetails)->pluck('name')->values()->all();
         $trip->image_gallery = json_decode($trip->bus_images, true) ?? [];
         if ($trip->bus_thumbnail) {
             array_unshift($trip->image_gallery, $trip->bus_thumbnail);
@@ -249,6 +300,102 @@ class TripService
         $trip->primary_bus_image = $trip->image_gallery[0] ?? null;
 
         return $trip;
+    }
+
+    private function getTripBlocksMap(array $tripIds, string $date): array
+    {
+        if (empty($tripIds)) {
+            return [];
+        }
+
+        return DB::table('trip_blocks')
+            ->whereIn('trip_id', $tripIds)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->get()
+            ->keyBy('trip_id')
+            ->all();
+    }
+
+    private function getBusServicesMap(array $busIds): array
+    {
+        $busIds = collect($busIds)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($busIds)) {
+            return [];
+        }
+
+        return DB::table('bus_bus_service as bbs')
+            ->join('bus_services as bs', 'bbs.bus_service_id', '=', 'bs.id')
+            ->whereIn('bbs.bus_id', $busIds)
+            ->select([
+                'bbs.bus_id',
+                'bs.id',
+                'bs.name',
+                'bs.icon',
+                'bs.priority',
+            ])
+            ->orderBy('bs.priority', 'desc')
+            ->orderBy('bs.name')
+            ->get()
+            ->groupBy('bus_id')
+            ->map(fn ($services) => $services
+                ->map(fn ($service) => [
+                    'id' => (int) $service->id,
+                    'name' => $service->name,
+                    'icon' => $service->icon,
+                    'priority' => (int) $service->priority,
+                ])
+                ->values()
+                ->all())
+            ->all();
+    }
+
+    private function withoutServicePriority(array $services): array
+    {
+        return collect($services)
+            ->map(fn ($service) => [
+                'id' => $service['id'],
+                'name' => $service['name'],
+                'icon' => $service['icon'] ?? null,
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function normalizeServiceFilterIds(mixed $services): array
+    {
+        $values = collect(is_array($services) ? $services : [$services])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->values();
+
+        if ($values->isEmpty()) {
+            return [];
+        }
+
+        $ids = $values
+            ->filter(fn ($value) => is_numeric($value))
+            ->map(fn ($value) => (int) $value);
+
+        $names = $values
+            ->reject(fn ($value) => is_numeric($value))
+            ->map(fn ($value) => (string) $value)
+            ->values();
+
+        if ($names->isNotEmpty()) {
+            $ids = $ids->merge(
+                DB::table('bus_services')
+                    ->whereIn('name', $names->all())
+                    ->pluck('id')
+                    ->map(fn ($id) => (int) $id)
+            );
+        }
+
+        return $ids->filter()->unique()->values()->all();
     }
 
     /**
@@ -322,7 +469,7 @@ class TripService
      */
     public function extractFilterOptions(Collection $trips): array
     {
-        $services = collect();
+        $servicesById = collect();
         $busCategories = collect();
         $prices = collect();
         $pickupPoints = collect();
@@ -330,11 +477,15 @@ class TripService
 
         foreach ($trips as $trip) {
             // Collect services
-            $tripServices = is_array($trip->services) ? $trip->services : [];
-            $services = $services->merge($tripServices);
+            $tripServices = is_array($trip->service_details ?? null) ? $trip->service_details : [];
+            foreach ($tripServices as $service) {
+                if (! empty($service['id'])) {
+                    $servicesById->put((int) $service['id'], $service);
+                }
+            }
 
             // Collect bus categories/models
-            if (!empty($trip->bus_model)) {
+            if (! empty($trip->bus_model)) {
                 $busCategories->push($trip->bus_model);
             }
 
@@ -369,7 +520,18 @@ class TripService
         ];
 
         return [
-            'services' => $services->filter()->unique()->sort()->values()->toArray(),
+            'services' => $servicesById
+                ->sortBy([
+                    ['priority', 'desc'],
+                    ['name', 'asc'],
+                ])
+                ->map(fn ($service) => [
+                    'id' => $service['id'],
+                    'name' => $service['name'],
+                    'icon' => $service['icon'] ?? null,
+                ])
+                ->values()
+                ->toArray(),
             'bus_categories' => $busCategories->filter()->unique()->sort()->values()->toArray(),
             'pickup_points' => $pickupPoints->filter()->unique()->sort()->values()->toArray(),
             'dropoff_points' => $dropoffPoints->filter()->unique()->sort()->values()->toArray(),
@@ -386,36 +548,42 @@ class TripService
      */
     public function applyFilters(Collection $trips, array $filters): Collection
     {
-        return $trips->filter(function ($trip) use ($filters) {
+        $serviceFilterIds = $this->normalizeServiceFilterIds($filters['services'] ?? []);
+
+        return $trips->filter(function ($trip) use ($filters, $serviceFilterIds) {
             $priceToCompare = (int) ($trip->effective_price ?? $trip->price ?? 0);
 
             // Price filter
-            if (!empty($filters['price_min']) && $priceToCompare < (int) $filters['price_min']) {
+            if (! empty($filters['price_min']) && $priceToCompare < (int) $filters['price_min']) {
                 return false;
             }
-            if (!empty($filters['price_max']) && $priceToCompare > (int) $filters['price_max']) {
+            if (! empty($filters['price_max']) && $priceToCompare > (int) $filters['price_max']) {
                 return false;
             }
 
             // Services filter (trip must have ALL selected services)
-            if (!empty($filters['services']) && is_array($filters['services'])) {
-                $tripServices = is_array($trip->services) ? $trip->services : [];
-                foreach ($filters['services'] as $service) {
-                    if (!in_array($service, $tripServices, true)) {
+            if (! empty($serviceFilterIds)) {
+                $tripServiceIds = collect($trip->service_ids ?? [])
+                    ->map(fn ($serviceId) => (int) $serviceId)
+                    ->values()
+                    ->all();
+
+                foreach ($serviceFilterIds as $serviceId) {
+                    if (! in_array((int) $serviceId, $tripServiceIds, true)) {
                         return false;
                     }
                 }
             }
 
             // Bus categories filter (trip must match ONE of selected categories)
-            if (!empty($filters['bus_categories']) && is_array($filters['bus_categories'])) {
-                if (!in_array($trip->bus_model ?? '', $filters['bus_categories'], true)) {
+            if (! empty($filters['bus_categories']) && is_array($filters['bus_categories'])) {
+                if (! in_array($trip->bus_model ?? '', $filters['bus_categories'], true)) {
                     return false;
                 }
             }
 
             // Time range filter
-            if (!empty($filters['time_ranges']) && is_array($filters['time_ranges'])) {
+            if (! empty($filters['time_ranges']) && is_array($filters['time_ranges'])) {
                 $tripHour = (int) Carbon::parse($trip->start_time)->format('H');
                 $matchesTimeRange = false;
 
@@ -428,7 +596,7 @@ class TripService
                 ];
 
                 foreach ($filters['time_ranges'] as $range) {
-                    if (!isset($timeRangeDefinitions[$range])) {
+                    if (! isset($timeRangeDefinitions[$range])) {
                         continue;
                     }
                     $def = $timeRangeDefinitions[$range];
@@ -447,13 +615,13 @@ class TripService
                     }
                 }
 
-                if (!$matchesTimeRange) {
+                if (! $matchesTimeRange) {
                     return false;
                 }
             }
 
             // Seats available filter
-            if (!empty($filters['has_seats']) && ($trip->seats_available ?? 0) <= 0) {
+            if (! empty($filters['has_seats']) && ($trip->seats_available ?? 0) <= 0) {
                 return false;
             }
 
@@ -467,12 +635,12 @@ class TripService
     public function applySorting(Collection $trips, string $sortBy = 'recommended'): Collection
     {
         return match ($sortBy) {
-            'earliest' => $trips->sortBy(fn($trip) => Carbon::parse($trip->start_time))->values(),
-            'latest' => $trips->sortByDesc(fn($trip) => Carbon::parse($trip->start_time))->values(),
-            'price_low' => $trips->sortBy(fn($trip) => $trip->effective_price ?? $trip->price ?? PHP_INT_MAX)->values(),
-            'price_high' => $trips->sortByDesc(fn($trip) => $trip->effective_price ?? $trip->price ?? 0)->values(),
-            'seats_available' => $trips->sortByDesc(fn($trip) => $trip->seats_available ?? 0)->values(),
-            default => $trips->sortByDesc(fn($trip) => $trip->priority ?? 0)->values(), // recommended
+            'earliest' => $trips->sortBy(fn ($trip) => Carbon::parse($trip->start_time))->values(),
+            'latest' => $trips->sortByDesc(fn ($trip) => Carbon::parse($trip->start_time))->values(),
+            'price_low' => $trips->sortBy(fn ($trip) => $trip->effective_price ?? $trip->price ?? PHP_INT_MAX)->values(),
+            'price_high' => $trips->sortByDesc(fn ($trip) => $trip->effective_price ?? $trip->price ?? 0)->values(),
+            'seats_available' => $trips->sortByDesc(fn ($trip) => $trip->seats_available ?? 0)->values(),
+            default => $trips->sortByDesc(fn ($trip) => $trip->priority ?? 0)->values(), // recommended
         };
     }
 
@@ -503,4 +671,3 @@ class TripService
         ];
     }
 }
-

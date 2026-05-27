@@ -4,6 +4,7 @@ use App\Mail\BookingApprovedMail;
 use App\Mail\BookingConfirmMail;
 use App\Mail\BookingPaymentRequestMail;
 use App\Services\BookingService;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,29 +16,29 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
     $now = now();
 
     $provinceStartId = DB::table('provinces')->insertGetId([
-        'name' => 'Ha Noi ' . $suffix,
-        'slug' => 'ha-noi-' . $suffix,
+        'name' => 'Ha Noi '.$suffix,
+        'slug' => 'ha-noi-'.$suffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $provinceEndId = DB::table('provinces')->insertGetId([
-        'name' => 'Lao Cai ' . $suffix,
-        'slug' => 'lao-cai-' . $suffix,
+        'name' => 'Lao Cai '.$suffix,
+        'slug' => 'lao-cai-'.$suffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $districtTypeId = DB::table('district_types')->insertGetId([
-        'name' => 'Urban ' . $suffix,
+        'name' => 'Urban '.$suffix,
         'priority' => 0,
     ]);
 
     $districtStartId = DB::table('districts')->insertGetId([
         'province_id' => $provinceStartId,
         'district_type_id' => $districtTypeId,
-        'name' => 'Thanh Xuan ' . $suffix,
-        'slug' => 'thanh-xuan-' . $suffix,
+        'name' => 'Thanh Xuan '.$suffix,
+        'slug' => 'thanh-xuan-'.$suffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
@@ -45,15 +46,15 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
     $districtEndId = DB::table('districts')->insertGetId([
         'province_id' => $provinceEndId,
         'district_type_id' => $districtTypeId,
-        'name' => 'Sapa ' . $suffix,
-        'slug' => 'sapa-' . $suffix,
+        'name' => 'Sapa '.$suffix,
+        'slug' => 'sapa-'.$suffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $pickupStopId = DB::table('stops')->insertGetId([
         'district_id' => $districtStartId,
-        'name' => 'Ben Xe My Dinh ' . $suffix,
+        'name' => 'Ben Xe My Dinh '.$suffix,
         'address' => 'Ha Noi',
         'priority' => 0,
         'created_at' => $now,
@@ -62,7 +63,7 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
 
     $dropoffStopId = DB::table('stops')->insertGetId([
         'district_id' => $districtEndId,
-        'name' => 'Ben Xe Sapa ' . $suffix,
+        'name' => 'Ben Xe Sapa '.$suffix,
         'address' => 'Lao Cai',
         'priority' => 0,
         'created_at' => $now,
@@ -72,8 +73,8 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
     $routeId = DB::table('routes')->insertGetId([
         'province_start_id' => $provinceStartId,
         'province_end_id' => $provinceEndId,
-        'name' => 'Ha Noi - Sapa ' . $suffix,
-        'slug' => 'ha-noi-sapa-' . $suffix,
+        'name' => 'Ha Noi - Sapa '.$suffix,
+        'slug' => 'ha-noi-sapa-'.$suffix,
         'price_default' => 0,
         'available_hotel_pickup' => false,
         'priority' => 0,
@@ -101,11 +102,10 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
     ]);
 
     $busId = DB::table('buses')->insertGetId([
-        'name' => 'King Sleeper ' . $suffix,
+        'name' => 'King Sleeper '.$suffix,
         'model_name' => 'Limousine',
         'seat_count' => 40,
         'seat_map' => json_encode([]),
-        'services' => json_encode([]),
         'priority' => 0,
         'created_at' => $now,
         'updated_at' => $now,
@@ -151,7 +151,7 @@ function createSePayPendingBooking(string $suffix = 'ipn', array $overrides = []
     $fixture = seedSePayTripFixture($suffix);
     $now = now();
     $bookingData = [
-        'booking_code' => 'SEPAY-' . strtoupper($suffix),
+        'booking_code' => 'SEPAY-'.strtoupper($suffix),
         'trip_id' => $fixture['trip_id'],
         'booking_date' => '2026-02-02',
         'customer_name' => 'IPN User',
@@ -265,12 +265,12 @@ it('does not reset confirmed time or resend payment request when status is not p
 
     $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
 
-    expect(\Carbon\Carbon::parse($updatedBooking->confirmed_at)->eq($confirmedAt))->toBeTrue();
+    expect(Carbon::parse($updatedBooking->confirmed_at)->eq($confirmedAt))->toBeTrue();
     Mail::assertNotQueued(BookingPaymentRequestMail::class);
 });
 
 it('blocks payment redirect for bookings that are not payable', function (array $overrides) {
-    $booking = createSePayPendingBooking('redirect-' . strtolower($overrides['status'] ?? $overrides['payment_method']), $overrides);
+    $booking = createSePayPendingBooking('redirect-'.strtolower($overrides['status'] ?? $overrides['payment_method']), $overrides);
 
     $response = $this->get(route('client.sepay.redirect', ['code' => $booking->booking_code]));
 
@@ -410,7 +410,7 @@ it('does not mark unconfirmed or cancelled bookings paid from SePay IPN', functi
 
     $this->postJson(
         route('client.sepay.ipn'),
-        sePayIpnPayload($booking->booking_code, 300000, 'TX-' . strtoupper($suffix)),
+        sePayIpnPayload($booking->booking_code, 300000, 'TX-'.strtoupper($suffix)),
         ['X-Secret-Key' => 'test-secret']
     )->assertSuccessful();
 

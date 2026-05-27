@@ -1,0 +1,79 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class MenuSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $rows = $this->rows();
+
+        foreach (array_chunk($rows, 50) as $chunk) {
+            DB::table('menus')->insert($chunk);
+        }
+    }
+
+    private function rows(): array
+    {
+        return [
+            [
+                'id' => 2,
+                'name' => 'Tuyến đường',
+                'url' => '#',
+                'parent_id' => -1,
+                'priority' => 1,
+                'type' => 'custom_link',
+                'related_id' => null,
+                'created_at' => '2025-10-02 23:27:41',
+                'updated_at' => '2025-10-02 23:27:41',
+            ],
+            [
+                'id' => 4,
+                'name' => 'Hà Nội - Sapa',
+                'url' => '/tuyen-duong/ha-noi-sapa',
+                'parent_id' => 2,
+                'priority' => 1,
+                'type' => 'route',
+                'related_id' => 1,
+                'created_at' => '2025-10-02 23:27:41',
+                'updated_at' => '2026-03-19 04:26:26',
+            ],
+            [
+                'id' => 5,
+                'name' => 'Sapa - Hà Nội',
+                'url' => '/tuyen-duong/sapa-ha-noi',
+                'parent_id' => 2,
+                'priority' => 2,
+                'type' => 'route',
+                'related_id' => 2,
+                'created_at' => '2025-10-02 23:27:41',
+                'updated_at' => '2026-03-19 04:26:26',
+            ],
+            [
+                'id' => 9,
+                'name' => 'Sapa - Ninh Bình',
+                'url' => '/tuyen-duong/sapa-ninh-binh',
+                'parent_id' => 2,
+                'priority' => 3,
+                'type' => 'route',
+                'related_id' => 47,
+                'created_at' => '2026-03-19 04:25:33',
+                'updated_at' => '2026-03-19 04:26:26',
+            ],
+            [
+                'id' => 10,
+                'name' => 'Ninh Bình - Sapa',
+                'url' => '/tuyen-duong/ninh-binh-sapa',
+                'parent_id' => 2,
+                'priority' => 4,
+                'type' => 'route',
+                'related_id' => 48,
+                'created_at' => '2026-03-19 04:25:33',
+                'updated_at' => '2026-03-19 04:26:26',
+            ],
+        ];
+    }
+}

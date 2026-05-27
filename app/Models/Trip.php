@@ -52,6 +52,14 @@ class Trip extends Model
     }
 
     /**
+     * Get the blocks for this trip.
+     */
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(TripBlock::class);
+    }
+
+    /**
      * Scope for active trips.
      */
     public function scopeActive($query)

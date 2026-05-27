@@ -1,0 +1,78 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class BusServiceSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $rows = $this->rows();
+
+        foreach (array_chunk($rows, 50) as $chunk) {
+            DB::table('bus_services')->insert($chunk);
+        }
+    }
+
+    private function rows(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'name' => 'Wi-Fi',
+                'icon' => 'fas fa-wifi',
+                'priority' => 100,
+            ],
+            [
+                'id' => 2,
+                'name' => 'Nước uống',
+                'icon' => 'fas fa-bottle-water',
+                'priority' => 95,
+            ],
+            [
+                'id' => 3,
+                'name' => 'Chăn gối',
+                'icon' => 'fas fa-bed',
+                'priority' => 90,
+            ],
+            [
+                'id' => 4,
+                'name' => 'Điều hoà',
+                'icon' => 'fas fa-snowflake',
+                'priority' => 85,
+            ],
+            [
+                'id' => 5,
+                'name' => 'Ổ sạc',
+                'icon' => 'fas fa-plug',
+                'priority' => 80,
+            ],
+            [
+                'id' => 6,
+                'name' => 'Rèm che',
+                'icon' => 'fas fa-window-maximize',
+                'priority' => 75,
+            ],
+            [
+                'id' => 7,
+                'name' => 'TV',
+                'icon' => 'fas fa-tv',
+                'priority' => 70,
+            ],
+            [
+                'id' => 8,
+                'name' => 'Cổng sạc USB',
+                'icon' => 'fas fa-charging-station',
+                'priority' => 65,
+            ],
+            [
+                'id' => 9,
+                'name' => 'Cabin rộng rãi',
+                'icon' => 'fas fa-vector-square',
+                'priority' => 60,
+            ],
+        ];
+    }
+}

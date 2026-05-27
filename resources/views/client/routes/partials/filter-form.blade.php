@@ -1,5 +1,8 @@
 @php
     $filterIdPrefix = $filterIdPrefix ?? '';
+    $selectedServiceValues = collect($filterState['services'] ?? [])
+        ->map(fn ($service) => (string) $service)
+        ->all();
 @endphp
 
 <div class="grow space-y-0">
@@ -82,10 +85,19 @@
             <div id="{{ $filterIdPrefix }}filter-services" class="filter-content mt-3">
                 <div class="flex flex-wrap gap-2">
                     @foreach ($availableServices as $service)
+                        @php
+                            $serviceId = is_array($service) ? ($service['id'] ?? null) : null;
+                            $serviceName = is_array($service) ? ($service['name'] ?? '') : $service;
+                            $serviceIcon = is_array($service) ? ($service['icon'] ?? 'fa-solid fa-circle-check') : 'fa-solid fa-circle-check';
+                            $serviceValue = $serviceId ?: $serviceName;
+                            $isChecked = in_array((string) $serviceValue, $selectedServiceValues, true)
+                                || in_array((string) $serviceName, $selectedServiceValues, true);
+                        @endphp
                         <label class="cursor-pointer">
-                            <input type="checkbox" name="services[]" value="{{ $service }}" @checked(in_array($service, $filterState['services'] ?? [])) class="peer sr-only">
+                            <input type="checkbox" name="services[]" value="{{ $serviceValue }}" @checked($isChecked) class="peer sr-only">
                             <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white">
-                                {{ $service }}
+                                <i class="{{ $serviceIcon }}"></i>
+                                {{ $serviceName }}
                             </span>
                         </label>
                     @endforeach
@@ -128,4 +140,3 @@
         {{ __('client.route_show.filters.clear_button') }}
     </a>
 </div>
-

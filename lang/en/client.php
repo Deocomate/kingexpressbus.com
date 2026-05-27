@@ -311,6 +311,8 @@ return [
             'select_trip_button' => 'Select Trip',
             'book_button' => 'Select Trip',
             'sold_out_button' => 'Sold Out',
+            'off_day_button' => 'Not Running',
+            'off_day_badge' => 'Not Running',
             'seats_left' => ':count seats left',
             'details_button' => 'View Details',
         ],
@@ -488,6 +490,7 @@ return [
             'invalid_pickup_stop' => 'The pickup point is not valid for this trip.',
             'invalid_dropoff_stop' => 'The drop-off point is not valid for this trip.',
             'hotel_pickup_not_available' => 'Hotel pickup is not available for this trip.',
+            'trip_blocked' => 'This trip is closed for booking or not operating on this date.',
             'system_error' => 'The system is currently overloaded, please try again later.',
         ],
         'sepay' => [

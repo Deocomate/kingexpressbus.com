@@ -1,0 +1,6 @@
+{
+    "filament-panels::resources/pages/list-records.title": "Danh sách :label",
+    "filament-panels::resources/pages/create-record.title": "Thêm mới :label",
+    "filament-panels::resources/pages/edit-record.title": "Cập nhật :label",
+    "filament-panels::resources/pages/view-record.title": "Chi tiết :label"
+}

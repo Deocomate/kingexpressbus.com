@@ -6,13 +6,13 @@
     $pageTitle = trim(strip_tags((string) ($title ?? data_get($webProfile, 'title', $appName))));
     $pageDescription = trim(strip_tags((string) ($description ?? data_get($webProfile, 'description', $defaultDescription))));
     $pageKeywords = trim(strip_tags((string) ($keywords ?? $defaultKeywords)));
-    $faviconUrl = $favicon ?? data_get($webProfile, 'favicon_url', '/client/icons/logo.ico');
+    $faviconUrl = \App\Helpers\SystemHelper::mediaUrl($favicon ?? data_get($webProfile, 'favicon_url'), \App\Helpers\SystemHelper::mediaUrl('/client/icons/logo.ico'));
     $bodyClassName = trim($bodyClass ?? '') !== '' ? trim($bodyClass) : 'bg-[#F8FAFC] text-slate-800';
 
     $currentUrl = $canonicalUrl ?? url()->current();
     $baseUrl = url('/');
-    $logoUrl = data_get($webProfile, 'logo_url', '/client/images/web information/logo.jpg');
-    $shareImage = $ogImage ?? data_get($webProfile, 'share_image_url', $logoUrl);
+    $logoUrl = \App\Helpers\SystemHelper::mediaUrl(data_get($webProfile, 'logo_url'), \App\Helpers\SystemHelper::mediaUrl('/client/images/web information/logo.jpg'));
+    $shareImage = \App\Helpers\SystemHelper::mediaUrl($ogImage ?? data_get($webProfile, 'share_image_url'), $logoUrl);
     $shareImageAlt = $ogImageAlt ?? $pageTitle;
 
     $siteNameValue = trim(strip_tags((string) ($siteName ?? data_get($webProfile, 'profile_name', $appName))));
@@ -48,7 +48,7 @@
         '@type' => 'Organization',
         'name' => $siteNameValue,
         'url' => $baseUrl,
-        'logo' => asset($logoUrl),
+        'logo' => $logoUrl,
     ];
 
     if ($contactPhone) {
@@ -96,14 +96,14 @@
     <meta property="og:title" content="{{ $pageTitle }}">
     <meta property="og:description" content="{{ $pageDescription }}">
     <meta property="og:url" content="{{ $currentUrl }}">
-    <meta property="og:image" content="{{ asset($shareImage) }}">
-    <meta property="og:image:secure_url" content="{{ asset($shareImage) }}">
+    <meta property="og:image" content="{{ $shareImage }}">
+    <meta property="og:image:secure_url" content="{{ $shareImage }}">
     <meta property="og:image:alt" content="{{ $shareImageAlt }}">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $pageTitle }}">
     <meta name="twitter:description" content="{{ $pageDescription }}">
-    <meta name="twitter:image" content="{{ asset($shareImage) }}">
+    <meta name="twitter:image" content="{{ $shareImage }}">
     <meta name="twitter:image:alt" content="{{ $shareImageAlt }}">
 
     <link rel="icon" href="{{ $faviconUrl }}" type="image/x-icon">

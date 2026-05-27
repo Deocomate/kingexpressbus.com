@@ -1,6 +1,6 @@
 @php
     $brandTitle = data_get($webProfile, 'title', config('app.name'));
-    $brandLogo = data_get($webProfile, 'logo_url', '/client/images/web information/logo.jpg');
+    $brandLogo = \App\Helpers\SystemHelper::mediaUrl(data_get($webProfile, 'logo_url'), \App\Helpers\SystemHelper::mediaUrl('/client/images/web information/logo.jpg'));
 
     $aboutLinks = [
         ['label' => __('client.footer.links.intro'), 'url' => route('client.about')],

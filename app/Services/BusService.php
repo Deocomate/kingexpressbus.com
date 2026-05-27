@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Bus;
+use App\Models\BusService as BusServiceModel;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +18,7 @@ class BusService
      */
     public function getAllBuses(): Collection
     {
-        return DB::table('buses')
+        return Bus::query()
             ->orderBy('priority', 'desc')
             ->orderBy('name')
             ->get();
@@ -27,10 +29,15 @@ class BusService
      */
     public function getBusesForDataTable(array $params): array
     {
-        $query = DB::table('buses');
+        $query = Bus::query()->with(['services' => function ($servicesQuery) {
+            $servicesQuery
+                ->select('bus_services.id', 'name', 'icon', 'priority')
+                ->orderBy('priority', 'desc')
+                ->orderBy('name');
+        }]);
 
         // Apply search
-        if (!empty($params['search']['value'])) {
+        if (! empty($params['search']['value'])) {
             $searchValue = $params['search']['value'];
             $query->where(function ($q) use ($searchValue) {
                 $q->where('name', 'like', "%{$searchValue}%")
@@ -39,13 +46,13 @@ class BusService
         }
 
         // Apply service filter
-        if (!empty($params['service_filter'])) {
-            $serviceFilter = $params['service_filter'];
-            $query->where('services', 'like', "%\"{$serviceFilter}\"%");
+        if (! empty($params['service_filter'])) {
+            $serviceFilter = (int) $params['service_filter'];
+            $query->whereHas('services', fn ($q) => $q->where('bus_services.id', $serviceFilter));
         }
 
         // Apply seats filter
-        if (!empty($params['seats_filter'])) {
+        if (! empty($params['seats_filter'])) {
             $seatsFilter = $params['seats_filter'];
             if ($seatsFilter === '1-20') {
                 $query->whereBetween('seat_count', [1, 20]);
@@ -58,8 +65,8 @@ class BusService
             }
         }
 
-        $totalRecords = DB::table('buses')->count();
-        $filteredRecords = $query->count();
+        $totalRecords = Bus::query()->count();
+        $filteredRecords = (clone $query)->count();
 
         $buses = $query->orderBy('priority', 'desc')
             ->skip($params['start'] ?? 0)
@@ -102,15 +109,24 @@ class BusService
      */
     public function getBusById(int $id): ?object
     {
-        $bus = DB::table('buses')->where('id', $id)->first();
+        $bus = Bus::query()
+            ->with(['services' => function ($query) {
+                $query
+                    ->select('bus_services.id', 'name', 'icon', 'priority')
+                    ->orderBy('priority', 'desc')
+                    ->orderBy('name');
+            }])
+            ->find($id);
 
-        if ($bus) {
-            $bus->services = json_decode($bus->services, true) ?? [];
-            $bus->seat_map = json_decode($bus->seat_map, true) ?? [];
-            $bus->image_list_url = json_decode($bus->image_list_url, true) ?? [];
+        if (! $bus) {
+            return null;
         }
 
-        return $bus;
+        $data = (object) $bus->toArray();
+        $data->services = $bus->services->pluck('id')->values()->all();
+        $data->service_details = $this->formatServiceDetails($bus->services);
+
+        return $data;
     }
 
     /**
@@ -118,20 +134,15 @@ class BusService
      */
     public function createBus(array $data): int
     {
-        // Process services array to JSON
-        $data['services'] = isset($data['services']) ? json_encode($data['services']) : json_encode([]);
+        $serviceIds = $this->extractServiceIds($data);
+        $data = $this->prepareBusData($data);
 
-        // Auto-calculate seat_count from seat_map
-        if (isset($data['seat_map'])) {
-            $seatMap = is_string($data['seat_map']) ? json_decode($data['seat_map'], true) : $data['seat_map'];
-            $data['seat_count'] = is_array($seatMap) ? count($seatMap) : 0;
-            $data['seat_map'] = is_string($data['seat_map']) ? $data['seat_map'] : json_encode($data['seat_map']);
-        }
+        return DB::transaction(function () use ($data, $serviceIds) {
+            $bus = Bus::query()->create($data);
+            $bus->services()->sync($serviceIds);
 
-        $data['created_at'] = Carbon::now();
-        $data['updated_at'] = Carbon::now();
-
-        return DB::table('buses')->insertGetId($data);
+            return $bus->id;
+        });
     }
 
     /**
@@ -139,21 +150,23 @@ class BusService
      */
     public function updateBus(int $id, array $data): bool
     {
-        // Process services array to JSON
-        if (isset($data['services'])) {
-            $data['services'] = is_array($data['services']) ? json_encode($data['services']) : $data['services'];
-        }
+        $serviceIds = $this->extractServiceIds($data);
+        $data = $this->prepareBusData($data);
 
-        // Auto-calculate seat_count from seat_map
-        if (isset($data['seat_map'])) {
-            $seatMap = is_string($data['seat_map']) ? json_decode($data['seat_map'], true) : $data['seat_map'];
-            $data['seat_count'] = is_array($seatMap) ? count($seatMap) : 0;
-            $data['seat_map'] = is_string($data['seat_map']) ? $data['seat_map'] : json_encode($data['seat_map']);
-        }
+        return DB::transaction(function () use ($id, $data, $serviceIds) {
+            $bus = Bus::query()->find($id);
 
-        $data['updated_at'] = Carbon::now();
+            if (! $bus) {
+                return false;
+            }
 
-        return DB::table('buses')->where('id', $id)->update($data) > 0;
+            $bus->fill($data);
+            $bus->updated_at = Carbon::now();
+            $bus->save();
+            $bus->services()->sync($serviceIds);
+
+            return true;
+        });
     }
 
     /**
@@ -161,7 +174,7 @@ class BusService
      */
     public function deleteBus(int $id): bool
     {
-        return DB::table('buses')->where('id', $id)->delete() > 0;
+        return Bus::query()->where('id', $id)->delete() > 0;
     }
 
     /**
@@ -181,8 +194,47 @@ class BusService
      */
     public function getAllServices(): Collection
     {
-        return DB::table('bus_services')
+        return BusServiceModel::query()
             ->orderBy('priority', 'desc')
+            ->orderBy('name')
             ->get();
+    }
+
+    private function extractServiceIds(array &$data): array
+    {
+        $serviceIds = collect($data['services'] ?? [])
+            ->filter(fn ($value) => $value !== null && $value !== '')
+            ->map(fn ($value) => (int) $value)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        unset($data['services']);
+
+        return $serviceIds;
+    }
+
+    private function prepareBusData(array $data): array
+    {
+
+        if (array_key_exists('image_list_url', $data)) {
+            $imageList = is_string($data['image_list_url']) ? json_decode($data['image_list_url'], true) : $data['image_list_url'];
+            $data['image_list_url'] = is_array($imageList) ? $imageList : [];
+        }
+
+        return $data;
+    }
+
+    private function formatServiceDetails(Collection $services): array
+    {
+        return $services
+            ->map(fn ($service) => [
+                'id' => $service->id,
+                'name' => $service->name,
+                'icon' => $service->icon,
+            ])
+            ->values()
+            ->all();
     }
 }

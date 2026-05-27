@@ -142,10 +142,6 @@ database/*.db
 *_backup.sql
 backup_*.sql
 
-# Seeder files - local development only
-/database/seeders/*.php
-!/database/seeders/DatabaseSeeder.php
-
 # Storage files (except public)
 /storage/app/*
 !/storage/app/.gitignore
@@ -179,5 +175,5 @@ composer.phar
 _ide_helper.php
 _ide_helper_models.php
 .phpunit.result.cache
-
+.codex/
 vendor.zip

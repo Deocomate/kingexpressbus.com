@@ -1,7 +1,7 @@
 {{-- ===== resources\views\client\routes\show.blade.php ===== --}}
 <x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.route_show.meta_title')" :description="$description ?? ''">
     @php
-        $heroImage = $route->banner_url ?? ($route->thumbnail_url ?? '/client/images/city_imgs/ha-noi.jpg');
+        $heroImage = \App\Helpers\SystemHelper::mediaUrl($route->banner_url ?? $route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/ha-noi.jpg'));
         $minPrice = (int) ($route->min_price ?? 0);
         $priceDisplay =
             $minPrice > 0
@@ -68,7 +68,7 @@
             'price_high' => __('client.route_show.filters.sort_price_high'),
             'seats_available' => __('client.route_show.filters.sort_seats'),
         ];
-        $galleryFallback = '/client/images/kingexpressbus/sleeper/1.jpg';
+        $galleryFallback = \App\Helpers\SystemHelper::mediaUrl('/client/images/kingexpressbus/sleeper/1.jpg');
     @endphp
 
     @push('styles')
@@ -291,12 +291,13 @@
                                 $firstDropoff = $dropoffPoints->first();
                                 $imageGallery = collect($trip->image_gallery ?? ($trip->bus_images ?? []))
                                     ->filter()
+                                    ->map(fn ($image) => \App\Helpers\SystemHelper::mediaUrl($image))
+                                    ->filter()
                                     ->values();
                                 if ($imageGallery->isEmpty() && $trip->bus_thumbnail) {
-                                    $imageGallery = collect([$trip->bus_thumbnail]);
+                                    $imageGallery = collect([\App\Helpers\SystemHelper::mediaUrl($trip->bus_thumbnail)]);
                                 }
-                                $primaryImage =
-                                    $trip->primary_bus_image ?? ($imageGallery->first() ?: $galleryFallback);
+                                $primaryImage = \App\Helpers\SystemHelper::mediaUrl($trip->primary_bus_image ?? null, $imageGallery->first() ?: $galleryFallback);
                                 $durationMinutes = $trip->duration_minutes ?? 0;
                                 $durationLabel =
                                     $durationMinutes > 0
@@ -308,9 +309,19 @@
                                             'hours' => (int) $tripStart->diff($tripEnd)->format('%h'),
                                             'minutes' => (int) $tripStart->diff($tripEnd)->format('%i'),
                                         ]);
-                                $serviceList = collect($trip->services ?? [])
+                                $serviceList = collect($trip->service_details ?? [])
                                     ->filter()
                                     ->values();
+
+                                if ($serviceList->isEmpty()) {
+                                    $serviceList = collect($trip->services ?? [])
+                                        ->filter()
+                                        ->map(fn ($service) => [
+                                            'name' => $service,
+                                            'icon' => 'fa-solid fa-circle-check',
+                                        ])
+                                        ->values();
+                                }
                                 $hasSeats = ($trip->seats_available ?? 0) > 0;
                             @endphp
 
@@ -343,9 +354,11 @@
                                                 @else
                                                     <p class="text-sm font-bold text-primary-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
-                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ $hasSeats ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700' }}">
+                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ !empty($trip->is_off_day) || !$hasSeats ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
-                                                    @if ($hasSeats)
+                                                    @if (!empty($trip->is_off_day))
+                                                        {{ __('client.route_show.trip_card.off_day_badge') }}
+                                                    @elseif ($hasSeats)
                                                         {{ __('client.route_show.trip_card.seats_available') }}
                                                     @else
                                                         {{ __('client.route_show.trip_card.seats_full') }}
@@ -381,9 +394,13 @@
                                         <div class="mt-auto flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div class="flex min-w-0 flex-wrap items-center gap-1.5">
                                                 @foreach ($serviceList->take(3) as $service)
+                                                    @php
+                                                        $serviceName = is_array($service) ? ($service['name'] ?? '') : $service;
+                                                        $serviceIcon = is_array($service) ? ($service['icon'] ?? 'fa-solid fa-circle-check') : 'fa-solid fa-circle-check';
+                                                    @endphp
                                                     <span class="hidden items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600 sm:inline-flex">
-                                                        <i class="fa-solid fa-check-circle text-[9px] text-primary-600"></i>
-                                                        {{ $service }}
+                                                        <i class="{{ $serviceIcon }} text-[9px] text-primary-600"></i>
+                                                        {{ $serviceName }}
                                                     </span>
                                                 @endforeach
                                                 @if ($serviceList->count() > 3)
@@ -400,9 +417,15 @@
                                                     <i class="fa-solid fa-chevron-down chevron-icon text-[10px] transition-transform duration-300"></i>
                                                 </button>
                                                 <a href="{{ route('client.booking.create', ['trip_id' => $trip->trip_id, 'date' => $departureDate]) }}"
-                                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 {{ $hasSeats ? '' : 'pointer-events-none opacity-50' }}">
+                                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-amber-700 {{ $hasSeats && empty($trip->is_off_day) ? '' : 'pointer-events-none opacity-50' }}">
                                                     <i class="fa-solid fa-ticket"></i>
-                                                    {{ $hasSeats ? __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) : __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                                    @if (!empty($trip->is_off_day))
+                                                        {{ __('client.route_show.trip_card.off_day_button', ['default' => 'Ngừng chạy']) }}
+                                                    @elseif ($hasSeats)
+                                                        {{ __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) }}
+                                                    @else
+                                                        {{ __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                                    @endif
                                                 </a>
                                             </div>
                                         </div>
@@ -466,9 +489,13 @@
                                                 </h4>
                                                 <div class="flex flex-wrap gap-1.5">
                                                     @forelse ($serviceList as $service)
+                                                        @php
+                                                            $serviceName = is_array($service) ? ($service['name'] ?? '') : $service;
+                                                            $serviceIcon = is_array($service) ? ($service['icon'] ?? 'fa-solid fa-circle-check') : 'fa-solid fa-circle-check';
+                                                        @endphp
                                                         <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
-                                                            <i class="fa-solid fa-check-circle text-[9px] text-primary-600"></i>
-                                                            {{ $service }}
+                                                            <i class="{{ $serviceIcon }} text-[9px] text-primary-600"></i>
+                                                            {{ $serviceName }}
                                                         </span>
                                                     @empty
                                                         <span class="text-xs text-gray-400">{{ __('client.route_show.trip_card.no_services_updated') }}</span>
@@ -560,7 +587,13 @@
                                             <div class="mt-2 flex items-center gap-2 text-xs">
                                                 <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-slate-600">
                                                     <i class="fa-solid fa-couch"></i>
-                                                    {{ $returnHasSeats ? __('client.route_show.trip_card.seats_available') : __('client.route_show.trip_card.seats_full') }}
+                                                    @if (!empty($returnTrip->is_off_day))
+                                                        {{ __('client.route_show.trip_card.off_day_badge') }}
+                                                    @elseif ($returnHasSeats)
+                                                        {{ __('client.route_show.trip_card.seats_available') }}
+                                                    @else
+                                                        {{ __('client.route_show.trip_card.seats_full') }}
+                                                    @endif
                                                 </span>
                                                 @if (!empty($returnTrip->has_surcharge))
                                                     <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-700">
@@ -575,8 +608,14 @@
                                                 {{ $returnPrice > 0 ? number_format($returnPrice) . 'đ' : __('client.route_show.price_contact') }}
                                             </p>
                                             <a href="{{ route('client.booking.create', ['trip_id' => $returnTrip->trip_id, 'date' => $returnDate]) }}"
-                                                class="inline-flex items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700 {{ $returnHasSeats ? '' : 'opacity-50 pointer-events-none' }}">
-                                                {{ $returnHasSeats ? __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) : __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                                class="inline-flex items-center justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700 {{ $returnHasSeats && empty($returnTrip->is_off_day) ? '' : 'opacity-50 pointer-events-none' }}">
+                                                @if (!empty($returnTrip->is_off_day))
+                                                    {{ __('client.route_show.trip_card.off_day_button', ['default' => 'Ngừng chạy']) }}
+                                                @elseif ($returnHasSeats)
+                                                    {{ __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) }}
+                                                @else
+                                                    {{ __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                                @endif
                                             </a>
                                         </div>
                                     </div>

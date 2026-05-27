@@ -11,29 +11,29 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
     $now = now();
 
     $provinceStartId = DB::table('provinces')->insertGetId([
-        'name' => 'Ha Noi ' . $slugSuffix,
-        'slug' => 'ha-noi-' . $slugSuffix,
+        'name' => 'Ha Noi '.$slugSuffix,
+        'slug' => 'ha-noi-'.$slugSuffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $provinceEndId = DB::table('provinces')->insertGetId([
-        'name' => 'Lao Cai ' . $slugSuffix,
-        'slug' => 'lao-cai-' . $slugSuffix,
+        'name' => 'Lao Cai '.$slugSuffix,
+        'slug' => 'lao-cai-'.$slugSuffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $districtTypeId = DB::table('district_types')->insertGetId([
-        'name' => 'Urban ' . $slugSuffix,
+        'name' => 'Urban '.$slugSuffix,
         'priority' => 0,
     ]);
 
     $districtStartId = DB::table('districts')->insertGetId([
         'province_id' => $provinceStartId,
         'district_type_id' => $districtTypeId,
-        'name' => 'Thanh Xuan ' . $slugSuffix,
-        'slug' => 'thanh-xuan-' . $slugSuffix,
+        'name' => 'Thanh Xuan '.$slugSuffix,
+        'slug' => 'thanh-xuan-'.$slugSuffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
@@ -41,15 +41,15 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
     $districtEndId = DB::table('districts')->insertGetId([
         'province_id' => $provinceEndId,
         'district_type_id' => $districtTypeId,
-        'name' => 'Sapa ' . $slugSuffix,
-        'slug' => 'sapa-' . $slugSuffix,
+        'name' => 'Sapa '.$slugSuffix,
+        'slug' => 'sapa-'.$slugSuffix,
         'created_at' => $now,
         'updated_at' => $now,
     ]);
 
     $pickupStopId = DB::table('stops')->insertGetId([
         'district_id' => $districtStartId,
-        'name' => 'Ben Xe My Dinh ' . $slugSuffix,
+        'name' => 'Ben Xe My Dinh '.$slugSuffix,
         'address' => 'Ha Noi',
         'priority' => 0,
         'created_at' => $now,
@@ -58,7 +58,7 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
 
     $dropoffStopId = DB::table('stops')->insertGetId([
         'district_id' => $districtEndId,
-        'name' => 'Ben Xe Sapa ' . $slugSuffix,
+        'name' => 'Ben Xe Sapa '.$slugSuffix,
         'address' => 'Lao Cai',
         'priority' => 0,
         'created_at' => $now,
@@ -68,8 +68,8 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
     $routeId = DB::table('routes')->insertGetId([
         'province_start_id' => $provinceStartId,
         'province_end_id' => $provinceEndId,
-        'name' => 'Ha Noi - Sapa ' . $slugSuffix,
-        'slug' => 'ha-noi-sapa-' . $slugSuffix,
+        'name' => 'Ha Noi - Sapa '.$slugSuffix,
+        'slug' => 'ha-noi-sapa-'.$slugSuffix,
         'price_default' => 0,
         'available_hotel_pickup' => $availableHotelPickup,
         'priority' => 0,
@@ -97,11 +97,10 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
     ]);
 
     $busId = DB::table('buses')->insertGetId([
-        'name' => 'King Sleeper ' . $slugSuffix,
+        'name' => 'King Sleeper '.$slugSuffix,
         'model_name' => 'Limousine',
         'seat_count' => 40,
         'seat_map' => json_encode([]),
-        'services' => json_encode([]),
         'priority' => 0,
         'created_at' => $now,
         'updated_at' => $now,

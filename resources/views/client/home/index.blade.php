@@ -82,7 +82,7 @@
                     <a href="{{ route('client.routes.show', ['slug' => $route->slug]) }}"
                         class="group overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-soft hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
                         <div class="relative h-44 overflow-hidden">
-                            <img src="{{ $route->thumbnail_url ?: '/client/images/city_imgs/ha-noi.jpg' }}" alt="{{ $route->name }}"
+                            <img src="{{ \App\Helpers\SystemHelper::mediaUrl($route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/ha-noi.jpg')) }}" alt="{{ $route->name }}"
                                 class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
                             <div class="absolute inset-0 bg-linear-to-t from-slate-900/65 via-slate-900/10 to-transparent"></div>
                             <span class="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-700">
@@ -201,16 +201,26 @@
                                 '/client/images/kingexpressbus/cabin_double/1.jpg',
                             ];
                             $fallbackImage = $fallbackImages[$index % count($fallbackImages)];
+                            $busServices = collect($bus->service_details ?? [])
+                                ->filter()
+                                ->values();
+
+                            if ($busServices->isEmpty()) {
+                                $busServices = collect($bus->services ?? [])
+                                    ->filter()
+                                    ->map(fn ($service) => ['name' => $service])
+                                    ->values();
+                            }
                         @endphp
                         <article class="overflow-hidden rounded-2xl border border-amber-100 bg-[#fffdf8] shadow-soft hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
-                            <img src="{{ $bus->thumbnail_url ?: $fallbackImage }}" alt="{{ $bus->name }}" class="h-44 w-full object-cover">
+                            <img src="{{ \App\Helpers\SystemHelper::mediaUrl($bus->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl($fallbackImage)) }}" alt="{{ $bus->name }}" class="h-44 w-full object-cover">
                             <div class="space-y-2 p-4">
                                 <h3 class="line-clamp-1 text-base font-extrabold text-slate-800">{{ $bus->name }}</h3>
                                 <p class="text-sm text-slate-500">{{ $bus->model_name ?: __('client.home.bus_highlights.model_fallback') }} · {{ $bus->seat_count }} {{ __('client.home_page.fleet.seats') }}</p>
-                                @if (!empty($bus->services))
+                                @if ($busServices->isNotEmpty())
                                     <div class="flex flex-wrap gap-1 pt-1">
-                                        @foreach (array_slice($bus->services, 0, 3) as $service)
-                                            <span class="rounded-lg bg-primary-100 px-2 py-1 text-[11px] font-semibold text-primary-700">{{ $service }}</span>
+                                        @foreach ($busServices->take(3) as $service)
+                                            <span class="rounded-lg bg-primary-100 px-2 py-1 text-[11px] font-semibold text-primary-700">{{ $service['name'] ?? $service }}</span>
                                         @endforeach
                                     </div>
                                 @endif

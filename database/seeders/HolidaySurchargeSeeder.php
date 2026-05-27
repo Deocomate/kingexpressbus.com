@@ -1,0 +1,36 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class HolidaySurchargeSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $rows = $this->rows();
+
+        foreach (array_chunk($rows, 50) as $chunk) {
+            DB::table('holiday_surcharges')->insert($chunk);
+        }
+    }
+
+    private function rows(): array
+    {
+        return [
+            [
+                'id' => 1,
+                'name' => 'Phụ thu lễ',
+                'reason' => 'Phụ thu lễ 30-4, 1-5',
+                'start_date' => '2026-04-29',
+                'end_date' => '2026-05-03',
+                'global_surcharge_amount' => 100000,
+                'is_active' => 1,
+                'priority' => 0,
+                'created_at' => '2026-04-06 20:49:12',
+                'updated_at' => '2026-04-07 22:08:44',
+            ],
+        ];
+    }
+}
