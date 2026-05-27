@@ -18,11 +18,10 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # 4. Nếu file hoặc thư mục CÓ THẬT bên trong thư mục /public (Ví dụ: css, js, hình ảnh) -> Cho phép truy cập trực tiếp
-    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
-    RewriteCond %{DOCUMENT_ROOT}/public/$1 -d
+    # 4. CHỈ phục vụ trực tiếp nếu đó là một FILE có thật (ví dụ: .css, .js, .jpg)
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f
     RewriteRule ^(.*)$ public/$1 [L]
 
-    # 5. Nếu không phải file/thư mục có thật, đẩy TẤT CẢ các request còn lại vào file index.php của Laravel
+    # 5. Tất cả các request còn lại đều trỏ về index.php của Laravel
     RewriteRule ^(.*)$ public/index.php [L]
 </IfModule>
