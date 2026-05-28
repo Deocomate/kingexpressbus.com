@@ -2,12 +2,18 @@
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
-
     RewriteEngine On
 
     # 1. Ép buộc sử dụng HTTPS
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # --- THÊM MỚI TẠI ĐÂY ---
+    # Chuyển hướng 301: Xóa chữ /public/ trên URL nếu người dùng/bot truy cập trực tiếp
+    # Dùng %{THE_REQUEST} để bắt đúng URL thô từ browser, tránh vòng lặp với rule nội bộ
+    RewriteCond %{THE_REQUEST} \s/public/([^\s?]*) [NC]
+    RewriteRule ^ /%1 [L,R=301,NE]
+    # ------------------------
 
     # 2. Xử lý Authorization Header cho API/Sanctum
     RewriteCond %{HTTP:Authorization} .
