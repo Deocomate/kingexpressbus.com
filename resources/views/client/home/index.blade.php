@@ -35,7 +35,7 @@
                         <div class="group border-l-2 border-white/15 pl-4 py-1 pr-2 rounded-r-xl transition-all duration-300 hover:border-accent hover:bg-white/5">
                             <p class="font-bold text-slate-300 group-hover:text-white transition-colors duration-300">{{ __('client.home_page.hero.stats.bookings') }}</p>
                             <p class="mt-1 text-2xl font-extrabold text-accent transition-transform duration-300 group-hover:translate-x-1 origin-left">
-                                {{ number_format(data_get($statistics, 'total_bookings', 0)) }}+</p>
+                                10.000+</p>
                         </div>
                     </div>
                 </div>

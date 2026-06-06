@@ -94,9 +94,7 @@ class HomeService
             'total_routes' => DB::table('routes')->count(),
             'total_buses' => DB::table('buses')->count(),
             'total_trips' => DB::table('trips')->where('is_active', true)->count(),
-            'total_bookings' => DB::table('bookings')
-                ->whereIn('status', ['confirmed', 'completed'])
-                ->count(),
+            'total_bookings' => 10000,
         ];
     }
 
