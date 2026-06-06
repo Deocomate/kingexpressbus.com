@@ -12,6 +12,13 @@ use Illuminate\Support\Str;
  */
 class RouteService
 {
+    private function locationSqlExpression(): string
+    {
+        return DB::connection()->getDriverName() === 'sqlite'
+            ? "d.name || ', ' || p.name"
+            : "CONCAT(d.name, ', ', p.name)";
+    }
+
     /**
      * Get all routes grouped by start province.
      */
@@ -85,7 +92,7 @@ class RouteService
                 'rs.stop_type',
                 'd.name as district_name',
                 'p.name as province_name',
-                DB::raw("CONCAT(d.name, ', ', p.name) as location"),
+                DB::raw($this->locationSqlExpression().' as location'),
             ])
             ->orderBy('rs.priority')
             ->get();
@@ -108,7 +115,7 @@ class RouteService
             $routeId = DB::table('routes')->insertGetId($data);
 
             // Insert route stops
-            if (!empty($stopsData)) {
+            if (! empty($stopsData)) {
                 $this->syncRouteStops($routeId, $stopsData);
             }
 
@@ -149,6 +156,7 @@ class RouteService
     {
         return DB::transaction(function () use ($id) {
             DB::table('route_stops')->where('route_id', $id)->delete();
+
             return DB::table('routes')->where('id', $id)->delete() > 0;
         });
     }
@@ -291,7 +299,7 @@ class RouteService
         return DB::table('stops as s')
             ->join('districts as d', 's.district_id', '=', 'd.id')
             ->join('provinces as p', 'd.province_id', '=', 'p.id')
-            ->select('s.id', 's.name', 's.address', DB::raw("CONCAT(d.name, ', ', p.name) as location"))
+            ->select('s.id', 's.name', 's.address', DB::raw($this->locationSqlExpression().' as location'))
             ->orderBy('p.name')
             ->orderBy('d.name')
             ->orderBy('s.name')

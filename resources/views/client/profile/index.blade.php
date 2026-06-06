@@ -14,13 +14,13 @@
         <div class="absolute inset-0 bg-neutral-800/90"></div>
 
         <div
-            class="relative container mx-auto px-4 py-16 lg:py-20 flex flex-col md:flex-row items-center justify-between gap-8">
+            class="ksb-section-hero relative container mx-auto flex flex-col items-center justify-between gap-8 px-4 md:flex-row">
             <div class="space-y-4 text-center md:text-left">
                 <span
                     class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-accent-500 text-white uppercase tracking-wide">
                     <i class="fa-solid fa-crown mr-2"></i> {{ __('client.profile_page.hero.badge') }}
                 </span>
-                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">{{ __('client.profile_page.hero.greeting', ['name' => $userName]) }}</h1>
+                <h1 class="font-display text-4xl font-semibold tracking-tight md:text-5xl">{{ __('client.profile_page.hero.greeting', ['name' => $userName]) }}</h1>
                 <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-white/80 text-base">
                     @if ($userEmail)
                         <span class="inline-flex items-center gap-2 transition-colors hover:text-white"><i
@@ -46,7 +46,7 @@
         </div>
     </section>
 
-    <section class="py-12 bg-neutral-50 min-h-screen">
+    <section class="ksb-section min-h-screen bg-neutral-50">
         <div class="container mx-auto px-4 space-y-12">
 
             <!-- Statistics Cards -->

@@ -7,8 +7,8 @@
         $isPaymentVerificationPending = $isAwaitingPaymentRequest && ($isSepayPaymentReturned ?? false);
     @endphp
 
-    <section class="border-b border-amber-100 bg-amber-50">
-        <div class="mx-auto max-w-7xl px-4 py-12 lg:py-14">
+    <section class="ksb-section-hero border-b border-amber-100 bg-amber-50 px-4">
+        <div class="mx-auto max-w-7xl">
             <div class="mx-auto max-w-3xl text-center">
                 <span
                     class="inline-flex items-center gap-2 rounded-full border border-green-200 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-green-700">
@@ -47,7 +47,7 @@
                         <p class="text-xs font-semibold uppercase tracking-[0.16em] text-gray-500">
                             {{ __('client.booking.success.booking_code_label') }}
                         </p>
-                        <p class="mt-2 text-2xl font-extrabold tracking-[0.16em] text-gray-900">
+                        <p class="ksb-price mt-2 text-2xl font-extrabold tracking-[0.16em] text-gray-900">
                             {{ $booking->booking_code ?? __('client.booking.common.updating') }}
                         </p>
                     </div>
@@ -62,11 +62,11 @@
         </div>
     </section>
 
-    <section class="py-10 lg:py-12">
-        <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 lg:grid-cols-3 lg:gap-7">
+    <section class="ksb-section ksb-section-band px-4">
+        <div class="mx-auto grid max-w-7xl grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-7">
             <article class="space-y-6 lg:col-span-2">
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                    <h2 class="mb-5 flex items-center gap-3 font-display text-lg font-bold text-gray-900">
                         <span
                             class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                             <i class="fa-solid fa-bus" aria-hidden="true"></i>
@@ -132,7 +132,7 @@
                 </section>
 
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                    <h2 class="mb-5 flex items-center gap-3 font-display text-lg font-bold text-gray-900">
                         <span
                             class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                             <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
@@ -174,7 +174,7 @@
                 </section>
 
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                    <h2 class="mb-5 flex items-center gap-3 font-display text-lg font-bold text-gray-900">
                         <span
                             class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                             <i class="fa-solid fa-user" aria-hidden="true"></i>
@@ -205,7 +205,7 @@
                 </section>
 
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h2 class="mb-5 flex items-center gap-3 text-lg font-bold text-gray-900">
+                    <h2 class="mb-5 flex items-center gap-3 font-display text-lg font-bold text-gray-900">
                         <span
                             class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-primary-100 text-primary-700">
                             <i class="fa-solid fa-list-check" aria-hidden="true"></i>
@@ -244,12 +244,12 @@
 
             <aside class="space-y-5 lg:sticky lg:top-24 lg:self-start">
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h2 class="mb-4 text-lg font-bold text-gray-900">{{ __('client.booking.success.payment_info_title') }}</h2>
+                    <h2 class="mb-4 font-display text-lg font-bold text-gray-900">{{ __('client.booking.success.payment_info_title') }}</h2>
 
                     <div class="space-y-3 text-sm">
                         <div class="flex items-center justify-between gap-3">
                             <span class="text-gray-600">{{ __('client.booking.success.total_price') }}</span>
-                            <span class="text-xl font-extrabold text-primary-700">
+                            <span class="ksb-price text-xl font-extrabold text-primary-700">
                                 {{ $booking->total_price ? number_format($booking->total_price) . 'đ' : __('client.booking.create.summary_contact_price') }}
                             </span>
                         </div>
@@ -280,7 +280,7 @@
 
                 <section
                     class="rounded-3xl bg-slate-900 p-5 text-white shadow-soft sm:p-6">
-                    <h3 class="text-lg font-bold">{{ __('client.booking.success.support_title') }}</h3>
+                    <h3 class="font-display text-lg font-bold">{{ __('client.booking.success.support_title') }}</h3>
                     <p class="mt-2 text-sm text-white/75">{{ __('client.booking.success.support_description') }}</p>
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', $web_profile->hotline ?? '0865095066') }}"
                         class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 font-semibold text-white transition-colors duration-200 hover:bg-primary-700">
@@ -290,7 +290,7 @@
                 </section>
 
                 <section class="rounded-3xl border border-amber-100 bg-white p-5 shadow-soft sm:p-6">
-                    <h3 class="text-base font-bold text-gray-900">{{ __('client.booking.success.other_routes_title') }}</h3>
+                    <h3 class="font-display text-base font-bold text-gray-900">{{ __('client.booking.success.other_routes_title') }}</h3>
                     <ul class="mt-3 space-y-2.5 text-sm">
                         <li>
                             <a href="{{ route('client.routes.search', ['from' => 'ha-noi', 'to' => 'sapa']) }}"

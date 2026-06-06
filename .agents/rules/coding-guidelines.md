@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Karpathy Guidelines
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.

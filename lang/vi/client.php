@@ -1,4 +1,5 @@
 <?php
+
 return [
     // Page meta titles
     'profile' => [
@@ -352,6 +353,10 @@ return [
         ],
         'details_modal' => [
             'title' => 'Chi tiết chuyến xe',
+            'close' => 'Đóng',
+            'overview_title' => 'Tổng quan chuyến xe',
+            'journey_summary' => 'Lộ trình & thời gian',
+            'gallery_hint' => 'Nhấn ảnh để xem lớn',
             'bus_info_title' => 'Thông tin xe',
             'bus_image_alt' => 'Hình xe',
             'gallery_title' => 'Hình ảnh',
@@ -386,7 +391,7 @@ return [
             'invalid_location' => 'Địa điểm khởi hành hoặc điểm đến không hợp lệ.',
             'no_route_found' => 'Không tìm thấy tuyến đường phù hợp.',
             'system_error' => 'Hệ thống đang quá tải, vui lòng thử lại sau.',
-        ]
+        ],
     ],
     'booking' => [
         'common' => [
@@ -653,16 +658,16 @@ return [
     'about' => [
         'meta' => [
             'title' => 'Giới thiệu về King Express Bus',
-            'description' => 'Tìm hiểu về sứ mệnh, giá trị cốt lõi và cam kết của King Express Bus trong việc mang đến trải nghiệm di chuyển đẳng cấp và an toàn.',
+            'description' => 'Tìm hiểu về sứ mệnh, giá trị cốt lõi và cam kết của King Express Bus trong việc mang đến trải nghiệm di chuyển an toàn, chất lượng cao.',
         ],
         'hero' => [
             'title' => 'King Express Bus',
-            'subtitle' => 'Hành Trình 7 Năm Kiến Tạo Chuẩn Mực Vận Tải',
-            'tagline' => 'AN TOÀN • CHUYÊN NGHIỆP • ĐẲNG CẤP',
+            'subtitle' => 'Hành Trình 7 Năm Phát Triển Dịch Vụ Chất Lượng Cao',
+            'tagline' => 'AN TOÀN • CHUYÊN NGHIỆP • CHẤT LƯỢNG CAO',
             'image_alt' => 'Nội thất xe cabin King Express Bus',
         ],
         'typing' => [
-            '1' => 'Hành trình an toàn, trải nghiệm đẳng cấp',
+            '1' => 'Hành trình an toàn, trải nghiệm chất lượng cao',
             '2' => 'Đồng hành cùng bạn trên mọi nẻo đường',
             '3' => '7 năm kiến tạo chuẩn mực vận tải',
             '4' => 'Nâng tầm trải nghiệm trên mỗi dặm đường',
@@ -670,15 +675,15 @@ return [
         'position' => [
             'title' => 'Vị Thế & Dấu Ấn',
             'badge' => 'HÀNH TRÌNH 7 NĂM',
-            'paragraph1' => 'Trải qua chặng đường hơn 7 năm hình thành và phát triển, King Express Bus tự hào khẳng định vị thế là một trong những đơn vị tiên phong và uy tín nhất trong ngành vận tải hành khách chất lượng cao.',
+            'paragraph1' => 'Trải qua chặng đường hơn 7 năm hình thành và phát triển, King Express Bus từng bước xây dựng vị thế là một đơn vị vận tải hành khách chất lượng cao, được nhiều khách hàng tin chọn.',
             'paragraph2' => 'Từ những chuyến xe đầu tiên chinh phục cung đường đèo Hà Nội ⇄ Sapa, đến nay, dấu chân của King Express Bus đã in đậm trên bản đồ du lịch Việt Nam, mở rộng kết nối đến các di sản trứ danh như Ninh Bình, Huế và Đà Nẵng.',
             'paragraph3' => 'Chúng tôi không chỉ cung cấp dịch vụ vận chuyển, mà còn mang đến một giải pháp di chuyển toàn diện, nơi khách hàng được đặt làm trọng tâm của mọi trải nghiệm.',
         ],
         'fleet' => [
-            'title' => 'Hệ Thống Phương Tiện Đẳng Cấp',
+            'title' => 'Hệ Thống Phương Tiện Chất Lượng Cao',
             'badge' => 'LIMOUSINE & CABIN VIP',
-            'description' => 'Hiểu rằng sự tiện nghi là yếu tố then chốt, King Express Bus liên tục đầu tư và nâng cấp hệ thống xe. Chúng tôi sở hữu đội xe Limousine Cabin và giường nằm thế hệ mới nhất – được ví như những "chuyên cơ mặt đất" hay "khách sạn di động".',
-            'highlight' => 'Với không gian riêng tư, nội thất sang trọng cùng tiện ích giải trí đa phương tiện, mỗi phút giây trên xe đều là thời gian thư giãn tuyệt đối cho hành khách.',
+            'description' => 'Hiểu rằng sự tiện nghi là yếu tố then chốt, King Express Bus liên tục đầu tư và nâng cấp hệ thống xe. Chúng tôi vận hành các dòng Limousine Cabin và giường nằm hiện đại, phù hợp cho nhiều nhu cầu di chuyển đường dài.',
+            'highlight' => 'Với không gian riêng tư, nội thất thoải mái cùng các tiện ích cần thiết, hành khách có thể nghỉ ngơi tốt hơn trong suốt hành trình.',
             'features' => [
                 '1' => 'Cabin riêng tư, không gian rộng rãi',
                 '2' => 'Ghế massage, điều hòa cá nhân',
@@ -688,14 +693,14 @@ return [
         ],
         'vision' => [
             'title' => 'Tầm Nhìn',
-            'badge' => 'TOP 1 VIỆT NAM',
-            'description' => 'King Express Bus định hướng trở thành thương hiệu vận tải du lịch Top 1 tại Việt Nam, là biểu tượng của sự An toàn – Chuyên nghiệp – Đẳng cấp. Chúng tôi khao khát xây dựng một hệ sinh thái di chuyển văn minh, nơi khoảng cách địa lý được xóa nhòa bằng sự tận hưởng và dịch vụ thượng hạng.',
+            'badge' => 'DỊCH VỤ CHẤT LƯỢNG CAO',
+            'description' => 'King Express Bus định hướng phát triển thành thương hiệu vận tải du lịch chất lượng cao tại Việt Nam, tập trung vào sự an toàn, chuyên nghiệp và ổn định trong từng hành trình.',
         ],
         'mission' => [
             'title' => 'Sứ Mệnh',
             'with_customers' => [
                 'title' => 'Với Khách Hàng',
-                'content' => 'Kiến tạo những hành trình hạnh phúc. Chúng tôi cam kết "Nâng tầm trải nghiệm trên mỗi dặm đường" bằng sự an toàn tuyệt đối và thái độ phục vụ tận tâm từ trái tim.',
+                'content' => 'Kiến tạo những hành trình dễ chịu. Chúng tôi cam kết chăm chút trải nghiệm trên mỗi dặm đường bằng sự an toàn được ưu tiên và thái độ phục vụ tận tâm.',
             ],
             'with_society' => [
                 'title' => 'Với Xã Hội',
@@ -709,12 +714,12 @@ return [
             'items' => [
                 [
                     'icon' => 'fa-solid fa-shield-halved',
-                    'title' => 'An Toàn Tuyệt Đối',
-                    'description' => 'Cam kết đặt sự an toàn của hành khách lên hàng đầu trong mọi hành trình.',
+                    'title' => 'An Toàn Được Ưu Tiên',
+                    'description' => 'Luôn đặt sự an toàn của hành khách lên hàng đầu trong mọi hành trình.',
                 ],
                 [
                     'icon' => 'fa-solid fa-gem',
-                    'title' => 'Chất Lượng Đỉnh Cao',
+                    'title' => 'Chất Lượng Ổn Định',
                     'description' => 'Không ngừng nâng cao tiêu chuẩn dịch vụ và đầu tư đội xe hiện đại.',
                 ],
                 [
@@ -725,7 +730,7 @@ return [
                 [
                     'icon' => 'fa-solid fa-bolt',
                     'title' => 'Đổi Mới Liên Tục',
-                    'description' => 'Tiên phong ứng dụng công nghệ để mang lại trải nghiệm tốt nhất.',
+                    'description' => 'Ứng dụng công nghệ để hành trình đặt vé và di chuyển thuận tiện hơn.',
                 ],
             ],
         ],
@@ -740,16 +745,16 @@ return [
         ],
         'why_choose' => [
             'title' => 'Tại Sao Nên Chọn Chúng Tôi?',
-            'subtitle' => 'King Express Bus cam kết mang đến trải nghiệm hành trình an toàn, tiện nghi và đẳng cấp nhất.',
+            'subtitle' => 'King Express Bus cam kết mang đến trải nghiệm hành trình an toàn, tiện nghi và chất lượng cao.',
             'items' => [
                 [
                     'icon' => 'fa-solid fa-star',
-                    'title' => 'Dịch Vụ 5 Sao',
-                    'description' => 'Hệ thống xe cabin VIP và limousine đời mới, được trang bị đầy đủ tiện nghi hiện đại.',
+                    'title' => 'Dịch Vụ Chất Lượng Cao',
+                    'description' => 'Hệ thống xe cabin VIP và limousine được trang bị tiện nghi hiện đại, phù hợp cho hành trình đường dài.',
                 ],
                 [
                     'icon' => 'fa-solid fa-shield-halved',
-                    'title' => 'An Toàn Tuyệt Đối',
+                    'title' => 'An Toàn Được Ưu Tiên',
                     'description' => 'Đội ngũ tài xế chuyên nghiệp, giàu kinh nghiệm. Kiểm tra kỹ thuật xe nghiêm ngặt trước mỗi chuyến đi.',
                 ],
                 [
@@ -772,11 +777,11 @@ return [
         // Legacy keys for backward compatibility
         'title' => 'Tại sao nên chọn chúng tôi?',
         'subtitle' => 'Về King Express Bus',
-        'description' => 'King Express Bus cam kết mang đến trải nghiệm hành trình an toàn, tiện nghi và đẳng cấp nhất cho quý khách hàng.',
+        'description' => 'King Express Bus cam kết mang đến trải nghiệm hành trình an toàn, tiện nghi và chất lượng cao cho quý khách hàng.',
         'years_experience' => 'Năm kinh nghiệm',
         'feature_1_title' => 'Dịch vụ 5 sao',
-        'feature_1_desc' => 'Trải nghiệm hành trình êm ái với dòng xe Limousine và Cabin hiện đại nhất.',
-        'feature_2_title' => 'An toàn tuyệt đối',
+        'feature_1_desc' => 'Trải nghiệm hành trình êm ái với dòng xe Limousine và Cabin hiện đại.',
+        'feature_2_title' => 'An toàn được ưu tiên',
         'feature_2_desc' => 'Đội ngũ tài xế giàu kinh nghiệm, xe được bảo dưỡng định kỳ thường xuyên.',
         'feature_3_title' => 'Hỗ trợ 24/7',
         'feature_3_desc' => 'Tổng đài chăm sóc khách hàng hoạt động 24/7.',

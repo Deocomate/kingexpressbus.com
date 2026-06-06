@@ -12,16 +12,16 @@
 
             .booking-panel {
                 background: #ffffff;
-                border: 1px solid #f3dfb7;
-                border-radius: 1rem;
-                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
+                border: 1px solid rgba(234, 217, 184, 0.9);
+                border-radius: var(--ksb-radius-panel);
+                box-shadow: var(--ksb-shadow-soft);
             }
 
             .booking-sidebar-card {
                 background: #ffffff;
-                border: 1px solid #f3dfb7;
-                border-radius: 1rem;
-                box-shadow: 0 12px 28px -18px rgba(15, 23, 42, 0.2);
+                border: 1px solid rgba(234, 217, 184, 0.9);
+                border-radius: var(--ksb-radius-panel);
+                box-shadow: var(--ksb-shadow-soft);
             }
 
             /* Custom phone input with searchable country dropdown */
@@ -107,7 +107,7 @@
                 position: absolute;
                 top: calc(100% + 4px);
                 left: 0;
-                z-index: 50;
+                z-index: var(--ksb-z-dropdown);
                 background: #fff;
                 border: 1px solid #d4d4d4;
                 border-radius: 0.5rem;
@@ -177,7 +177,7 @@
                 flex-shrink: 0;
             }
             .litepicker {
-                font-family: 'Inter', sans-serif;
+                font-family: 'Be Vietnam Pro', sans-serif;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
                 border-radius: 8px;
                 border: 1px solid #e5e7eb;
@@ -198,7 +198,8 @@
 
             .payment-method-label.selected {
                 border-color: #FF9B00;
-                box-shadow: 0 0 0 2px rgba(255, 155, 0, 0.22);
+                background: #fff9e6;
+                box-shadow: var(--ksb-focus);
             }
 
             /* Stop Selection Cards */
@@ -215,7 +216,7 @@
             .stop-card.selected {
                 border-color: #FF9B00;
                 background-color: #fff8e6;
-                box-shadow: 0 0 0 2px rgba(255, 155, 0, 0.2);
+                box-shadow: var(--ksb-focus);
             }
 
             .stop-card.selected .stop-radio {
@@ -337,34 +338,34 @@
     @endphp
 
     {{-- Hero Section --}}
-    <section class="booking-hero text-white px-4 py-12 md:py-14">
+    <section class="booking-hero ksb-section-hero px-4 text-white">
         <div class="container mx-auto max-w-7xl">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+            <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-3">
                 <div class="space-y-4 lg:col-span-2">
                     <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90">
                         <i class="fa-solid fa-ticket"></i>
                         {{ __('client.booking.create.header_subtitle') }}
                     </span>
-                    <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+                    <h1 class="font-display text-3xl font-extrabold leading-tight md:text-5xl">
                         {{ $trip->route_name }}
                     </h1>
-                    <div class="flex flex-wrap gap-x-5 gap-y-2 text-sm text-white/80">
-                        <span class="inline-flex items-center gap-2">
+                    <div class="grid max-w-full gap-2 text-sm text-white/80 sm:flex sm:flex-wrap sm:gap-x-5">
+                        <span class="inline-flex min-w-0 items-center gap-2">
                             <i class="fa-solid fa-clock w-4 text-center text-accent"></i>
                             {{ \Carbon\Carbon::parse($trip->start_time)->format('H:i') }} -
                             {{ \Carbon\Carbon::parse($trip->end_time)->format('H:i') }}
                         </span>
-                        <span class="inline-flex items-center gap-2">
+                        <span class="inline-flex min-w-0 items-center gap-2">
                             <i class="fa-solid fa-calendar-day w-4 text-center text-green-400"></i>
                             {{ $bookingDate->format('d/m/Y') }}
                         </span>
-                        <span class="inline-flex items-center gap-2">
+                        <span class="inline-flex min-w-0 items-center gap-2">
                             <i class="fa-solid fa-bus w-4 text-center text-amber-400"></i>
-                            {{ $trip->bus_name }}
+                            <span class="truncate">{{ $trip->bus_name }}</span>
                         </span>
                     </div>
                 </div>
-                <div class="relative h-44 lg:h-52 rounded-2xl overflow-hidden shadow-soft border border-white/20">
+                <div class="relative h-44 overflow-hidden rounded-2xl border border-white/20 shadow-soft lg:h-52">
                     <img src="{{ $busImage }}" alt="{{ $trip->bus_name }}" class="h-full w-full object-cover"
                         loading="lazy">
                     <span
@@ -378,9 +379,9 @@
     </section>
 
     {{-- Step Progress Indicator --}}
-    <section class="bg-white border-b border-amber-100 px-4">
-        <div class="container mx-auto max-w-7xl py-6">
-            <div class="step-progress max-w-lg mx-auto">
+    <section class="ksb-section-compact border-b border-amber-100 bg-white px-4">
+        <div class="container mx-auto max-w-7xl">
+            <div class="step-progress ksb-booking-step mx-auto max-w-lg">
                 <div class="step-item">
                     <div class="step-circle active" id="step-1-circle">1</div>
                     <span class="step-label active" id="step-1-label">{{ __('client.booking.create.step_trip') }}</span>
@@ -398,8 +399,8 @@
     </section>
 
     {{-- Main Content --}}
-    <section class="py-8 bg-[#F8FAFC] px-4 md:py-10">
-        <div class="container mx-auto max-w-7xl grid grid-cols-1 xl:grid-cols-3 gap-8">
+    <section class="ksb-section ksb-section-band px-4">
+        <div class="container mx-auto grid max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
             <form class="xl:col-span-2 space-y-6" method="POST" action="{{ route('client.booking.store') }}"
                 id="booking-form">
                 @if (session('error'))
@@ -427,9 +428,9 @@
                 {{-- Step 1: Trip Info --}}
                 <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-1">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
                             <span
-                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">1</span>
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">1</span>
                             {{ __('client.booking.create.trip_info_title') }}
                         </h2>
                     </div>
@@ -451,7 +452,7 @@
                             <div class="flex items-center gap-2">
                                 {{-- Quantity Control Card --}}
                                 <div
-                                    class="inline-flex items-center bg-neutral-50 border border-neutral-200 rounded-md p-1">
+                                    class="inline-flex items-center rounded-xl border border-neutral-200 bg-neutral-50 p-1">
                                     <button type="button" id="decrease-quantity"
                                         class="w-10 h-10 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm">
                                         <i class="fa-solid fa-minus text-sm"></i>
@@ -486,9 +487,9 @@
                 {{-- Step 2: Pickup & Dropoff --}}
                 <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-2">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
                             <span
-                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">2</span>
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">2</span>
                             {{ __('client.booking.create.location_title') }}
                         </h2>
                     </div>
@@ -501,7 +502,7 @@
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="pickup-stops-container">
                             @if ($trip->available_hotel_pickup)
-                                <div class="stop-card hotel-pickup-badge rounded-md p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? 'selected' : '' }}"
+                                <div class="stop-card hotel-pickup-badge flex items-start gap-3 rounded-xl p-4 {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? 'selected' : '' }}"
                                     data-stop-id="hotel_pickup" data-type="pickup">
                                     <div
                                         class="stop-radio {{ old('pickup_stop_id', request('pickup_stop_id')) == 'hotel_pickup' ? '' : '' }}">
@@ -517,7 +518,7 @@
                                 </div>
                             @endif
                             @foreach ($pickupStops as $stop)
-                                <div class="stop-card border border-gray-200 rounded-md p-4 flex items-start gap-3 {{ old('pickup_stop_id', request('pickup_stop_id')) == $stop->id ? 'selected' : '' }}"
+                                <div class="stop-card flex items-start gap-3 rounded-xl border border-gray-200 p-4 {{ old('pickup_stop_id', request('pickup_stop_id')) == $stop->id ? 'selected' : '' }}"
                                     data-stop-id="{{ $stop->id }}" data-type="pickup">
                                     <div class="stop-radio"></div>
                                     <div class="flex-1 min-w-0">
@@ -551,7 +552,7 @@
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="dropoff-stops-container">
                             @foreach ($dropoffStops as $stop)
-                                <div class="stop-card border border-gray-200 rounded-md p-4 flex items-start gap-3 {{ old('dropoff_stop_id', request('dropoff_stop_id')) == $stop->id ? 'selected' : '' }}"
+                                <div class="stop-card flex items-start gap-3 rounded-xl border border-gray-200 p-4 {{ old('dropoff_stop_id', request('dropoff_stop_id')) == $stop->id ? 'selected' : '' }}"
                                     data-stop-id="{{ $stop->id }}" data-type="dropoff">
                                     <div class="stop-radio"></div>
                                     <div class="flex-1 min-w-0">
@@ -570,9 +571,9 @@
                 {{-- Step 3: Passenger Info --}}
                 <section class="booking-panel p-5 space-y-5 md:p-6" id="section-step-3">
                     <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                        <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
                             <span
-                                class="w-7 h-7 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm">3</span>
+                                class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">3</span>
                             {{ __('client.booking.create.passenger_info_title') }}
                         </h2>
                     </div>
@@ -639,7 +640,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             @foreach ($paymentMethods as $method)
                                 <label
-                                    class="payment-method-label block border border-gray-200 rounded-md p-4 {{ old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'] ? 'selected' : '' }}">
+                                    class="payment-method-label block rounded-xl border border-gray-200 p-4 {{ old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'] ? 'selected' : '' }}">
                                     <input type="radio" name="payment_method" value="{{ $method['key'] }}"
                                         class="hidden payment-method-input" @checked(old('payment_method', request('payment_method', 'cash_on_pickup')) === $method['key'])>
                                     <div class="flex items-start gap-3">
@@ -665,7 +666,7 @@
                         {!! __('client.booking.create.terms_agreement', ['link' => '#']) !!}
                     </div>
                     <button type="submit"
-                        class="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                        class="ksb-btn-primary px-6 py-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                         id="submit-booking">
                         <span id="submit-text">{{ __('client.booking.create.submit_button') }}</span>
                         <i id="submit-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
@@ -675,9 +676,9 @@
             </form>
 
             {{-- Sidebar Summary --}}
-            <aside class="space-y-5 sticky-summary">
+            <aside class="sticky-summary ksb-sticky-summary space-y-5">
                 <div class="booking-sidebar-card p-5 space-y-4 md:p-6">
-                    <h2 class="text-lg font-bold text-gray-900">{{ __('client.booking.create.summary_title') }}</h2>
+                    <h2 class="font-display text-lg font-bold text-gray-900">{{ __('client.booking.create.summary_title') }}</h2>
 
                     {{-- Selected Locations --}}
                     <div class="space-y-3 text-sm">
@@ -746,9 +747,9 @@
                     </div>
 
                     <div
-                        class="border-t border-gray-200 pt-4 mt-4 flex items-center justify-between text-lg font-bold text-gray-900">
+                        class="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-lg font-bold text-gray-900">
                         <span>{{ __('client.booking.create.summary_total') }}</span>
-                        <span class="text-primary-600" id="summary-total-price">{{ number_format($finalUnitPrice) }}đ</span>
+                        <span class="ksb-price text-primary-600" id="summary-total-price">{{ number_format($finalUnitPrice) }}đ</span>
                     </div>
                 </div>
 

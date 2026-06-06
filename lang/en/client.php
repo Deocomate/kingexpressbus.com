@@ -1,4 +1,5 @@
 <?php
+
 return [
     // Page meta titles
     'profile' => [
@@ -352,6 +353,10 @@ return [
         ],
         'details_modal' => [
             'title' => 'Trip Details',
+            'close' => 'Close',
+            'overview_title' => 'Trip overview',
+            'journey_summary' => 'Route & timing',
+            'gallery_hint' => 'Click image to preview',
             'bus_info_title' => 'Bus Information',
             'bus_image_alt' => 'Bus image',
             'gallery_title' => 'Gallery',
@@ -386,7 +391,7 @@ return [
             'invalid_location' => 'Invalid origin or destination.',
             'no_route_found' => 'No suitable route found.',
             'system_error' => 'The system is overloaded, please try again later.',
-        ]
+        ],
     ],
     'booking' => [
         'common' => [
@@ -653,16 +658,16 @@ return [
     'about' => [
         'meta' => [
             'title' => 'About King Express Bus',
-            'description' => 'Learn about the mission, core values, and commitment of King Express Bus to providing a high-class and safe travel experience.',
+            'description' => 'Learn about the mission, core values, and commitment of King Express Bus to providing a safe, high-quality travel experience.',
         ],
         'hero' => [
             'title' => 'King Express Bus',
-            'subtitle' => '7 Years of Defining Excellence in Transportation',
-            'tagline' => 'SAFE • PROFESSIONAL • PREMIUM',
+            'subtitle' => '7 Years of Building High-Quality Transport Services',
+            'tagline' => 'SAFE • PROFESSIONAL • HIGH QUALITY',
             'image_alt' => 'Interior of a King Express Bus cabin',
         ],
         'typing' => [
-            '1' => 'Safe journey, premium experience',
+            '1' => 'Safe journey, high-quality experience',
             '2' => 'Your companion on every road',
             '3' => '7 years of setting transportation standards',
             '4' => 'Elevating experience on every mile',
@@ -670,15 +675,15 @@ return [
         'position' => [
             'title' => 'Position & Milestones',
             'badge' => '7 YEARS JOURNEY',
-            'paragraph1' => 'With over 7 years of establishment and development, King Express Bus proudly affirms its position as one of the pioneering and most reputable units in premium passenger transportation.',
+            'paragraph1' => 'With over 7 years of establishment and development, King Express Bus has built its position as a high-quality passenger transport operator trusted by many customers.',
             'paragraph2' => 'From the first trips conquering the Hanoi ⇄ Sapa mountain pass route, King Express Bus has now left its mark on Vietnam\'s tourism map, expanding connections to famous destinations like Ninh Binh, Hue, and Da Nang.',
             'paragraph3' => 'We not only provide transportation services but also deliver comprehensive mobility solutions where customers are at the center of every experience.',
         ],
         'fleet' => [
-            'title' => 'Premium Fleet System',
+            'title' => 'High-Quality Fleet System',
             'badge' => 'LIMOUSINE & VIP CABIN',
-            'description' => 'Understanding that comfort is the key factor, King Express Bus continuously invests and upgrades our fleet. We own the latest generation of Limousine Cabin and sleeper buses – referred to as "ground jets" or "mobile hotels".',
-            'highlight' => 'With private space, luxurious interiors, and multimedia entertainment, every moment on the bus is a time of absolute relaxation for passengers.',
+            'description' => 'Understanding that comfort is a key factor, King Express Bus continuously invests in and upgrades its fleet. We operate modern Limousine Cabin and sleeper buses for different long-distance travel needs.',
+            'highlight' => 'With private space, comfortable interiors, and essential amenities, passengers can rest more easily throughout the journey.',
             'features' => [
                 '1' => 'Private cabin, spacious room',
                 '2' => 'Massage seats, individual AC',
@@ -688,8 +693,8 @@ return [
         ],
         'vision' => [
             'title' => 'Vision',
-            'badge' => 'TOP 1 IN VIETNAM',
-            'description' => 'King Express Bus aims to become the Top 1 tourism transportation brand in Vietnam, a symbol of Safety – Professionalism – Excellence. We aspire to build a civilized mobility ecosystem where geographical distance is erased by enjoyment and premium service.',
+            'badge' => 'HIGH-QUALITY SERVICE',
+            'description' => 'King Express Bus aims to develop as a high-quality tourism transport brand in Vietnam, focusing on safety, professionalism, and reliable service on every journey.',
         ],
         'mission' => [
             'title' => 'Mission',
@@ -709,12 +714,12 @@ return [
             'items' => [
                 [
                     'icon' => 'fa-solid fa-shield-halved',
-                    'title' => 'Absolute Safety',
-                    'description' => 'Committed to putting passenger safety first on every journey.',
+                    'title' => 'Safety First',
+                    'description' => 'Putting passenger safety first on every journey.',
                 ],
                 [
                     'icon' => 'fa-solid fa-gem',
-                    'title' => 'Top Quality',
+                    'title' => 'Consistent Quality',
                     'description' => 'Continuously improving service standards and investing in modern fleet.',
                 ],
                 [
@@ -725,7 +730,7 @@ return [
                 [
                     'icon' => 'fa-solid fa-bolt',
                     'title' => 'Continuous Innovation',
-                    'description' => 'Pioneering technology application for the best experience.',
+                    'description' => 'Applying technology to make booking and travel more convenient.',
                 ],
             ],
         ],
@@ -749,7 +754,7 @@ return [
                 ],
                 [
                     'icon' => 'fa-solid fa-shield-halved',
-                    'title' => 'Absolute Safety',
+                    'title' => 'Safety First',
                     'description' => 'Professional, experienced drivers. Strict vehicle inspections before each trip.',
                 ],
                 [
@@ -776,7 +781,7 @@ return [
         'years_experience' => 'Years of experience',
         'feature_1_title' => '5-Star Service',
         'feature_1_desc' => 'Experience a smooth journey with modern Limousine and Cabin buses.',
-        'feature_2_title' => 'Absolute Safety',
+        'feature_2_title' => 'Safety First',
         'feature_2_desc' => 'Experienced drivers, regularly maintained vehicles.',
         'feature_3_title' => '24/7 Support',
         'feature_3_desc' => 'Customer service operates 24/7.',

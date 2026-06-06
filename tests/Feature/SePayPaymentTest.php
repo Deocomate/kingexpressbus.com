@@ -105,7 +105,6 @@ function seedSePayTripFixture(string $suffix = 'sepay'): array
         'name' => 'King Sleeper '.$suffix,
         'model_name' => 'Limousine',
         'seat_count' => 40,
-        'seat_map' => json_encode([]),
         'priority' => 0,
         'created_at' => $now,
         'updated_at' => $now,

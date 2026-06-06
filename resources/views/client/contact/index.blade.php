@@ -87,7 +87,7 @@
 
             .contact-hero-bg {
                 background-image:
-                    linear-gradient(110deg, rgba(6, 22, 41, 0.78), rgba(255, 155, 0, 0.52)),
+                    linear-gradient(108deg, rgba(4, 17, 31, 0.9), rgba(4, 17, 31, 0.64) 54%, rgba(255, 155, 0, 0.36)),
                     url('/client/images/city_imgs/ha-noi.jpg');
                 background-size: cover;
                 background-position: center;
@@ -121,14 +121,14 @@
     {{-- Header được render trong x-client.layout --}}
 
     {{-- HERO/SEARCH --}}
-    <section class="contact-hero-bg relative overflow-visible px-4 pb-14 pt-24 md:pb-20 md:pt-28">
+    <section class="contact-hero-bg ksb-section-hero relative overflow-visible px-4">
         <div class="container mx-auto max-w-7xl">
             <div class="max-w-3xl">
                 <span class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
                     <i class="fa-solid fa-headset" aria-hidden="true"></i>
                     {{ __('client.contact.hero.badge') }}
                 </span>
-                <h1 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-6xl">
+                <h1 class="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-6xl">
                     {{ __('client.contact.hero.title') }}
                 </h1>
                 <p class="mt-4 max-w-2xl text-sm text-slate-100/95 sm:text-base lg:text-lg">
@@ -153,7 +153,7 @@
                 @endif
             </div>
 
-            <div class="relative z-50 mt-8" style="z-index: 90;">
+            <div class="ksb-dropdown relative mt-8">
                 <x-client.search-bar :submit-label="__('client.contact.hero.search_submit')" />
             </div>
 
@@ -175,7 +175,7 @@
     </section>
 
     {{-- MAIN CONTENT --}}
-    <section class="px-4 py-12 md:py-16">
+    <section class="ksb-section px-4">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
             <article class="lg:col-span-7 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.support_channels') }}</p>
@@ -187,7 +187,7 @@
                         @if ($channel['href'])
                             <a href="{{ $channel['href'] }}"
                                 @if (str_starts_with($channel['href'], 'http')) target="_blank" rel="noopener noreferrer" @endif
-                                class="group rounded-2xl border bg-linear-to-br p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $channel['tone'] }}">
+                                class="group rounded-2xl border bg-gradient-to-br p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $channel['tone'] }}">
                                 <div class="flex items-start gap-3">
                                     <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 text-base">
                                         <i class="{{ $channel['icon'] }}" aria-hidden="true"></i>
@@ -243,7 +243,7 @@
         </div>
     </section>
 
-    <section class="bg-white px-4 py-12 md:py-16">
+    <section class="ksb-section bg-white px-4">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
             <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-[#fffdf8] p-5 shadow-soft md:p-7" x-data="{ openFaq: 0 }">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.faq_badge') }}</p>
@@ -291,10 +291,10 @@
         </div>
     </section>
 
-    <section class="px-4 pb-14 pt-12 md:pb-20">
+    <section class="ksb-section-cta px-4">
         <div class="container mx-auto max-w-7xl">
             <div class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-soft">
-                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_14%,rgba(255,201,0,0.24),transparent_42%),radial-gradient(circle_at_85%_92%,rgba(255,155,0,0.28),transparent_44%)]"></div>
+                <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/70"></div>
                 <div class="relative grid items-center gap-6 p-6 text-white md:p-12 lg:grid-cols-[1.15fr_0.85fr]">
                     <div>
                         <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">{{ __('client.contact.cta.badge') }}</p>

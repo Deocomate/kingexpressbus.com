@@ -15,8 +15,8 @@
     ];
 @endphp
 
-<footer class="relative overflow-hidden bg-slate-900 text-slate-100">
-    <div class="absolute inset-0 bg-linear-to-br from-slate-900 via-slate-900 to-[#3f2a00]"></div>
+<footer class="relative overflow-hidden bg-navy-900 text-slate-100">
+    <div class="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-900 to-[#3f2a00]"></div>
     <div class="relative container mx-auto max-w-7xl px-4 py-14 md:py-16">
         <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
             <div class="lg:col-span-1">

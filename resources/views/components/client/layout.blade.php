@@ -1,22 +1,35 @@
 @php
     $appName = config('app.name', 'King Express Bus');
-    $defaultDescription = __('client.seo.default_description', ['default' => 'Đặt vé xe khách trực tuyến - Kết nối hàng nghìn chuyến xe chất lượng cao trên khắp Việt Nam. Đặt vé dễ dàng, thanh toán an toàn.']);
-    $defaultKeywords = __('client.seo.default_keywords', ['default' => 'đặt vé xe khách, xe limousine, xe giường nằm, Hà Nội Sa Pa, King Express Bus, vé xe online']);
+    $defaultDescription = __('client.seo.default_description', [
+        'default' =>
+            'Đặt vé xe khách trực tuyến - Kết nối hàng nghìn chuyến xe chất lượng cao trên khắp Việt Nam. Đặt vé dễ dàng, thanh toán an toàn.',
+    ]);
+    $defaultKeywords = __('client.seo.default_keywords', [
+        'default' => 'đặt vé xe khách, xe limousine, xe giường nằm, Hà Nội Sa Pa, King Express Bus, vé xe online',
+    ]);
 
     $pageTitle = trim(strip_tags((string) ($title ?? data_get($webProfile, 'title', $appName))));
-    $pageDescription = trim(strip_tags((string) ($description ?? data_get($webProfile, 'description', $defaultDescription))));
+    $pageDescription = trim(
+        strip_tags((string) ($description ?? data_get($webProfile, 'description', $defaultDescription))),
+    );
     $pageKeywords = trim(strip_tags((string) ($keywords ?? $defaultKeywords)));
-    $faviconUrl = \App\Helpers\SystemHelper::mediaUrl($favicon ?? data_get($webProfile, 'favicon_url'), \App\Helpers\SystemHelper::mediaUrl('/client/icons/logo.ico'));
+    $faviconUrl = \App\Helpers\SystemHelper::mediaUrl(
+        $favicon ?? data_get($webProfile, 'favicon_url'),
+        \App\Helpers\SystemHelper::mediaUrl('/client/icons/logo.ico'),
+    );
     $bodyClassName = trim($bodyClass ?? '') !== '' ? trim($bodyClass) : 'bg-[#F8FAFC] text-slate-800';
 
     $currentUrl = $canonicalUrl ?? url()->current();
     $baseUrl = url('/');
-    $logoUrl = \App\Helpers\SystemHelper::mediaUrl(data_get($webProfile, 'logo_url'), \App\Helpers\SystemHelper::mediaUrl('/client/images/web information/logo.jpg'));
+    $logoUrl = \App\Helpers\SystemHelper::mediaUrl(
+        data_get($webProfile, 'logo_url'),
+        \App\Helpers\SystemHelper::mediaUrl('/client/images/web information/logo.jpg'),
+    );
     $shareImage = \App\Helpers\SystemHelper::mediaUrl($ogImage ?? data_get($webProfile, 'share_image_url'), $logoUrl);
     $shareImageAlt = $ogImageAlt ?? $pageTitle;
 
     $siteNameValue = trim(strip_tags((string) ($siteName ?? data_get($webProfile, 'profile_name', $appName))));
-    $localeValue = $locale ?? (str_replace('-', '_', app()->getLocale()) . '_VN');
+    $localeValue = $locale ?? str_replace('-', '_', app()->getLocale()) . '_VN';
     $robotsMeta = $robots ?? 'index, follow';
     $ogTypeValue = $ogType ?? 'website';
 
@@ -25,6 +38,7 @@
     $facebookUrl = data_get($webProfile, 'facebook_url', '');
     $messengerPath = parse_url((string) $facebookUrl, PHP_URL_PATH);
     $messengerId = $messengerPath ? trim((string) basename($messengerPath)) : '';
+    $clientAssetVersion = '1.1.0';
 
     $authUser = auth()->user();
     $customerNavLinks = [];
@@ -119,15 +133,57 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: { 50: '#fffcf0', 100: '#fff7d6', 500: '#FFC900', 600: '#FF9B00', 700: '#e68a00' },
-                        accent: '#FFE100',
-                        pastel: '#EBE389'
+                        primary: {
+                            50: '#fff9e6',
+                            100: '#ffefbf',
+                            200: '#ffe08a',
+                            300: '#ffd156',
+                            400: '#ffc43a',
+                            500: '#FFC900',
+                            600: '#FF9B00',
+                            700: '#d97d00',
+                            800: '#a85f00',
+                            900: '#744100'
+                        },
+                        accent: {
+                            DEFAULT: '#FFE100',
+                            50: '#fffce5',
+                            100: '#fff5b8',
+                            500: '#FFE100',
+                            600: '#FFC900',
+                            700: '#b86100'
+                        },
+                        navy: {
+                            50: '#eef6ff',
+                            100: '#d9ebff',
+                            700: '#0f2a44',
+                            800: '#071a2e',
+                            900: '#04111f',
+                            950: '#020915'
+                        },
+                        pastel: '#EBE389',
+                        pickup: '#10B981',
+                        dropoff: '#EF4444'
                     },
                     fontFamily: {
-                        sans: ['Be Vietnam Pro', 'Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Be Vietnam Pro', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+                        display: ['Manrope', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
                     },
                     boxShadow: {
                         soft: '0 12px 28px -18px rgba(15, 23, 42, 0.28)',
+                        card: '0 24px 60px -34px rgba(4, 17, 31, 0.38)',
+                        lift: '0 18px 42px -28px rgba(4, 17, 31, 0.36)',
+                    },
+                    borderRadius: {
+                        control: '12px',
+                        panel: '18px',
+                    },
+                    zIndex: {
+                        header: '40',
+                        dropdown: '50',
+                        drawer: '60',
+                        modal: '70',
+                        alert: '80',
                     },
                 }
             }
@@ -135,10 +191,14 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="{{ asset('/client/css/custom.css') }}?v={{ $clientAssetVersion }}">
+    <script defer src="{{ asset('/client/js/client-ui.js') }}?v={{ $clientAssetVersion }}"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
@@ -165,6 +225,7 @@
         }
 
         @keyframes ksb-soft-pulse {
+
             0%,
             100% {
                 box-shadow: 0 0 0 0 rgba(255, 155, 0, 0.16);
@@ -214,7 +275,7 @@
     <x-client.footer :web-profile="$webProfile" />
 
     @if ($webProfile)
-        <div class="fixed bottom-6 right-4 z-50 flex flex-col gap-3 md:right-6">
+        <div class="ksb-floating-contact fixed bottom-6 right-4 flex flex-col gap-3 md:right-6">
             @if ($messengerId !== '')
                 <a href="https://m.me/{{ $messengerId }}" target="_blank" rel="noopener noreferrer"
                     class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0099FF] text-white shadow-soft transition hover:-translate-y-1 hover:shadow-lg"
@@ -243,7 +304,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             toastr.options = {
                 closeButton: true,
                 progressBar: true,

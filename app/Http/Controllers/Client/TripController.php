@@ -43,6 +43,19 @@ class TripController extends Controller
      */
     private function resolveLocationContext(string $type, int $id): ?string
     {
+        $stopContextExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "d.name || ' Â· ' || p.name"
+            : "CONCAT(d.name, ' Â· ', p.name)";
+
+        if ($type === 'stop') {
+            return DB::table('stops as s')
+                ->join('districts as d', 's.district_id', '=', 'd.id')
+                ->join('provinces as p', 'd.province_id', '=', 'p.id')
+                ->where('s.id', $id)
+                ->selectRaw($stopContextExpression.' as context')
+                ->value('context');
+        }
+
         return match ($type) {
             'province' => __('client.search.types.province'),
             'district' => DB::table('districts as d')

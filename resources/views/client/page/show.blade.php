@@ -18,7 +18,7 @@
 
             .page-hero-bg {
                 background-image:
-                    linear-gradient(112deg, rgba(15, 23, 42, 0.78), rgba(255, 155, 0, 0.52)),
+                    linear-gradient(108deg, rgba(4, 17, 31, 0.9), rgba(4, 17, 31, 0.64) 54%, rgba(255, 155, 0, 0.36)),
                     url('/client/images/city_imgs/da-nang.jpg');
                 background-size: cover;
                 background-position: center;
@@ -53,7 +53,7 @@
     {{-- Header được render trong x-client.layout --}}
 
     {{-- HERO/SEARCH --}}
-    <section class="page-hero-bg relative overflow-visible px-4 pb-14 pt-20 md:pb-20 md:pt-24">
+    <section class="page-hero-bg ksb-section-hero relative overflow-visible px-4">
         <div class="container mx-auto max-w-7xl">
             <div class="max-w-3xl">
                 <span
@@ -61,7 +61,7 @@
                     <i class="fa-solid fa-sparkles" aria-hidden="true"></i>
                     {{ __('client.page_view.hero.badge') }}
                 </span>
-                <h1 class="text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
+                <h1 class="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
                     {{ $page->title ?? __('client.page_view.hero.fallback_title') }}
                 </h1>
                 <p class="mt-4 text-sm text-slate-100/95 sm:text-base lg:text-lg">
@@ -81,14 +81,14 @@
                 </div>
             </div>
 
-            <div class="relative z-90 mt-8">
+            <div class="ksb-dropdown relative mt-8">
                 <x-client.search-bar :submit-label="__('client.page_view.hero.search_submit')" />
             </div>
         </div>
     </section>
 
     {{-- MAIN CONTENT --}}
-    <section class="px-4 py-12 md:py-16">
+    <section class="ksb-section px-4">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
             <article class="lg:col-span-8 space-y-5 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-amber-100 pb-4">
