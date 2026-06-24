@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Bookings\Tables;
 use App\Enums\BookingStatus;
 use App\Models\Booking;
 use App\Services\BookingService;
+use App\Support\DepartureAtExpression;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -34,7 +35,7 @@ class BookingsTable
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query
                             ->orderBy('bookings.booking_date', $direction)
-                            ->orderBy('trips.start_time', $direction);
+                            ->orderByRaw(DepartureAtExpression::tripStartTimeSubquery().' '.$direction);
                     })
                     ->description(fn (Booking $record): ?string => match (true) {
                         $record->booking_date?->isToday() => 'Đi hôm nay',
@@ -95,7 +96,11 @@ class BookingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort('departure_at', 'asc')
+            ->defaultSort(function (Builder $query, string $direction): Builder {
+                return $query
+                    ->orderBy('bookings.booking_date', $direction)
+                    ->orderByRaw(DepartureAtExpression::tripStartTimeSubquery().' '.$direction);
+            })
             ->poll('60s')
             ->filters([
                 SelectFilter::make('status')

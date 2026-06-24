@@ -3,6 +3,7 @@
 use App\Enums\BookingStatus;
 use App\Filament\Resources\Bookings\BookingResource;
 use App\Filament\Resources\Bookings\Pages\ListBookings;
+use App\Filament\Resources\Bookings\Pages\ViewBooking;
 use App\Filament\Resources\Buses\BusResource;
 use App\Filament\Resources\Buses\Pages\CreateBus;
 use App\Filament\Resources\BusServices\BusServiceResource;
@@ -110,6 +111,20 @@ test('bus resource syncs services and persists manual seat count', function () {
 
     expect($bus->seat_count)->toBe(22)
         ->and($bus->services()->pluck('bus_services.id')->all())->toBe([$service->id]);
+});
+
+test('admin can view a booking detail page', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
+    $booking = Booking::factory()->create();
+
+    $this->get(BookingResource::getUrl('view', ['record' => $booking]))
+        ->assertSuccessful()
+        ->assertSee($booking->booking_code);
+
+    Livewire::test(ViewBooking::class, ['record' => $booking->getRouteKey()])
+        ->assertSuccessful()
+        ->assertSee($booking->booking_code);
 });
 
 test('booking row actions call booking service transitions', function () {

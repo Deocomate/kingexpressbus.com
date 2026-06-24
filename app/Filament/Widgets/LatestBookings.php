@@ -22,13 +22,12 @@ class LatestBookings extends TableWidget
         return $table
             ->query(fn (): Builder => Booking::query()
                 ->with(['trip.route'])
-                ->leftJoin('trips', 'trips.id', '=', 'bookings.trip_id')
                 ->select('bookings.*')
                 ->addSelect(DB::raw(DepartureAtExpression::asSelect()))
                 ->whereDate('bookings.booking_date', '>=', now()->toDateString())
                 ->whereIn('bookings.status', [BookingStatus::Pending, BookingStatus::Confirmed])
                 ->orderBy('bookings.booking_date')
-                ->orderBy('trips.start_time')
+                ->orderByRaw(DepartureAtExpression::tripStartTimeSubquery())
                 ->limit(10))
             ->columns([
                 TextColumn::make('booking_code')

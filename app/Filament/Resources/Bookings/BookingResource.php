@@ -52,7 +52,6 @@ class BookingResource extends Resource
     {
         return parent::getEloquentQuery()
             ->with(['trip.route', 'pickupStop', 'dropoffStop'])
-            ->leftJoin('trips', 'trips.id', '=', 'bookings.trip_id')
             ->select('bookings.*')
             ->addSelect(DB::raw(DepartureAtExpression::asSelect()));
     }
