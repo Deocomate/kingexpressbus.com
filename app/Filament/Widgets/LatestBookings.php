@@ -32,8 +32,11 @@ class LatestBookings extends TableWidget
             ->columns([
                 TextColumn::make('booking_code')
                     ->label('Mã đặt vé'),
+                TextColumn::make('created_at')
+                    ->label('Ngày đặt vé')
+                    ->dateTime('d/m/Y H:i'),
                 TextColumn::make('departure_at')
-                    ->label('Giờ khởi hành')
+                    ->label('Ngày đi')
                     ->dateTime('d/m/Y H:i'),
                 TextColumn::make('customer_name')
                     ->label('Khách hàng'),

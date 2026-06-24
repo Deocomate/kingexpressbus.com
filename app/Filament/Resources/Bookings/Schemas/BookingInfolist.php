@@ -22,6 +22,9 @@ class BookingInfolist
                         TextEntry::make('status')
                             ->label('Trạng thái')
                             ->badge(),
+                        TextEntry::make('created_at')
+                            ->label('Ngày đặt vé')
+                            ->dateTime('d/m/Y H:i'),
                         TextEntry::make('booking_date')
                             ->label('Ngày đi')
                             ->date('d/m/Y'),
@@ -123,10 +126,6 @@ class BookingInfolist
                             ->label('Ghi chú')
                             ->placeholder('-')
                             ->columnSpanFull(),
-                        TextEntry::make('created_at')
-                            ->label('Ngày tạo')
-                            ->dateTime('d/m/Y H:i')
-                            ->placeholder('-'),
                         TextEntry::make('updated_at')
                             ->label('Ngày cập nhật')
                             ->dateTime('d/m/Y H:i')

@@ -231,6 +231,8 @@ test('booking table formats status and payment states in Vietnamese', function (
         ->assertSuccessful()
         ->assertSee('Đã xác nhận')
         ->assertSee('Chưa thanh toán')
+        ->assertSee('Ngày đặt vé')
+        ->assertSee('Ngày đi')
         ->assertDontSee('Confirmed')
         ->assertDontSee('Unpaid');
 });

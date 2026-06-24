@@ -29,8 +29,12 @@ class BookingsTable
                     ->label('Mã đặt vé')
                     ->searchable()
                     ->copyable(),
+                TextColumn::make('created_at')
+                    ->label('Ngày đặt vé')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
                 TextColumn::make('departure_at')
-                    ->label('Giờ khởi hành')
+                    ->label('Ngày đi')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         return $query
@@ -82,11 +86,6 @@ class BookingsTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('confirmed_at')
                     ->label('Thời gian xác nhận')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('created_at')
-                    ->label('Ngày tạo')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
