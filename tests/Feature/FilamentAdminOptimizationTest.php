@@ -83,17 +83,17 @@ test('application timezone is configured for vietnam', function () {
         ->and(now()->timezone->getName())->toBe('Asia/Ho_Chi_Minh');
 });
 
-test('bookings list defaults to upcoming tab and sorts nearest departures first', function () {
+test('bookings list defaults to upcoming tab and sorts newest bookings first', function () {
     $this->actingAs(User::factory()->admin()->create());
 
     $fixture = optimizationBookingFixture();
     $now = now();
 
-    $earlyTripId = DB::table('trips')->insertGetId([
+    $tripId = DB::table('trips')->insertGetId([
         'bus_id' => $fixture['busId'],
         'route_id' => $fixture['routeId'],
-        'start_time' => '06:00:00',
-        'end_time' => '10:00:00',
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
         'price' => 300000,
         'is_active' => true,
         'priority' => 0,
@@ -101,23 +101,11 @@ test('bookings list defaults to upcoming tab and sorts nearest departures first'
         'updated_at' => $now,
     ]);
 
-    $lateTripId = DB::table('trips')->insertGetId([
-        'bus_id' => $fixture['busId'],
-        'route_id' => $fixture['routeId'],
-        'start_time' => '18:00:00',
-        'end_time' => '22:00:00',
-        'price' => 300000,
-        'is_active' => true,
-        'priority' => 0,
-        'created_at' => $now,
-        'updated_at' => $now,
-    ]);
-
-    $laterBookingId = DB::table('bookings')->insertGetId([
-        'booking_code' => 'LATE-BOOKING',
-        'trip_id' => $lateTripId,
+    $olderBookingId = DB::table('bookings')->insertGetId([
+        'booking_code' => 'OLDER-BOOKING',
+        'trip_id' => $tripId,
         'booking_date' => now()->addDay()->toDateString(),
-        'customer_name' => 'Late User',
+        'customer_name' => 'Older User',
         'customer_phone' => '0900000001',
         'pickup_stop_id' => $fixture['pickupStopId'],
         'dropoff_stop_id' => $fixture['dropoffStopId'],
@@ -126,15 +114,15 @@ test('bookings list defaults to upcoming tab and sorts nearest departures first'
         'payment_method' => 'cash_on_pickup',
         'payment_status' => 'unpaid',
         'status' => 'confirmed',
-        'created_at' => $now,
+        'created_at' => $now->copy()->subHour(),
         'updated_at' => $now,
     ]);
 
-    $soonerBookingId = DB::table('bookings')->insertGetId([
-        'booking_code' => 'EARLY-BOOKING',
-        'trip_id' => $earlyTripId,
+    $newerBookingId = DB::table('bookings')->insertGetId([
+        'booking_code' => 'NEWER-BOOKING',
+        'trip_id' => $tripId,
         'booking_date' => now()->addDay()->toDateString(),
-        'customer_name' => 'Early User',
+        'customer_name' => 'Newer User',
         'customer_phone' => '0900000002',
         'pickup_stop_id' => $fixture['pickupStopId'],
         'dropoff_stop_id' => $fixture['dropoffStopId'],
@@ -147,14 +135,16 @@ test('bookings list defaults to upcoming tab and sorts nearest departures first'
         'updated_at' => $now,
     ]);
 
-    $soonerBooking = Booking::query()->findOrFail($soonerBookingId);
-    $laterBooking = Booking::query()->findOrFail($laterBookingId);
+    $newerBooking = Booking::query()->findOrFail($newerBookingId);
+    $olderBooking = Booking::query()->findOrFail($olderBookingId);
 
     Livewire::test(ListBookings::class)
         ->assertSuccessful()
         ->assertSee('Sắp đi')
         ->assertSee('Chờ xác nhận')
-        ->assertCanSeeTableRecords([$soonerBooking, $laterBooking], inOrder: true);
+        ->assertCanSeeTableRecords([$newerBooking, $olderBooking], inOrder: true)
+        ->sortTable('created_at')
+        ->assertCanSeeTableRecords([$olderBooking, $newerBooking], inOrder: true);
 });
 
 test('booking status enum provides vietnamese labels and colors', function () {

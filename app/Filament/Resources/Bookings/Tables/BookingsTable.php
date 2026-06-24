@@ -32,7 +32,9 @@ class BookingsTable
                 TextColumn::make('created_at')
                     ->label('Ngày đặt vé')
                     ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query->orderBy('bookings.created_at', $direction);
+                    }),
                 TextColumn::make('departure_at')
                     ->label('Ngày đi')
                     ->dateTime('d/m/Y H:i')
@@ -95,11 +97,7 @@ class BookingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->defaultSort(function (Builder $query, string $direction): Builder {
-                return $query
-                    ->orderBy('bookings.booking_date', $direction)
-                    ->orderByRaw(DepartureAtExpression::tripStartTimeSubquery().' '.$direction);
-            })
+            ->defaultSort(fn (Builder $query, string $direction): Builder => $query->orderBy('bookings.created_at', $direction), 'desc')
             ->poll('60s')
             ->filters([
                 SelectFilter::make('status')
