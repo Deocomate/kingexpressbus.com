@@ -89,7 +89,7 @@ test('web profile default flag is unique', function () {
         ->and($second->refresh()->is_default)->toBeTrue();
 });
 
-test('bus resource syncs services and recomputes seat count from seat map', function () {
+test('bus resource syncs services and persists manual seat count', function () {
     $this->actingAs(User::factory()->admin()->create());
 
     $service = BusService::factory()->create();
@@ -99,11 +99,7 @@ test('bus resource syncs services and recomputes seat count from seat map', func
             'name' => 'Test Cabin',
             'model_name' => 'Cabin',
             'services' => [$service->id],
-            'seat_map' => [
-                ['seat_number' => 'A1', 'status' => 'available', 'deck' => 1],
-                ['seat_number' => 'A2', 'status' => 'disabled', 'deck' => 1],
-                ['seat_number' => 'B1', 'status' => 'available', 'deck' => 2],
-            ],
+            'seat_count' => 22,
             'image_list_url' => [],
             'priority' => 10,
         ])
@@ -112,7 +108,7 @@ test('bus resource syncs services and recomputes seat count from seat map', func
 
     $bus = Bus::query()->firstOrFail();
 
-    expect($bus->seat_count)->toBe(2)
+    expect($bus->seat_count)->toBe(22)
         ->and($bus->services()->pluck('bus_services.id')->all())->toBe([$service->id]);
 });
 
@@ -219,10 +215,8 @@ test('booking table formats status and payment states in Vietnamese', function (
     Livewire::test(ListBookings::class)
         ->assertSuccessful()
         ->assertSee('Đã xác nhận')
-        ->assertSee('Thanh toán khi đón')
         ->assertSee('Chưa thanh toán')
         ->assertDontSee('Confirmed')
-        ->assertDontSee('Cash on pickup')
         ->assertDontSee('Unpaid');
 });
 

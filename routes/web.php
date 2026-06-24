@@ -41,27 +41,36 @@ Route::name('client.')->group(function () {
     Route::get('/tuyen-duong/{slug}', [ClientTripController::class, 'show'])->name('routes.show');
 
     Route::get('/dat-ve', [ClientBookingController::class, 'create'])->name('booking.create');
-    Route::post('/dat-ve', [ClientBookingController::class, 'store'])->name('booking.store');
-    Route::get('/dat-ve/thanh-cong', [ClientBookingController::class, 'success'])->name('booking.success');
-    Route::get('/dat-ve/trang-thai-thanh-toan/{code}', [ClientBookingController::class, 'paymentStatus'])->name('booking.payment_status');
+    Route::post('/dat-ve', [ClientBookingController::class, 'store'])
+        ->middleware('throttle:booking')
+        ->name('booking.store');
+    Route::get('/dat-ve/thanh-cong/{booking}', [ClientBookingController::class, 'success'])
+        ->name('booking.success');
+    Route::get('/dat-ve/trang-thai-thanh-toan/{code}', [ClientBookingController::class, 'paymentStatus'])
+        ->middleware('throttle:payment')
+        ->name('booking.payment_status');
 
-    Route::get('/dat-ve/chuyen-huong-sepay/{code}', [ClientSePayController::class, 'redirect'])->name('sepay.redirect');
-    Route::get('/dat-ve/sepay/thanh-cong/{code}', [ClientSePayController::class, 'success'])->name('sepay.success');
-    Route::get('/dat-ve/sepay/that-bai/{code}', [ClientSePayController::class, 'error'])->name('sepay.error');
-    Route::get('/dat-ve/sepay/huy/{code}', [ClientSePayController::class, 'cancel'])->name('sepay.cancel');
-    Route::post('/checkout/sepay/ipn', [ClientSePayController::class, 'ipn'])->name('sepay.ipn');
+    Route::middleware('throttle:payment')->group(function () {
+        Route::get('/dat-ve/chuyen-huong-sepay/{code}', [ClientSePayController::class, 'redirect'])->name('sepay.redirect');
+        Route::get('/dat-ve/sepay/thanh-cong/{code}', [ClientSePayController::class, 'success'])->name('sepay.success');
+        Route::get('/dat-ve/sepay/that-bai/{code}', [ClientSePayController::class, 'error'])->name('sepay.error');
+        Route::get('/dat-ve/sepay/huy/{code}', [ClientSePayController::class, 'cancel'])->name('sepay.cancel');
+        Route::post('/checkout/sepay/ipn', [ClientSePayController::class, 'ipn'])->name('sepay.ipn');
+    });
 
     Route::get('/lien-he', [ContactController::class, 'index'])->name('contact');
     Route::get('/gioi-thieu', [PageController::class, 'about'])->name('about');
     Route::get('/trang/{slug}', [PageController::class, 'show'])->name('page.show');
 
-    Route::get('/dang-nhap', [ClientAuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/dang-nhap', [ClientAuthController::class, 'login'])->name('login.submit');
-    Route::get('/dang-ky', [ClientAuthController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/dang-ky', [ClientAuthController::class, 'register'])->name('register.submit');
-    Route::get('/quen-mat-khau', [ClientAuthController::class, 'showForgotPasswordForm'])->name('password.request');
-    Route::post('/quen-mat-khau', [ClientAuthController::class, 'sendResetLinkEmail'])->name('password.email');
-    Route::post('/dat-lai-mat-khau', [ClientAuthController::class, 'resetPassword'])->name('password.update');
+    Route::middleware('throttle:auth')->group(function () {
+        Route::get('/dang-nhap', [ClientAuthController::class, 'showLoginForm'])->name('login');
+        Route::post('/dang-nhap', [ClientAuthController::class, 'login'])->name('login.submit');
+        Route::get('/dang-ky', [ClientAuthController::class, 'showRegistrationForm'])->name('register');
+        Route::post('/dang-ky', [ClientAuthController::class, 'register'])->name('register.submit');
+        Route::get('/quen-mat-khau', [ClientAuthController::class, 'showForgotPasswordForm'])->name('password.request');
+        Route::post('/quen-mat-khau', [ClientAuthController::class, 'sendResetLinkEmail'])->name('password.email');
+        Route::post('/dat-lai-mat-khau', [ClientAuthController::class, 'resetPassword'])->name('password.update');
+    });
     Route::post('/dang-xuat', [ClientAuthController::class, 'logout'])->name('logout');
 
     Route::middleware(CustomerAuthMiddleware::class)->group(function () {

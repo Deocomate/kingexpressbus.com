@@ -4,9 +4,11 @@ namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Bookings\BookingResource;
 use App\Services\BookingService;
+use App\Support\ClientCache;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class BookingStatsOverview extends StatsOverviewWidget
@@ -17,11 +19,19 @@ class BookingStatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $todayStats = app(BookingService::class)->getAdminBookingStats();
+        $stats = Cache::remember(ClientCache::ADMIN_DASHBOARD_STATS, 60, function () {
+            $todayStats = app(BookingService::class)->getAdminBookingStats();
 
-        $totalRevenue = (int) DB::table('bookings')
-            ->whereIn('status', ['confirmed', 'completed'])
-            ->sum('total_price');
+            return [
+                'todayStats' => $todayStats,
+                'totalRevenue' => (int) DB::table('bookings')
+                    ->whereIn('status', ['confirmed', 'completed'])
+                    ->sum('total_price'),
+            ];
+        });
+
+        $todayStats = $stats['todayStats'];
+        $totalRevenue = $stats['totalRevenue'];
 
         return [
             Stat::make('Đặt vé hôm nay', $todayStats['totalToday'])

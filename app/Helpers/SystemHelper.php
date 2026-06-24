@@ -2,8 +2,10 @@
 
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 /**
  * System-wide helper functions for common operations.
@@ -31,7 +33,15 @@ class SystemHelper
      */
     public static function generateBookingCode(): string
     {
-        return Str::upper(Str::random(8));
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $code = Str::upper(Str::random(16));
+
+            if (! DB::table('bookings')->where('booking_code', $code)->exists()) {
+                return $code;
+            }
+        }
+
+        throw new RuntimeException('Unable to generate unique booking code');
     }
 
     /**

@@ -11,6 +11,14 @@ use Illuminate\Support\Facades\Mail;
 
 uses(RefreshDatabase::class);
 
+function assertRedirectToSignedBookingSuccess($response, int $bookingId): void
+{
+    $response->assertRedirect();
+    $location = $response->headers->get('Location');
+    expect($location)->toContain('/dat-ve/thanh-cong/'.$bookingId)
+        ->and($location)->toContain('signature=');
+}
+
 function seedSePayTripFixture(string $suffix = 'sepay'): array
 {
     $now = now();
@@ -201,7 +209,8 @@ it('keeps online banking bookings on the success flow and sends the confirmation
 
     $booking = DB::table('bookings')->first();
 
-    $response->assertRedirect(route('client.booking.success'));
+    $response->assertRedirect();
+    assertRedirectToSignedBookingSuccess($response, (int) $booking->id);
     expect($booking->payment_status)->toBe('unpaid')
         ->and($booking->status)->toBe('pending');
     Mail::assertQueued(BookingConfirmMail::class, 2);
@@ -213,7 +222,9 @@ it('keeps cash bookings on the existing success flow and sends the confirmation 
     $fixture = seedSePayTripFixture('cash');
     $response = $this->post(route('client.booking.store'), sePayBookingRequestPayload($fixture, 'cash_on_pickup'));
 
-    $response->assertRedirect(route('client.booking.success'));
+    $booking = DB::table('bookings')->first();
+    $response->assertRedirect();
+    assertRedirectToSignedBookingSuccess($response, (int) $booking->id);
     Mail::assertQueued(BookingConfirmMail::class, 2);
 });
 
@@ -300,7 +311,7 @@ it('redirects already paid bookings away from the payment page', function () {
 
     $response = $this->get(route('client.sepay.redirect', ['code' => $booking->booking_code]));
 
-    $response->assertRedirect(route('client.booking.success'));
+    assertRedirectToSignedBookingSuccess($response, (int) $booking->id);
 });
 
 it('returns the latest payment status for the success page poller', function () {
@@ -313,11 +324,46 @@ it('returns the latest payment status for the success page poller', function () 
     $this->getJson(route('client.booking.payment_status', ['code' => $booking->booking_code]))
         ->assertSuccessful()
         ->assertJson([
+            'found' => true,
             'booking_code' => $booking->booking_code,
             'status' => 'confirmed',
             'payment_method' => 'online_banking',
             'payment_status' => 'paid',
         ]);
+});
+
+it('returns a uniform response for unknown booking payment status codes', function () {
+    $this->getJson(route('client.booking.payment_status', ['code' => 'UNKNOWN-CODE']))
+        ->assertSuccessful()
+        ->assertJson([
+            'found' => false,
+            'booking_code' => null,
+            'status' => null,
+            'payment_method' => null,
+            'payment_status' => null,
+        ]);
+});
+
+it('does not mark cash bookings paid from SePay IPN', function () {
+    Mail::fake();
+    config(['sepay.secret_key' => 'test-secret']);
+
+    $booking = createSePayPendingBooking('cash-ipn', [
+        'status' => 'confirmed',
+        'confirmed_at' => now(),
+        'payment_method' => 'cash_on_pickup',
+    ]);
+
+    $this->postJson(
+        route('client.sepay.ipn'),
+        sePayIpnPayload($booking->booking_code, 300000, 'TX-CASH-001'),
+        ['X-Secret-Key' => 'test-secret']
+    )->assertSuccessful();
+
+    $updatedBooking = DB::table('bookings')->where('id', $booking->id)->first();
+
+    expect($updatedBooking->payment_status)->toBe('unpaid');
+    Mail::assertNotQueued(BookingApprovedMail::class);
 });
 
 it('rejects SePay IPN requests with missing or invalid secrets', function (array $headers) {

@@ -63,7 +63,7 @@ class TripBlocksTable
             ])
             ->filters([
                 Filter::make('block_date')
-                    ->form([
+                    ->schema([
                         DatePicker::make('date')
                             ->label('Ngày'),
                     ])

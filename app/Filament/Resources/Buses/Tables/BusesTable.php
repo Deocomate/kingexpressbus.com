@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Buses\Tables;
 
+use App\Filament\Support\BookingDeleteGuard;
 use App\Helpers\SystemHelper;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -63,7 +64,13 @@ class BusesTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Xóa đã chọn'),
+                        ->label('Xóa đã chọn')
+                        ->before(function ($records): void {
+                            $count = collect($records)->sum(
+                                fn ($record) => BookingDeleteGuard::busBookingCount((int) $record->id),
+                            );
+                            BookingDeleteGuard::haltIfBookingsExist((int) $count);
+                        }),
                 ])
                     ->label('Thao tác hàng loạt'),
             ])

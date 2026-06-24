@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Buses\Pages;
 
+use App\Filament\Concerns\GuardsDeleteWhenBookingsExist;
 use App\Filament\Resources\Buses\BusResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Support\BookingDeleteGuard;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditBus extends EditRecord
 {
+    use GuardsDeleteWhenBookingsExist;
+
     protected static string $resource = BusResource::class;
 
     protected function getHeaderActions(): array
@@ -16,8 +19,12 @@ class EditBus extends EditRecord
         return [
             ViewAction::make()
                 ->label('Xem'),
-            DeleteAction::make()
-                ->label('Xóa'),
+            $this->guardedDeleteAction(),
         ];
+    }
+
+    protected function relatedBookingCount(): int
+    {
+        return BookingDeleteGuard::busBookingCount((int) $this->record->id);
     }
 }

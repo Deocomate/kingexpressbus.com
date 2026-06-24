@@ -96,7 +96,7 @@ class BookingsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('departure_at', 'asc')
-            ->poll('30s')
+            ->poll('60s')
             ->filters([
                 SelectFilter::make('status')
                     ->label('Trạng thái')

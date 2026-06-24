@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class BusResource extends Resource
 {
@@ -29,6 +30,11 @@ class BusResource extends Resource
     protected static ?string $pluralModelLabel = 'Xe';
 
     protected static ?string $navigationLabel = 'Danh sách Xe';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with('services');
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -139,7 +139,7 @@
                 <div class="flex flex-wrap items-center gap-3 text-sm text-white/86 lg:justify-end">
                     <span class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                         <i class="fa-solid fa-bus text-accent"></i>
-                        {{ $trips->count() }} {{ __('client.route_show.hero_trips', ['default' => 'chuyáº¿n']) }}
+                        {{ $trips->count() }} {{ __('client.route_show.hero_trips') }}
                     </span>
                     <span class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2">
                         <i class="fa-solid fa-tag text-accent"></i>
@@ -160,7 +160,7 @@
             <div class="container mx-auto max-w-7xl px-4">
                 <div class="flex items-center gap-2 overflow-x-auto pb-1">
                     <span class="mr-1 whitespace-nowrap text-sm font-semibold text-gray-500">
-                        {{ __('client.route_show.quick_filters.label', ['default' => 'Lá»c nhanh:']) }}
+                        {{ __('client.route_show.quick_filters.label') }}
                     </span>
 
                     {{-- Time Range Quick Filters --}}
@@ -198,7 +198,7 @@
                         class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition {{ $hasSeatsActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
                         @if ($hasSeatsActive) aria-current="true" @endif>
                         <i class="fa-solid fa-chair"></i>
-                        {{ __('client.route_show.quick_filters.has_seats', ['default' => 'CÃ²n chá»—']) }}
+                        {{ __('client.route_show.quick_filters.has_seats') }}
                     </a>
 
                     {{-- Clear All Filters --}}
@@ -206,7 +206,7 @@
                         <a href="{{ $clearFiltersUrl }}"
                             class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
                             <i class="fa-solid fa-xmark"></i>
-                            {{ __('client.route_show.quick_filters.clear_all', ['default' => 'XÃ³a lá»c']) }}
+                            {{ __('client.route_show.quick_filters.clear_all') }}
                         </a>
                     @endif
                 </div>
@@ -224,7 +224,7 @@
                         </h2>
                         <p class="mt-1 text-sm text-gray-500">
                             @if ($tripStats['filtered'] < $tripStats['total'])
-                                {{ __('client.route_show.results_subtitle_filtered', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate, 'default' => $tripStats['filtered'] . ' / ' . $tripStats['total'] . ' chuyáº¿n â€¢ ' . $departureDate]) }}
+                                {{ __('client.route_show.results_subtitle_filtered', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate]) }}
                             @else
                                 {{ __('client.route_show.results_subtitle', ['filtered' => $tripStats['filtered'], 'total' => $tripStats['total'], 'date' => $departureDate]) }}
                             @endif
@@ -248,7 +248,7 @@
                 {{-- Mobile Filter Slide-in Panel --}}
                 <div id="filter-panel-mobile"
                     class="ksb-drawer fixed inset-y-0 left-0 w-[320px] max-w-[90vw] -translate-x-full overflow-y-auto bg-white shadow-card transition-transform duration-300 lg:hidden"
-                    role="dialog" aria-modal="true" aria-hidden="true" aria-label="Bá»™ lá»c chuyáº¿n xe" tabindex="-1">
+                    role="dialog" aria-modal="true" aria-hidden="true" aria-label="{{ __('client.route_show.filters.mobile_title') }}" tabindex="-1">
                     {{-- Mobile Header --}}
                     <div class="flex justify-between items-center p-5 border-b border-gray-100">
                         <h3 class="text-lg font-bold">{{ __('client.route_show.filters.mobile_title') }}</h3>
@@ -278,11 +278,11 @@
                             <div class="flex items-center justify-between border-b border-slate-100 bg-amber-50/60 px-5 py-4">
                                 <h3 class="flex items-center gap-2 text-sm font-bold text-slate-700">
                                     <i class="fa-solid fa-sliders text-primary-600"></i>
-                                    {{ __('client.route_show.filters.sidebar_title', ['default' => 'Bá»™ lá»c']) }}
+                                    {{ __('client.route_show.filters.sidebar_title') }}
                                 </h3>
                                 @if ($hasActiveFilters)
                                     <span class="inline-flex items-center justify-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-bold text-primary-700">
-                                        {{ $activeFilterCount }} {{ __('client.route_show.filters.active', ['default' => 'đang lá»c']) }}
+                                        {{ $activeFilterCount }} {{ __('client.route_show.filters.active') }}
                                     </span>
                                 @endif
                             </div>
@@ -436,18 +436,18 @@
                                                     aria-haspopup="dialog"
                                                     aria-controls="trip-detail-modal-{{ $trip->trip_id }}"
                                                     data-trip-modal-target="#trip-detail-modal-{{ $trip->trip_id }}">
-                                                    {{ __('client.route_show.trip_card.details_button', ['default' => 'Chi tiáº¿t']) }}
+                                                    {{ __('client.route_show.trip_card.details_button') }}
                                                     <i class="fa-solid fa-circle-info text-[10px]"></i>
                                                 </button>
                                                 <a href="{{ route('client.booking.create', ['trip_id' => $trip->trip_id, 'date' => $departureDate]) }}"
                                                     class="ksb-btn-primary min-h-10 px-4 text-xs {{ $hasSeats && empty($trip->is_off_day) ? '' : 'pointer-events-none opacity-50' }}">
                                                     <i class="fa-solid fa-ticket"></i>
                                                     @if (!empty($trip->is_off_day))
-                                                        {{ __('client.route_show.trip_card.off_day_button', ['default' => 'Ngá»«ng cháº¡y']) }}
+                                                        {{ __('client.route_show.trip_card.off_day_button') }}
                                                     @elseif ($hasSeats)
-                                                        {{ __('client.route_show.trip_card.book_button', ['default' => 'Chá»n chuyáº¿n']) }}
+                                                        {{ __('client.route_show.trip_card.book_button') }}
                                                     @else
-                                                        {{ __('client.route_show.trip_card.sold_out_button', ['default' => 'Háº¿t chá»—']) }}
+                                                        {{ __('client.route_show.trip_card.sold_out_button') }}
                                                     @endif
                                                 </a>
                                             </div>
@@ -470,7 +470,7 @@
                                         <div class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-5">
                                             <div class="flex items-start justify-between gap-4">
                                                 <div class="min-w-0">
-                                                    <p class="ksb-section-label mb-1 text-[11px]">{{ __('client.route_show.details_modal.overview_title', ['default' => 'Tổng quan chuyến xe']) }}</p>
+                                                    <p class="ksb-section-label mb-1 text-[11px]">{{ __('client.route_show.details_modal.overview_title') }}</p>
                                                     <h3 id="trip-detail-title-{{ $trip->trip_id }}" class="font-display text-xl font-extrabold leading-tight text-slate-900 sm:text-2xl">
                                                         {{ $trip->bus_name }}
                                                     </h3>
@@ -500,7 +500,7 @@
 
                                                 <button type="button"
                                                     class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
-                                                    aria-label="{{ __('client.route_show.details_modal.close', ['default' => 'Đóng']) }}"
+                                                    aria-label="{{ __('client.route_show.details_modal.close') }}"
                                                     data-trip-modal-close>
                                                     <i class="fa-solid fa-xmark"></i>
                                                 </button>
@@ -521,7 +521,7 @@
                                                             data-lightbox-images='@json($imageGallery->values())'>
                                                         <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-slate-950/70 to-transparent px-4 pb-4 pt-12 text-white">
                                                             <span class="text-sm font-semibold">{{ __('client.route_show.details_modal.gallery_title') }}</span>
-                                                            <span class="text-xs text-white/80">{{ __('client.route_show.details_modal.gallery_hint', ['default' => 'Nhấn ảnh để xem lớn']) }}</span>
+                                                            <span class="text-xs text-white/80">{{ __('client.route_show.details_modal.gallery_hint') }}</span>
                                                         </div>
                                                     </div>
 
@@ -547,7 +547,7 @@
                                                 <section class="trip-detail-section lg:border-t-0 lg:pt-0">
                                                     <h4 class="mb-4 flex items-center gap-2 text-sm font-bold uppercase text-slate-700">
                                                         <i class="fa-solid fa-route text-slate-400"></i>
-                                                        {{ __('client.route_show.details_modal.journey_summary', ['default' => 'Lộ trình & thời gian']) }}
+                                                        {{ __('client.route_show.details_modal.journey_summary') }}
                                                     </h4>
 
                                                     <div class="divide-y divide-slate-200 border-y border-slate-200">
@@ -719,11 +719,11 @@
                                                     class="ksb-btn-primary min-h-11 px-5 text-sm {{ $hasSeats && empty($trip->is_off_day) ? '' : 'pointer-events-none opacity-50' }}">
                                                     <i class="fa-solid fa-ticket"></i>
                                                     @if (!empty($trip->is_off_day))
-                                                        {{ __('client.route_show.trip_card.off_day_button', ['default' => 'Ngừng chạy']) }}
+                                                        {{ __('client.route_show.trip_card.off_day_button') }}
                                                     @elseif ($hasSeats)
-                                                        {{ __('client.route_show.trip_card.book_button', ['default' => 'Chọn chuyến']) }}
+                                                        {{ __('client.route_show.trip_card.book_button') }}
                                                     @else
-                                                        {{ __('client.route_show.trip_card.sold_out_button', ['default' => 'Hết chỗ']) }}
+                                                        {{ __('client.route_show.trip_card.sold_out_button') }}
                                                     @endif
                                                 </a>
                                             </div>
@@ -794,11 +794,11 @@
                                             <a href="{{ route('client.booking.create', ['trip_id' => $returnTrip->trip_id, 'date' => $returnDate]) }}"
                                                 class="ksb-btn-primary px-4 text-sm {{ $returnHasSeats && empty($returnTrip->is_off_day) ? '' : 'opacity-50 pointer-events-none' }}">
                                                 @if (!empty($returnTrip->is_off_day))
-                                                    {{ __('client.route_show.trip_card.off_day_button', ['default' => 'Ngá»«ng cháº¡y']) }}
+                                                    {{ __('client.route_show.trip_card.off_day_button') }}
                                                 @elseif ($returnHasSeats)
-                                                    {{ __('client.route_show.trip_card.book_button', ['default' => 'Chá»n chuyáº¿n']) }}
+                                                    {{ __('client.route_show.trip_card.book_button') }}
                                                 @else
-                                                    {{ __('client.route_show.trip_card.sold_out_button', ['default' => 'Háº¿t chá»—']) }}
+                                                    {{ __('client.route_show.trip_card.sold_out_button') }}
                                                 @endif
                                             </a>
                                         </div>
@@ -841,16 +841,16 @@
                 <div class="ksb-panel mt-10 p-6 text-left">
                     <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
                         <i class="fa-solid fa-lightbulb text-yellow-500"></i>
-                        {{ __('client.route_show.no_trips.suggestion_title', ['default' => 'Gá»£i Ã½']) }}
+                        {{ __('client.route_show.no_trips.suggestion_title') }}
                     </h4>
                     <ul class="space-y-2 text-sm text-gray-600">
                         <li class="flex items-start gap-2">
                             <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
-                            {{ __('client.route_show.no_trips.suggestion_1', ['default' => 'Thá»­ chá»n ngÃ y khÃ¡c đá»ƒ tÃ¬m thÃªm chuyáº¿n xe']) }}
+                            {{ __('client.route_show.no_trips.suggestion_1') }}
                         </li>
                         <li class="flex items-start gap-2">
                             <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
-                            {{ __('client.route_show.no_trips.suggestion_2', ['default' => 'LiÃªn há»‡ hotline đá»ƒ đÆ°á»£c há»— trá»£ đáº·t vÃ©']) }}
+                            {{ __('client.route_show.no_trips.suggestion_2') }}
                         </li>
                     </ul>
                 </div>
@@ -1242,14 +1242,14 @@
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <p class="text-xs text-gray-500">
-                            {{ __('client.route_show.mobile_bar.from', ['default' => 'Chá»‰ tá»«']) }}</p>
+                            {{ __('client.route_show.mobile_bar.from') }}</p>
                         <p class="text-xl font-bold text-primary-600">
                             {{ number_format($lowestPrice, 0, ',', '.') }}â‚«
                         </p>
                     </div>
                     <a href="#availabilities"
                         class="ksb-btn-primary max-w-40 flex-1 px-6 text-sm">
-                        {{ __('client.route_show.mobile_bar.view_trips', ['default' => 'Xem chuyáº¿n']) }}
+                        {{ __('client.route_show.mobile_bar.view_trips') }}
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>
                 </div>

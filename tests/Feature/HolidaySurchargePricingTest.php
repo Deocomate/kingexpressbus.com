@@ -100,7 +100,6 @@ function seedTripFixture(string $slugSuffix = 'a', bool $availableHotelPickup = 
         'name' => 'King Sleeper '.$slugSuffix,
         'model_name' => 'Limousine',
         'seat_count' => 40,
-        'seat_map' => json_encode([]),
         'priority' => 0,
         'created_at' => $now,
         'updated_at' => $now,
@@ -263,9 +262,10 @@ it('uses server price calculation even when client submits tampered total', func
         'payment_method' => 'cash_on_pickup',
     ]);
 
-    $response->assertRedirect(route('client.booking.success'));
+    $response->assertRedirect();
 
     $booking = DB::table('bookings')->first();
+    assertRedirectToSignedBookingSuccess($response, (int) $booking->id);
 
     expect($booking)->not->toBeNull()
         ->and((int) $booking->final_unit_price)->toBe(380000)

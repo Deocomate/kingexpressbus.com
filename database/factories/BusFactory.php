@@ -20,11 +20,7 @@ class BusFactory extends Factory
         return [
             'name' => fake()->company().' Bus',
             'model_name' => fake()->randomElement(['Limousine', 'Cabin', 'Sleeper']),
-            'seat_count' => 2,
-            'seat_map' => [
-                ['seat_number' => 'A1', 'status' => 'available', 'deck' => 1],
-                ['seat_number' => 'A2', 'status' => 'available', 'deck' => 1],
-            ],
+            'seat_count' => 40,
             'image_list_url' => [],
             'priority' => fake()->numberBetween(1, 100),
         ];

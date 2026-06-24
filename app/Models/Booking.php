@@ -31,12 +31,7 @@ class Booking extends Model
         'final_unit_price',
         'total_surcharge_amount',
         'surcharge_reason_snapshot',
-        'status',
-        'confirmed_at',
         'payment_method',
-        'payment_status',
-        'payment_transaction_id',
-        'payment_log',
         'notes',
     ];
 

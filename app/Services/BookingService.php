@@ -46,10 +46,10 @@ class BookingService
     public function createBooking(array $data): array
     {
         return DB::transaction(function () use ($data) {
-            // Get trip details to verify availability
             $trip = DB::table('trips as t')
                 ->join('buses as b', 't.bus_id', '=', 'b.id')
                 ->where('t.id', $data['trip_id'])
+                ->lockForUpdate()
                 ->select('b.seat_count', 't.is_active')
                 ->first();
 
@@ -60,10 +60,22 @@ class BookingService
                 ];
             }
 
-            // Calculate available seats with lock
+            $block = DB::table('trip_blocks')
+                ->where('trip_id', $data['trip_id'])
+                ->where('start_date', '<=', $data['booking_date'])
+                ->where('end_date', '>=', $data['booking_date'])
+                ->first();
+
+            if ($block && in_array($block->block_type, ['sold_out', 'off_day'], true)) {
+                return [
+                    'success' => false,
+                    'message' => __('client.booking.store.trip_blocked'),
+                ];
+            }
+
             $bookedSeats = DB::table('bookings')
                 ->where('trip_id', $data['trip_id'])
-                ->whereDate('booking_date', $data['booking_date'])
+                ->where('booking_date', $data['booking_date'])
                 ->whereIn('status', ['pending', 'confirmed', 'completed'])
                 ->lockForUpdate()
                 ->sum('quantity');
@@ -277,33 +289,38 @@ class BookingService
      */
     public function cancelBooking(int $bookingId, ?string $reason = null, ?int $adminUserId = null): array
     {
-        $booking = DB::table('bookings')->where('id', $bookingId)->first();
+        $result = DB::transaction(function () use ($bookingId, $reason, $adminUserId) {
+            $booking = DB::table('bookings')->where('id', $bookingId)->lockForUpdate()->first();
 
-        if (! $booking) {
-            return ['success' => false, 'message' => __('client.booking.service.cancel_not_found')];
+            if (! $booking) {
+                return ['success' => false, 'message' => __('client.booking.service.cancel_not_found')];
+            }
+
+            if ($booking->status === 'cancelled') {
+                return ['success' => false, 'message' => __('client.booking.service.cancel_already_cancelled')];
+            }
+
+            $updateData = [
+                'status' => 'cancelled',
+                'updated_at' => now(),
+            ];
+
+            if ($reason) {
+                $existingNotes = $booking->notes ?? '';
+                $cancelNote = $adminUserId ? self::NOTE_ADMIN_CANCEL_PREFIX : self::NOTE_CANCEL_PREFIX;
+                $updateData['notes'] = $existingNotes."\n".$cancelNote.$reason;
+            }
+
+            DB::table('bookings')->where('id', $bookingId)->update($updateData);
+
+            return ['success' => true, 'message' => __('client.booking.service.cancel_success')];
+        });
+
+        if ($result['success'] ?? false) {
+            $this->sendCancellationEmail($bookingId, $reason);
         }
 
-        if ($booking->status === 'cancelled') {
-            return ['success' => false, 'message' => __('client.booking.service.cancel_already_cancelled')];
-        }
-
-        $updateData = [
-            'status' => 'cancelled',
-            'updated_at' => now(),
-        ];
-
-        if ($reason) {
-            $existingNotes = $booking->notes ?? '';
-            $cancelNote = $adminUserId ? self::NOTE_ADMIN_CANCEL_PREFIX : self::NOTE_CANCEL_PREFIX;
-            $updateData['notes'] = $existingNotes."\n".$cancelNote.$reason;
-        }
-
-        DB::table('bookings')->where('id', $bookingId)->update($updateData);
-
-        // Auto send cancellation email to customer
-        $this->sendCancellationEmail($bookingId, $reason);
-
-        return ['success' => true, 'message' => __('client.booking.service.cancel_success')];
+        return $result;
     }
 
     /**
@@ -387,66 +404,74 @@ class BookingService
      */
     public function updateStatus(int $bookingId, string $status, ?string $notes = null): array
     {
-        $booking = DB::table('bookings')->where('id', $bookingId)->first();
+        $emailAction = null;
 
-        if (! $booking) {
-            return ['success' => false, 'message' => __('client.booking.service.status_not_found')];
-        }
+        $result = DB::transaction(function () use ($bookingId, $status, $notes, &$emailAction) {
+            $booking = DB::table('bookings')->where('id', $bookingId)->lockForUpdate()->first();
 
-        $updateData = [
-            'status' => $status,
-            'updated_at' => now(),
-        ];
-
-        $isPendingToConfirmed = $status === 'confirmed' && $booking->status === 'pending';
-
-        if ($isPendingToConfirmed) {
-            $updateData['confirmed_at'] = now();
-        }
-
-        // Handle cancellation notes
-        if ($status === 'cancelled') {
-            $existingNotes = $booking->notes ?? '';
-            $notesToAppend = [];
-
-            if ($notes && ! Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
-                $notesToAppend[] = self::NOTE_ADMIN_CANCEL_PREFIX.trim($notes);
+            if (! $booking) {
+                return ['success' => false, 'message' => __('client.booking.service.status_not_found')];
             }
 
-            if (
-                $booking->payment_method === 'online_banking'
-                && $booking->payment_status === 'paid'
-                && ! empty($booking->payment_transaction_id)
-                && ! Str::contains($existingNotes, self::NOTE_SEPAY_REFUND_PREFIX)
-            ) {
-                $notesToAppend[] = self::NOTE_SEPAY_REFUND_PREFIX
-                    .'Manual refund/reconciliation required for SePay transaction '
-                    .$booking->payment_transaction_id
-                    .'.';
+            $updateData = [
+                'status' => $status,
+                'updated_at' => now(),
+            ];
+
+            $isPendingToConfirmed = $status === 'confirmed' && $booking->status === 'pending';
+
+            if ($isPendingToConfirmed) {
+                $updateData['confirmed_at'] = now();
             }
 
-            if (! empty($notesToAppend)) {
-                $updateData['notes'] = trim($existingNotes."\n".implode("\n", $notesToAppend));
+            if ($status === 'cancelled') {
+                $existingNotes = $booking->notes ?? '';
+                $notesToAppend = [];
+
+                if ($notes && ! Str::contains($existingNotes, [self::NOTE_ADMIN_CANCEL_PREFIX, self::LEGACY_NOTE_ADMIN_CANCEL_PREFIX])) {
+                    $notesToAppend[] = self::NOTE_ADMIN_CANCEL_PREFIX.trim($notes);
+                }
+
+                if (
+                    $booking->payment_method === 'online_banking'
+                    && $booking->payment_status === 'paid'
+                    && ! empty($booking->payment_transaction_id)
+                    && ! Str::contains($existingNotes, self::NOTE_SEPAY_REFUND_PREFIX)
+                ) {
+                    $notesToAppend[] = self::NOTE_SEPAY_REFUND_PREFIX
+                        .'Manual refund/reconciliation required for SePay transaction '
+                        .$booking->payment_transaction_id
+                        .'.';
+                }
+
+                if (! empty($notesToAppend)) {
+                    $updateData['notes'] = trim($existingNotes."\n".implode("\n", $notesToAppend));
+                }
             }
-        }
 
-        DB::table('bookings')->where('id', $bookingId)->update($updateData);
+            DB::table('bookings')->where('id', $bookingId)->update($updateData);
 
-        // Auto send the correct email when moving from pending to confirmed
-        if ($isPendingToConfirmed) {
-            if ($booking->payment_method === 'online_banking') {
-                $this->sendPaymentRequestEmail($bookingId);
-            } else {
-                $this->sendApprovalEmail($bookingId);
+            if ($isPendingToConfirmed) {
+                $emailAction = $booking->payment_method === 'online_banking'
+                    ? 'payment_request'
+                    : 'approval';
+            } elseif ($status === 'cancelled') {
+                $emailAction = 'cancellation';
             }
+
+            return ['success' => true, 'message' => __('client.booking.service.status_update_success')];
+        });
+
+        if ($result['success'] ?? false) {
+            match ($emailAction) {
+                'payment_request' => $this->sendPaymentRequestEmail($bookingId),
+                'approval' => $this->sendApprovalEmail($bookingId),
+                'cancellation' => $this->sendCancellationEmail($bookingId, $notes),
+                default => null,
+            };
         }
 
-        // Auto send cancellation email when status is cancelled
-        if ($status === 'cancelled') {
-            $this->sendCancellationEmail($bookingId, $notes);
-        }
-
-        return ['success' => true, 'message' => __('client.booking.service.status_update_success')];
+        return $result;
     }
 
     /**
@@ -458,6 +483,8 @@ class BookingService
             ->join('trips as t', 'b.trip_id', '=', 't.id')
             ->join('routes as r', 't.route_id', '=', 'r.id')
             ->join('buses as bus', 't.bus_id', '=', 'bus.id')
+            ->leftJoin('stops as p_stop', 'b.pickup_stop_id', '=', 'p_stop.id')
+            ->join('stops as d_stop', 'b.dropoff_stop_id', '=', 'd_stop.id')
             ->select([
                 'b.*',
                 'r.name as route_name',
@@ -465,6 +492,10 @@ class BookingService
                 'bus.model_name as bus_model',
                 't.start_time',
                 't.end_time',
+                'p_stop.name as pickup_stop_name',
+                'p_stop.address as pickup_stop_address',
+                'd_stop.name as dropoff_stop_name',
+                'd_stop.address as dropoff_stop_address',
             ])
             ->where('b.id', $bookingId)
             ->first();
@@ -472,21 +503,6 @@ class BookingService
         if (! $booking) {
             return null;
         }
-
-        // Get stop info
-        if ($booking->pickup_stop_id) {
-            $pickupStop = DB::table('stops')
-                ->where('id', $booking->pickup_stop_id)
-                ->first();
-            $booking->pickup_stop_name = $pickupStop->name ?? null;
-            $booking->pickup_stop_address = $pickupStop->address ?? null;
-        }
-
-        $dropoffStop = DB::table('stops')
-            ->where('id', $booking->dropoff_stop_id)
-            ->first();
-        $booking->dropoff_stop_name = $dropoffStop->name ?? null;
-        $booking->dropoff_stop_address = $dropoffStop->address ?? null;
 
         // Format pickup display
         $booking->pickup_display = __('client.booking.service.not_available');

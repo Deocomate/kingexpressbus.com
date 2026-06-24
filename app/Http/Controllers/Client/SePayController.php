@@ -12,6 +12,7 @@ use App\Services\SePayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 
 class SePayController extends Controller
 {
@@ -38,7 +39,11 @@ class SePayController extends Controller
         }
 
         if ($booking->payment_status === PaymentStatus::Paid) {
-            return redirect()->route('client.booking.success')->with('booking_id', $booking->id);
+            return redirect(URL::temporarySignedRoute(
+                'client.booking.success',
+                now()->addHours(24),
+                ['booking' => $booking->id],
+            ));
         }
 
         if ($booking->payment_method !== PaymentMethod::OnlineBanking) {
@@ -57,10 +62,11 @@ class SePayController extends Controller
         $booking = Booking::where('booking_code', $code)->firstOrFail();
         $booking = $this->waitForPaidStatus($booking);
 
-        return redirect()
-            ->route('client.booking.success')
-            ->with('booking_id', $booking->id)
-            ->with('sepay_payment_returned', true);
+        return redirect(URL::temporarySignedRoute(
+            'client.booking.success',
+            now()->addHours(24),
+            ['booking' => $booking->id],
+        ))->with('sepay_payment_returned', true);
     }
 
     public function error(string $code)
@@ -106,7 +112,7 @@ class SePayController extends Controller
 
         if (!is_string($invoiceNumber) || $invoiceNumber === '') {
             Log::warning('SePay IPN skipped because order invoice number is missing.', [
-                'payload' => $payload,
+                'transaction_id' => $transactionId,
             ]);
 
             return response()->json(['success' => true]);
@@ -149,14 +155,26 @@ class SePayController extends Controller
                 return;
             }
 
+            if ($booking->payment_method !== PaymentMethod::OnlineBanking) {
+                Log::warning('SePay IPN ignored: wrong payment method', [
+                    'booking_id' => $booking->id,
+                    'booking_code' => $invoiceNumber,
+                    'payment_method' => $booking->payment_method?->value ?? $booking->payment_method,
+                    'transaction_id' => $transactionId,
+                ]);
+
+                return;
+            }
+
             if ($booking->payment_status === PaymentStatus::Paid) {
                 return;
             }
 
-            $booking->update([
-                'payment_status' => PaymentStatus::Paid,
+            DB::table('bookings')->where('id', $booking->id)->update([
+                'payment_status' => PaymentStatus::Paid->value,
                 'payment_transaction_id' => is_string($transactionId) ? $transactionId : null,
-                'payment_log' => $payload,
+                'payment_log' => json_encode($payload),
+                'updated_at' => now(),
             ]);
 
             $bookingIdForMail = (int) $booking->id;

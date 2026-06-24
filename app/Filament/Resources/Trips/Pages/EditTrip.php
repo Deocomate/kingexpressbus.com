@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Trips\Pages;
 
+use App\Filament\Concerns\GuardsDeleteWhenBookingsExist;
 use App\Filament\Resources\Trips\TripResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Support\BookingDeleteGuard;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditTrip extends EditRecord
 {
+    use GuardsDeleteWhenBookingsExist;
+
     protected static string $resource = TripResource::class;
 
     protected function getHeaderActions(): array
@@ -16,8 +19,12 @@ class EditTrip extends EditRecord
         return [
             ViewAction::make()
                 ->label('Xem'),
-            DeleteAction::make()
-                ->label('Xóa'),
+            $this->guardedDeleteAction(),
         ];
+    }
+
+    protected function relatedBookingCount(): int
+    {
+        return BookingDeleteGuard::tripBookingCount((int) $this->record->id);
     }
 }

@@ -214,6 +214,17 @@ class RouteService
                 'routes.*',
                 'ps.name as start_province_name',
                 'pe.name as end_province_name',
+                DB::raw('COALESCE(
+                    (SELECT MIN(t.price) FROM trips t
+                     WHERE t.route_id = routes.id
+                     AND t.price > 0
+                     AND t.is_active = 1),
+                    routes.price_default,
+                    0
+                ) as min_price'),
+                DB::raw('(SELECT COUNT(*) FROM trips t
+                         WHERE t.route_id = routes.id
+                         AND t.is_active = 1) as trip_count'),
             ]);
 
         if ($provinceId) {
@@ -222,22 +233,9 @@ class RouteService
 
         return $query
             ->orderByDesc('routes.priority')
+            ->orderByDesc('routes.created_at')
             ->limit($limit)
-            ->get()
-            ->map(function ($route) {
-                // Get min price and trip count for each route
-                $route->min_price = DB::table('trips')
-                    ->where('route_id', $route->id)
-                    ->where('is_active', true)
-                    ->min('price');
-
-                $route->trip_count = DB::table('trips')
-                    ->where('route_id', $route->id)
-                    ->where('is_active', true)
-                    ->count();
-
-                return $route;
-            });
+            ->get();
     }
 
     /**

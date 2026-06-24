@@ -170,6 +170,12 @@
                             </div>
                         @endforelse
                     </div>
+
+                    @if ($bookings->hasPages())
+                        <div class="pt-4">
+                            {{ $bookings->links() }}
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Sidebar -->

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -142,13 +143,14 @@ class AuthController extends Controller
 
         $status = Password::sendResetLink($request->only('email'));
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return back()->with('status', __('client.auth.password.reset_link_sent'));
+        if ($status !== Password::RESET_LINK_SENT) {
+            Log::info('Password reset link was not sent.', [
+                'email' => $request->input('email'),
+                'status' => $status,
+            ]);
         }
 
-        return back()->withErrors([
-            'email' => __('client.auth.password.email_not_found'),
-        ]);
+        return back()->with('status', __('client.auth.password.reset_link_sent'));
     }
 
     public function showResetForm(Request $request, string $token)

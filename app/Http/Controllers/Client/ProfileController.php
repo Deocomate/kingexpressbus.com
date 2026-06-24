@@ -14,29 +14,19 @@ class ProfileController extends Controller
         $user = $request->user();
         abort_if(!$user, 403);
 
-        // Fetch bookings with optimized query
         $bookings = $this->getBookings($user->id);
-
         $today = Carbon::today();
 
-        // Partition bookings into upcoming and history
-        $upcomingBookings = $bookings->filter(fn($b) => Carbon::parse($b->booking_date)->gte($today));
-        $bookingHistory = $bookings->reject(fn($b) => Carbon::parse($b->booking_date)->gte($today));
+        $pageBookings = collect($bookings->items());
+        $upcomingBookings = $pageBookings->filter(fn ($b) => Carbon::parse($b->booking_date)->gte($today));
+        $bookingHistory = $pageBookings->reject(fn ($b) => Carbon::parse($b->booking_date)->gte($today));
 
-        // Calculate statistics
-        $stats = [
-            'total_bookings' => $bookings->count(),
-            'upcoming' => $upcomingBookings->count(),
-            'completed' => $bookings->where('status', 'completed')->count(),
-            'cancelled' => $bookings->where('status', 'cancelled')->count(),
-            'total_spent' => $bookings->whereIn('status', ['confirmed', 'completed'])->sum('total_price'),
-        ];
-
-        // Process preferred routes
-        $preferredRoutes = $this->getPreferredRoutes($bookings);
+        $stats = $this->getBookingStats($user->id);
+        $preferredRoutes = $this->getPreferredRoutesForUser($user->id);
 
         return view('client.profile.index', [
             'user' => $user,
+            'bookings' => $bookings,
             'upcomingBookings' => $upcomingBookings,
             'bookingHistory' => $bookingHistory,
             'stats' => $stats,
@@ -81,21 +71,42 @@ class ProfileController extends Controller
             ->where('b.user_id', $userId)
             ->orderByDesc('b.booking_date')
             ->orderByDesc('b.created_at')
-            ->get();
+            ->paginate(15);
     }
 
-    private function getPreferredRoutes($bookings)
+    private function getBookingStats(int $userId): array
     {
-        return $bookings
-            ->groupBy('route_slug')
-            ->map(function ($items, $slug) {
-                return [
-                    'slug' => $slug,
-                    'name' => $items->first()->route_name ?? $slug,
-                    'count' => $items->count(),
-                ];
-            })
-            ->sortByDesc('count')
+        $today = Carbon::today()->toDateString();
+        $query = DB::table('bookings')->where('user_id', $userId);
+
+        return [
+            'total_bookings' => (clone $query)->count(),
+            'upcoming' => (clone $query)->where('booking_date', '>=', $today)->count(),
+            'completed' => (clone $query)->where('status', 'completed')->count(),
+            'cancelled' => (clone $query)->where('status', 'cancelled')->count(),
+            'total_spent' => (clone $query)->whereIn('status', ['confirmed', 'completed'])->sum('total_price'),
+        ];
+    }
+
+    private function getPreferredRoutesForUser(int $userId)
+    {
+        return DB::table('bookings as b')
+            ->join('trips as t', 'b.trip_id', '=', 't.id')
+            ->join('routes as r', 't.route_id', '=', 'r.id')
+            ->where('b.user_id', $userId)
+            ->select([
+                'r.slug as route_slug',
+                'r.name as route_name',
+                DB::raw('count(*) as booking_count'),
+            ])
+            ->groupBy('r.slug', 'r.name')
+            ->orderByDesc('booking_count')
+            ->get()
+            ->map(fn ($row) => [
+                'slug' => $row->route_slug,
+                'name' => $row->route_name ?? $row->route_slug,
+                'count' => (int) $row->booking_count,
+            ])
             ->values();
     }
 }

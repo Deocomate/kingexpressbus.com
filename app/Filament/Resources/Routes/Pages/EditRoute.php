@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources\Routes\Pages;
 
+use App\Filament\Concerns\GuardsDeleteWhenBookingsExist;
 use App\Filament\Resources\Routes\RouteResource;
-use Filament\Actions\DeleteAction;
+use App\Filament\Support\BookingDeleteGuard;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditRoute extends EditRecord
 {
+    use GuardsDeleteWhenBookingsExist;
+
     protected static string $resource = RouteResource::class;
 
     protected function getHeaderActions(): array
@@ -16,8 +19,12 @@ class EditRoute extends EditRecord
         return [
             ViewAction::make()
                 ->label('Xem'),
-            DeleteAction::make()
-                ->label('Xóa'),
+            $this->guardedDeleteAction(),
         ];
+    }
+
+    protected function relatedBookingCount(): int
+    {
+        return BookingDeleteGuard::routeBookingCount((int) $this->record->id);
     }
 }

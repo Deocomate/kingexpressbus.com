@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Stops;
 
 use App\Filament\Resources\Stops\Pages\ManageStops;
+use App\Filament\Support\BookingDeleteGuard;
 use App\Models\Stop;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -159,12 +160,23 @@ class StopResource extends Resource
                     ->label('Sửa')
                     ->slideOver(),
                 DeleteAction::make()
-                    ->label('Xóa'),
+                    ->label('Xóa')
+                    ->before(function (Stop $record): void {
+                        BookingDeleteGuard::haltIfBookingsExist(
+                            BookingDeleteGuard::stopBookingCount((int) $record->id),
+                        );
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Xóa đã chọn'),
+                        ->label('Xóa đã chọn')
+                        ->before(function ($records): void {
+                            $count = collect($records)->sum(
+                                fn ($record) => BookingDeleteGuard::stopBookingCount((int) $record->id),
+                            );
+                            BookingDeleteGuard::haltIfBookingsExist((int) $count);
+                        }),
                 ])
                     ->label('Thao tác hàng loạt'),
             ])

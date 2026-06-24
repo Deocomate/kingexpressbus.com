@@ -27,7 +27,6 @@ function createPivotBus(string $name, array $serviceIds = [], ?int $priority = n
         'name' => $name,
         'model_name' => 'Limousine',
         'seat_count' => 40,
-        'seat_map' => json_encode([]),
         'thumbnail_url' => null,
         'image_list_url' => json_encode([]),
         'content' => null,
@@ -99,10 +98,7 @@ it('syncs service ids when creating and updating buses', function () {
     $busId = $service->createBus([
         'name' => 'VIP Cabin',
         'model_name' => 'VIP 22',
-        'seat_map' => json_encode([
-            ['seat_number' => 'A1', 'status' => 'available'],
-            ['seat_number' => 'A2', 'status' => 'disabled'],
-        ]),
+        'seat_count' => 40,
         'services' => [1, 2],
         'thumbnail_url' => null,
         'image_list_url' => json_encode([]),
@@ -116,9 +112,7 @@ it('syncs service ids when creating and updating buses', function () {
     $service->updateBus($busId, [
         'name' => 'VIP Cabin Updated',
         'model_name' => 'VIP 22',
-        'seat_map' => json_encode([
-            ['seat_number' => 'A1', 'status' => 'available'],
-        ]),
+        'seat_count' => 22,
         'services' => [2, 3],
         'thumbnail_url' => null,
         'image_list_url' => json_encode([]),

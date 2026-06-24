@@ -804,14 +804,14 @@
                     <h3 class="text-sm font-semibold text-gray-900">{{ __('client.booking.create.support_title') }}
                     </h3>
                     <div class="space-y-2">
-                        @if (!empty($web_profile->hotline))
+                        @if (!empty($web_profile?->hotline))
                             <a href="tel:{{ preg_replace('/[^\d+]/', '', $web_profile->hotline) }}"
                                 class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-sm">
                                 <i class="fa-solid fa-phone text-primary-600"></i>
                                 <span class="font-medium text-gray-800">{{ $web_profile->hotline }}</span>
                             </a>
                         @endif
-                        @if (!empty($web_profile->zalo_url))
+                        @if (!empty($web_profile?->zalo_url))
                             <a href="{{ $web_profile->zalo_url }}" target="_blank"
                                 class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition text-sm">
                                 <i class="fa-solid fa-comment-dots text-primary-600"></i>

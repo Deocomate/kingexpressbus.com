@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Trips\Tables;
 
+use App\Filament\Support\BookingDeleteGuard;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -80,7 +81,13 @@ class TripsTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->label('Xóa đã chọn'),
+                        ->label('Xóa đã chọn')
+                        ->before(function ($records): void {
+                            $count = collect($records)->sum(
+                                fn ($record) => BookingDeleteGuard::tripBookingCount((int) $record->id),
+                            );
+                            BookingDeleteGuard::haltIfBookingsExist((int) $count);
+                        }),
                 ])
                     ->label('Thao tác hàng loạt'),
             ])

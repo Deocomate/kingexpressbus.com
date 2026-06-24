@@ -2,10 +2,12 @@
 
 namespace App\View\Components\Client;
 
+use App\Support\ClientCache;
 use Closure;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -44,10 +46,42 @@ class SearchBar extends Component
      */
     protected function buildSearchData(array $overrides = []): array
     {
-        if (!$this->isDatabaseReady()) {
+        if (! $this->isDatabaseReady()) {
             return $this->minimalResponse($overrides);
         }
 
+        $cached = Cache::remember(ClientCache::SEARCH_LOCATIONS, 86400, fn () => $this->buildLocationsFromDb());
+
+        $defaults = [
+            'origin' => $cached['default_origin'],
+            'destination' => $cached['default_destination'],
+            'departure_date' => now()->format('d/m/Y'),
+            'return_date' => null,
+        ];
+
+        $base = [
+            'locations' => $cached['locations'],
+            'defaults' => $defaults,
+        ];
+
+        if (isset($overrides['locations']) && is_array($overrides['locations'])) {
+            $base['locations'] = $overrides['locations'];
+        }
+
+        if (isset($overrides['defaults']) && is_array($overrides['defaults'])) {
+            $base['defaults'] = array_replace($base['defaults'], $overrides['defaults']);
+        }
+
+        $extra = Arr::except($overrides, ['locations', 'defaults']);
+
+        return array_replace($base, $extra);
+    }
+
+    /**
+     * @return array{locations: list<array<string, mixed>>, default_origin: ?array{id: int, type: string, name: string}, default_destination: ?array{id: int, type: string, name: string}}
+     */
+    protected function buildLocationsFromDb(): array
+    {
         $locations = collect();
 
         $provinces = DB::table('provinces')
@@ -116,7 +150,7 @@ class SearchBar extends Component
         $typeOrder = ['province' => 0, 'district' => 1, 'stop' => 2];
 
         $uniqueLocations = $locations
-            ->unique(fn(array $item) => $item['type'] . ':' . $item['id'])
+            ->unique(fn (array $item) => $item['type'].':'.$item['id'])
             ->sort(function (array $a, array $b) use ($typeOrder) {
                 $priority = ($b['priority'] ?? 0) <=> ($a['priority'] ?? 0);
                 if ($priority !== 0) {
@@ -143,37 +177,19 @@ class SearchBar extends Component
         $defaultOrigin = $provinces->first();
         $defaultDestination = $provinces->skip(1)->first() ?? $defaultOrigin;
 
-        $defaults = [
-            'origin' => $defaultOrigin ? [
+        return [
+            'locations' => $uniqueLocations,
+            'default_origin' => $defaultOrigin ? [
                 'id' => (int) $defaultOrigin->id,
                 'type' => 'province',
                 'name' => (string) $defaultOrigin->name,
             ] : null,
-            'destination' => $defaultDestination ? [
+            'default_destination' => $defaultDestination ? [
                 'id' => (int) $defaultDestination->id,
                 'type' => 'province',
                 'name' => (string) $defaultDestination->name,
             ] : null,
-            'departure_date' => now()->format('d/m/Y'),
-            'return_date' => null,
         ];
-
-        $base = [
-            'locations' => $uniqueLocations,
-            'defaults' => $defaults,
-        ];
-
-        if (isset($overrides['locations']) && is_array($overrides['locations'])) {
-            $base['locations'] = $overrides['locations'];
-        }
-
-        if (isset($overrides['defaults']) && is_array($overrides['defaults'])) {
-            $base['defaults'] = array_replace($base['defaults'], $overrides['defaults']);
-        }
-
-        $extra = Arr::except($overrides, ['locations', 'defaults']);
-
-        return array_replace($base, $extra);
     }
 
     protected function isDatabaseReady(): bool

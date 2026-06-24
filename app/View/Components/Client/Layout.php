@@ -3,9 +3,12 @@
 namespace App\View\Components\Client;
 
 use App\Models\Menu;
+use App\Support\ClientCache;
+use App\Support\ClientWebProfileResolver;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\Component;
@@ -84,11 +87,7 @@ class Layout extends Component
 
     protected function resolveWebProfile(): ?object
     {
-        if (! Schema::hasTable('web_profiles')) {
-            return null;
-        }
-
-        return DB::table('web_profiles')->where('is_default', true)->first();
+        return app(ClientWebProfileResolver::class)->resolve();
     }
 
     protected function resolveCustomerLinks(): array
@@ -149,20 +148,27 @@ class Layout extends Component
             ],
         ];
 
-        // Dynamic menu items from database
-        $dynamicItems = [];
-        if (Schema::hasTable('menus')) {
-            $menus = DB::table('menus')
-                ->orderByDesc('priority')
-                ->get();
-
-            if ($menus->isNotEmpty()) {
-                $dynamicItems = $this->buildMenuTree($menus, Menu::ROOT_PARENT_ID);
-            }
-        }
+        $dynamicItems = Cache::remember(ClientCache::MENUS, 3600, fn () => $this->buildMenuTreeFromDb());
 
         // Combine: Static prefix + Dynamic items + Static suffix
         return array_merge($staticPrefix, $dynamicItems, $staticSuffix);
+    }
+
+    protected function buildMenuTreeFromDb(): array
+    {
+        if (! Schema::hasTable('menus')) {
+            return [];
+        }
+
+        $menus = DB::table('menus')
+            ->orderByDesc('priority')
+            ->get();
+
+        if ($menus->isEmpty()) {
+            return [];
+        }
+
+        return $this->buildMenuTree($menus, Menu::ROOT_PARENT_ID);
     }
 
     /**

@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -54,8 +55,8 @@ class BookingController extends Controller
             $trip->seat_count
         );
 
-        // Get route stops
-        $stops = $this->tripService->getRouteStops($trip->route_id);
+        // Get route stops from trip details (already loaded)
+        $stops = $trip->stops;
 
         $paymentMethods = [
             [
@@ -136,16 +137,6 @@ class BookingController extends Controller
             return back()->with('error', $stopValidationError)->withInput();
         }
 
-        $block = DB::table('trip_blocks')
-            ->where('trip_id', (int) $validated['trip_id'])
-            ->whereDate('start_date', '<=', $bookingDateForDb)
-            ->whereDate('end_date', '>=', $bookingDateForDb)
-            ->first();
-
-        if ($block) {
-            return back()->with('error', __('client.booking.store.trip_blocked'))->withInput();
-        }
-
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByTripId(
             (int) $validated['trip_id'],
             $bookingDateForDb
@@ -193,7 +184,13 @@ class BookingController extends Controller
             if ($result['success']) {
                 $this->bookingService->sendConfirmationEmail($result['booking_id']);
 
-                return redirect()->route('client.booking.success')->with('booking_id', $result['booking_id']);
+                $successUrl = URL::temporarySignedRoute(
+                    'client.booking.success',
+                    now()->addHours(24),
+                    ['booking' => $result['booking_id']],
+                );
+
+                return redirect($successUrl);
             }
 
             return back()->with('error', $result['message'])->withInput();
@@ -204,9 +201,15 @@ class BookingController extends Controller
         }
     }
 
-    public function success()
+    public function success(Request $request, int $booking)
     {
-        $bookingId = session('booking_id');
+        $bookingId = null;
+
+        if ($request->hasValidSignature()) {
+            $bookingId = $booking;
+        } elseif (session('booking_id')) {
+            $bookingId = (int) session('booking_id');
+        }
 
         if (! $bookingId) {
             return redirect()->route('client.home');
@@ -247,6 +250,10 @@ class BookingController extends Controller
             ->where('b.id', $bookingId)
             ->first();
 
+        if (! $booking) {
+            return redirect()->route('client.home');
+        }
+
         return view('client.booking.success', [
             'booking' => $booking,
             'isSepayPaymentReturned' => (bool) session('sepay_payment_returned', false),
@@ -262,9 +269,18 @@ class BookingController extends Controller
             ->select('booking_code', 'status', 'payment_method', 'payment_status')
             ->first();
 
-        abort_if(! $booking, 404);
+        if (! $booking) {
+            return response()->json([
+                'found' => false,
+                'booking_code' => null,
+                'status' => null,
+                'payment_method' => null,
+                'payment_status' => null,
+            ]);
+        }
 
         return response()->json([
+            'found' => true,
             'booking_code' => $booking->booking_code,
             'status' => $booking->status,
             'payment_method' => $booking->payment_method,

@@ -227,8 +227,8 @@ class HolidaySurchargeService
 
         $rules = DB::table('holiday_surcharges')
             ->where('is_active', true)
-            ->whereDate('start_date', '<=', $normalizedDate)
-            ->whereDate('end_date', '>=', $normalizedDate)
+            ->where('start_date', '<=', $normalizedDate)
+            ->where('end_date', '>=', $normalizedDate)
             ->orderByDesc('priority')
             ->orderBy('start_date')
             ->select([

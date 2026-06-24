@@ -2,12 +2,17 @@
 
 namespace App\Providers;
 
+use App\Models\Menu;
+use App\Models\WebProfile;
+use App\Observers\MenuObserver;
+use App\Observers\WebProfileObserver;
+use App\Support\ClientWebProfileResolver;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Collection;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -18,16 +23,19 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        WebProfile::observe(WebProfileObserver::class);
+        Menu::observe(MenuObserver::class);
+
         Paginator::useBootstrap();
 
-        // Logic tạo menu đã được chuyển đi, chỉ cần giữ lại logic lấy web_profile nếu cần ở nơi khác
-        // if (Schema::hasTable('web_profiles')) {
-        //     View::composer(['layouts.client.*', 'client.*'], function ($view) {
-        //         if (!isset($view->web_profile)) {
-        //             $web_profile = DB::table('web_profiles')->where('is_default', true)->first();
-        //             $view->with(compact('web_profile'));
-        //         }
-        //     });
-        // }
+        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+        RateLimiter::for('booking', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('payment', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+
+        View::composer(['client.*', 'components.client.*'], function ($view) {
+            if (! $view->offsetExists('web_profile')) {
+                $view->with('web_profile', app(ClientWebProfileResolver::class)->resolve());
+            }
+        });
     }
 }

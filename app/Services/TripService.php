@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Trip;
+use App\Support\RouteStopQuery;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -58,8 +58,17 @@ class TripService
         $tripIds = $trips->pluck('trip_id')->all();
         $busServicesMap = $this->getBusServicesMap($trips->pluck('bus_id')->all());
         $tripBlocksMap = $this->getTripBlocksMap($tripIds, $parsedDate);
+        $bookedSeatsMap = $this->getBookedSeatsMap($tripIds, $parsedDate);
+        $routeStopsMap = RouteStopQuery::groupedByRoute($trips->pluck('route_id')->unique()->all());
 
-        return $trips->map(fn ($trip) => $this->enrichTripData($trip, $parsedDate, $busServicesMap, $tripBlocksMap));
+        return $trips->map(fn ($trip) => $this->enrichTripData(
+            $trip,
+            $parsedDate,
+            $busServicesMap,
+            $tripBlocksMap,
+            $bookedSeatsMap,
+            $routeStopsMap,
+        ));
     }
 
     /**
@@ -97,8 +106,17 @@ class TripService
         $tripIds = $trips->pluck('trip_id')->all();
         $busServicesMap = $this->getBusServicesMap($trips->pluck('bus_id')->all());
         $tripBlocksMap = $this->getTripBlocksMap($tripIds, $parsedDate);
+        $bookedSeatsMap = $this->getBookedSeatsMap($tripIds, $parsedDate);
+        $routeStopsMap = RouteStopQuery::groupedByRoute([$routeId]);
 
-        return $trips->map(fn ($trip) => $this->enrichTripData($trip, $parsedDate, $busServicesMap, $tripBlocksMap));
+        return $trips->map(fn ($trip) => $this->enrichTripData(
+            $trip,
+            $parsedDate,
+            $busServicesMap,
+            $tripBlocksMap,
+            $bookedSeatsMap,
+            $routeStopsMap,
+        ));
     }
 
     /**
@@ -142,11 +160,11 @@ class TripService
         }
 
         $targetDate = $date ? Carbon::parse($date)->format('Y-m-d') : Carbon::today()->format('Y-m-d');
-        
+
         $block = DB::table('trip_blocks')
             ->where('trip_id', $trip->trip_id)
-            ->whereDate('start_date', '<=', $targetDate)
-            ->whereDate('end_date', '>=', $targetDate)
+            ->where('start_date', '<=', $targetDate)
+            ->where('end_date', '>=', $targetDate)
             ->first();
 
         if ($block && $block->block_type === 'off_day') {
@@ -158,7 +176,7 @@ class TripService
         }
 
         // Get route stops
-        $trip->stops = $this->getRouteStops($trip->route_id);
+        $trip->stops = RouteStopQuery::forRoute((int) $trip->route_id);
         $serviceDetails = $this->getBusServicesMap([$trip->bus_id])[$trip->bus_id] ?? [];
         $trip->bus_service_details = $this->withoutServicePriority($serviceDetails);
         $trip->bus_service_ids = collect($serviceDetails)->pluck('id')->values()->all();
@@ -196,11 +214,11 @@ class TripService
         // Check for trip block
         $block = DB::table('trip_blocks')
             ->where('trip_id', $tripId)
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)
+            ->where('start_date', '<=', $date)
+            ->where('end_date', '>=', $date)
             ->first();
 
-        if ($block && in_array($block->block_type, ['sold_out', 'off_day'])) {
+        if ($block && in_array($block->block_type, ['sold_out', 'off_day'], true)) {
             return 0;
         }
 
@@ -213,7 +231,7 @@ class TripService
 
         $bookedSeats = DB::table('bookings')
             ->where('trip_id', $tripId)
-            ->whereDate('booking_date', $date)
+            ->where('booking_date', $date)
             ->whereIn('status', ['pending', 'confirmed', 'completed'])
             ->sum('quantity');
 
@@ -225,28 +243,20 @@ class TripService
      */
     public function getRouteStops(int $routeId): Collection
     {
-        return DB::table('route_stops as rs')
-            ->join('stops as s', 'rs.stop_id', '=', 's.id')
-            ->join('districts as d', 's.district_id', '=', 'd.id')
-            ->join('provinces as p', 'd.province_id', '=', 'p.id')
-            ->where('rs.route_id', $routeId)
-            ->select([
-                's.id',
-                's.name',
-                's.address',
-                'rs.stop_type',
-                'p.name as province_name',
-                'd.name as district_name',
-            ])
-            ->orderBy('rs.priority')
-            ->get();
+        return RouteStopQuery::forRoute($routeId);
     }
 
     /**
      * Enrich trip data with additional calculated fields.
      */
-    private function enrichTripData(object $trip, string $date, array $busServicesMap = [], array $tripBlocksMap = []): object
-    {
+    private function enrichTripData(
+        object $trip,
+        string $date,
+        array $busServicesMap = [],
+        array $tripBlocksMap = [],
+        array $bookedSeatsMap = [],
+        array $routeStopsMap = [],
+    ): object {
         $priceBreakdown = $this->holidaySurchargeService->calculateBreakdownByRouteAndBasePrice(
             (int) $trip->route_id,
             (int) ($trip->price ?? 0),
@@ -272,7 +282,12 @@ class TripService
         $trip->duration_minutes = $start->diffInMinutes($end);
 
         // Calculate available seats
-        $trip->seats_available = $this->calculateAvailableSeats($trip->trip_id, $date, $trip->seat_count);
+        $trip->seats_available = $this->resolveAvailableSeats(
+            (int) $trip->trip_id,
+            (int) $trip->seat_count,
+            $block,
+            $bookedSeatsMap,
+        );
         $trip->base_price = $priceBreakdown['base_unit_price'];
         $trip->global_surcharge = $priceBreakdown['global_surcharge_unit'];
         $trip->route_surcharge = $priceBreakdown['route_surcharge_unit'];
@@ -284,7 +299,7 @@ class TripService
         $trip->has_price = $trip->effective_price > 0;
 
         // Get stops
-        $stops = $this->getRouteStops($trip->route_id);
+        $stops = collect($routeStopsMap[$trip->route_id] ?? []);
         $trip->pickup_points = $stops->whereIn('stop_type', ['pickup', 'both'])->values();
         $trip->dropoff_points = $stops->whereIn('stop_type', ['dropoff', 'both'])->values();
 
@@ -310,11 +325,50 @@ class TripService
 
         return DB::table('trip_blocks')
             ->whereIn('trip_id', $tripIds)
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)
+            ->where('start_date', '<=', $date)
+            ->where('end_date', '>=', $date)
             ->get()
             ->keyBy('trip_id')
             ->all();
+    }
+
+    private function getBookedSeatsMap(array $tripIds, string $date): array
+    {
+        if (empty($tripIds)) {
+            return [];
+        }
+
+        return DB::table('bookings')
+            ->select('trip_id', DB::raw('SUM(quantity) as booked'))
+            ->whereIn('trip_id', $tripIds)
+            ->where('booking_date', $date)
+            ->whereIn('status', ['pending', 'confirmed', 'completed'])
+            ->groupBy('trip_id')
+            ->pluck('booked', 'trip_id')
+            ->map(fn ($booked) => (int) $booked)
+            ->all();
+    }
+
+    private function resolveAvailableSeats(int $tripId, int $totalSeats, ?object $block, array $bookedSeatsMap): int
+    {
+        if ($block && in_array($block->block_type, ['sold_out', 'off_day'], true)) {
+            return 0;
+        }
+
+        $bookedSeats = (int) ($bookedSeatsMap[$tripId] ?? 0);
+
+        return max(0, $totalSeats - $bookedSeats);
+    }
+
+    private function timeRangeBounds(): array
+    {
+        return [
+            'early_morning' => ['min' => 5, 'max' => 8],
+            'morning' => ['min' => 8, 'max' => 12],
+            'afternoon' => ['min' => 12, 'max' => 17],
+            'evening' => ['min' => 17, 'max' => 21],
+            'night' => ['min' => 21, 'max' => 5],
+        ];
     }
 
     private function getBusServicesMap(array $busIds): array
@@ -510,14 +564,13 @@ class TripService
             }
         }
 
-        // Time range options with labels
-        $timeRanges = [
-            'early_morning' => ['label' => __('client.route_show.filters.time_range_early_morning'), 'min' => 5, 'max' => 8],
-            'morning' => ['label' => __('client.route_show.filters.time_range_morning'), 'min' => 8, 'max' => 12],
-            'afternoon' => ['label' => __('client.route_show.filters.time_range_afternoon'), 'min' => 12, 'max' => 17],
-            'evening' => ['label' => __('client.route_show.filters.time_range_evening'), 'min' => 17, 'max' => 21],
-            'night' => ['label' => __('client.route_show.filters.time_range_night'), 'min' => 21, 'max' => 5],
-        ];
+        $timeRanges = collect($this->timeRangeBounds())
+            ->mapWithKeys(fn (array $bounds, string $key) => [
+                $key => array_merge($bounds, [
+                    'label' => __("client.route_show.filters.time_range_{$key}"),
+                ]),
+            ])
+            ->all();
 
         return [
             'services' => $servicesById
@@ -587,13 +640,7 @@ class TripService
                 $tripHour = (int) Carbon::parse($trip->start_time)->format('H');
                 $matchesTimeRange = false;
 
-                $timeRangeDefinitions = [
-                    'early_morning' => ['min' => 5, 'max' => 8],
-                    'morning' => ['min' => 8, 'max' => 12],
-                    'afternoon' => ['min' => 12, 'max' => 17],
-                    'evening' => ['min' => 17, 'max' => 21],
-                    'night' => ['min' => 21, 'max' => 5],
-                ];
+                $timeRangeDefinitions = $this->timeRangeBounds();
 
                 foreach ($filters['time_ranges'] as $range) {
                     if (! isset($timeRangeDefinitions[$range])) {
