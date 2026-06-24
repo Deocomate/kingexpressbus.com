@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TripResource extends Resource
 {
@@ -29,6 +30,26 @@ class TripResource extends Resource
     protected static ?string $pluralModelLabel = 'Chuyến đi';
 
     protected static ?string $navigationLabel = 'Danh sách Chuyến đi';
+
+    protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['route', 'bus']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['id'];
+    }
+
+    public static function getGlobalSearchResultDetails(\Illuminate\Database\Eloquent\Model $record): array
+    {
+        return [
+            'Tuyến' => $record->route?->name,
+            'Giờ đi' => $record->start_time,
+        ];
+    }
 
     public static function form(Schema $schema): Schema
     {

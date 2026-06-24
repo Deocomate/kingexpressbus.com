@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Bookings\Tables;
 
+use App\Enums\BookingStatus;
 use App\Models\Booking;
 use App\Services\BookingService;
 use Filament\Actions\Action;
@@ -25,29 +26,31 @@ class BookingsTable
             ->columns([
                 TextColumn::make('booking_code')
                     ->label('Mã đặt vé')
-                    ->searchable(),
+                    ->searchable()
+                    ->copyable(),
+                TextColumn::make('departure_at')
+                    ->label('Giờ khởi hành')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(query: function (Builder $query, string $direction): Builder {
+                        return $query
+                            ->orderBy('bookings.booking_date', $direction)
+                            ->orderBy('trips.start_time', $direction);
+                    })
+                    ->description(fn (Booking $record): ?string => match (true) {
+                        $record->booking_date?->isToday() => 'Đi hôm nay',
+                        $record->booking_date?->isTomorrow() => 'Đi ngày mai',
+                        default => null,
+                    }),
                 TextColumn::make('trip.route.name')
                     ->label('Tuyến đường')
                     ->searchable(),
-                TextColumn::make('booking_date')
-                    ->label('Ngày đi')
-                    ->date('d/m/Y')
-                    ->sortable(),
                 TextColumn::make('customer_name')
                     ->label('Khách hàng')
-                    ->searchable(),
-                TextColumn::make('customer_email')
-                    ->label('Email')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('customer_phone')
-                    ->label('Số điện thoại')
-                    ->searchable(),
+                    ->description(fn (Booking $record): ?string => $record->customer_phone)
+                    ->searchable(['customer_name', 'customer_phone']),
                 TextColumn::make('pickupStop.name')
-                    ->label('Điểm đón')
-                    ->searchable(),
-                TextColumn::make('dropoffStop.name')
-                    ->label('Điểm trả')
+                    ->label('Đón → Trả')
+                    ->description(fn (Booking $record): ?string => $record->dropoffStop?->name)
                     ->searchable(),
                 TextColumn::make('quantity')
                     ->label('Số vé')
@@ -59,18 +62,23 @@ class BookingsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('Trạng thái')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => self::bookingStatusLabel($state))
-                    ->color(fn (?string $state): string => self::bookingStatusColor($state)),
+                    ->badge(),
+                TextColumn::make('payment_status')
+                    ->label('Thanh toán')
+                    ->badge(),
+                TextColumn::make('customer_email')
+                    ->label('Email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('payment_method')
                     ->label('Phương thức')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => self::paymentMethodLabel($state)),
-                TextColumn::make('payment_status')
-                    ->label('Thanh toán')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => self::paymentStatusLabel($state))
-                    ->color(fn (?string $state): string => $state === 'paid' ? 'success' : 'warning'),
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('booking_date')
+                    ->label('Ngày đi')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('confirmed_at')
                     ->label('Thời gian xác nhận')
                     ->dateTime('d/m/Y H:i')
@@ -87,15 +95,12 @@ class BookingsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('departure_at', 'asc')
+            ->poll('30s')
             ->filters([
                 SelectFilter::make('status')
                     ->label('Trạng thái')
-                    ->options([
-                        'pending' => 'Chờ xác nhận',
-                        'confirmed' => 'Đã xác nhận',
-                        'cancelled' => 'Đã hủy',
-                        'completed' => 'Hoàn thành',
-                    ]),
+                    ->options(BookingStatus::class),
                 SelectFilter::make('payment_status')
                     ->label('Thanh toán')
                     ->options([
@@ -112,8 +117,8 @@ class BookingsTable
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
-                            ->when($data['from'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('booking_date', '>=', $date))
-                            ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('booking_date', '<=', $date));
+                            ->when($data['from'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('bookings.booking_date', '>=', $date))
+                            ->when($data['until'] ?? null, fn (Builder $query, string $date): Builder => $query->whereDate('bookings.booking_date', '<=', $date));
                     }),
             ])
             ->recordActions([
@@ -123,7 +128,7 @@ class BookingsTable
                 Action::make('confirm')
                     ->label('Xác nhận')
                     ->color('success')
-                    ->visible(fn (Booking $record): bool => $record->status === 'pending')
+                    ->visible(fn (Booking $record): bool => $record->status === BookingStatus::Pending)
                     ->requiresConfirmation()
                     ->action(function (Booking $record): void {
                         self::notifyServiceResult(app(BookingService::class)->updateStatus($record->id, 'confirmed'));
@@ -131,7 +136,7 @@ class BookingsTable
                 Action::make('cancel')
                     ->label('Hủy vé')
                     ->color('danger')
-                    ->visible(fn (Booking $record): bool => ! in_array($record->status, ['cancelled', 'completed'], true))
+                    ->visible(fn (Booking $record): bool => ! in_array($record->status, [BookingStatus::Cancelled, BookingStatus::Completed], true))
                     ->schema([
                         Select::make('cancel_reason')
                             ->label('Lý do hủy')
@@ -158,52 +163,12 @@ class BookingsTable
                 Action::make('complete')
                     ->label('Hoàn thành')
                     ->color('info')
-                    ->visible(fn (Booking $record): bool => $record->status === 'confirmed')
+                    ->visible(fn (Booking $record): bool => $record->status === BookingStatus::Confirmed)
                     ->requiresConfirmation()
                     ->action(function (Booking $record): void {
                         self::notifyServiceResult(app(BookingService::class)->updateStatus($record->id, 'completed'));
                     }),
             ]);
-    }
-
-    private static function bookingStatusLabel(?string $state): string
-    {
-        return match ($state) {
-            'pending' => 'Chờ xác nhận',
-            'confirmed' => 'Đã xác nhận',
-            'cancelled' => 'Đã hủy',
-            'completed' => 'Hoàn thành',
-            default => 'Không xác định',
-        };
-    }
-
-    private static function bookingStatusColor(?string $state): string
-    {
-        return match ($state) {
-            'pending' => 'warning',
-            'confirmed' => 'success',
-            'cancelled' => 'danger',
-            'completed' => 'info',
-            default => 'gray',
-        };
-    }
-
-    private static function paymentMethodLabel(?string $state): string
-    {
-        return match ($state) {
-            'online_banking' => 'Chuyển khoản online',
-            'cash_on_pickup' => 'Thanh toán khi đón',
-            default => 'Không xác định',
-        };
-    }
-
-    private static function paymentStatusLabel(?string $state): string
-    {
-        return match ($state) {
-            'unpaid' => 'Chưa thanh toán',
-            'paid' => 'Đã thanh toán',
-            default => 'Không xác định',
-        };
     }
 
     private static function notifyServiceResult(array $result): void

@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RouteResource extends Resource
 {
@@ -30,6 +31,18 @@ class RouteResource extends Resource
     protected static ?string $pluralModelLabel = 'Tuyến đường';
 
     protected static ?string $navigationLabel = 'Danh sách Tuyến đường';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['startProvince', 'endProvince']);
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'slug', 'title'];
+    }
 
     public static function form(Schema $schema): Schema
     {

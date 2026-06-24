@@ -21,12 +21,14 @@ class BookingInfolist
                             ->size('lg'),
                         TextEntry::make('status')
                             ->label('Trạng thái')
-                            ->badge()
-                            ->formatStateUsing(fn (?string $state): string => self::bookingStatusLabel($state))
-                            ->color(fn (?string $state): string => self::bookingStatusColor($state)),
+                            ->badge(),
                         TextEntry::make('booking_date')
                             ->label('Ngày đi')
                             ->date('d/m/Y'),
+                        TextEntry::make('trip.start_time')
+                            ->label('Giờ khởi hành')
+                            ->time('H:i')
+                            ->placeholder('-'),
                         TextEntry::make('confirmed_at')
                             ->label('Thời gian xác nhận')
                             ->dateTime('d/m/Y H:i')
@@ -78,13 +80,10 @@ class BookingInfolist
                             ->color('success'),
                         TextEntry::make('payment_method')
                             ->label('Phương thức thanh toán')
-                            ->badge()
-                            ->formatStateUsing(fn (?string $state): string => self::paymentMethodLabel($state)),
+                            ->badge(),
                         TextEntry::make('payment_status')
                             ->label('Trạng thái thanh toán')
-                            ->badge()
-                            ->formatStateUsing(fn (?string $state): string => self::paymentStatusLabel($state))
-                            ->color(fn (?string $state): string => $state === 'paid' ? 'success' : 'warning'),
+                            ->badge(),
                         TextEntry::make('payment_transaction_id')
                             ->label('Mã giao dịch')
                             ->placeholder('-')
@@ -136,45 +135,5 @@ class BookingInfolist
                     ->columns(2)
                     ->columnSpanFull(),
             ]);
-    }
-
-    private static function bookingStatusLabel(?string $state): string
-    {
-        return match ($state) {
-            'pending' => 'Chờ xác nhận',
-            'confirmed' => 'Đã xác nhận',
-            'cancelled' => 'Đã hủy',
-            'completed' => 'Hoàn thành',
-            default => 'Không xác định',
-        };
-    }
-
-    private static function bookingStatusColor(?string $state): string
-    {
-        return match ($state) {
-            'pending' => 'warning',
-            'confirmed' => 'success',
-            'cancelled' => 'danger',
-            'completed' => 'info',
-            default => 'gray',
-        };
-    }
-
-    private static function paymentMethodLabel(?string $state): string
-    {
-        return match ($state) {
-            'online_banking' => 'Chuyển khoản online',
-            'cash_on_pickup' => 'Thanh toán khi đón',
-            default => 'Không xác định',
-        };
-    }
-
-    private static function paymentStatusLabel(?string $state): string
-    {
-        return match ($state) {
-            'unpaid' => 'Chưa thanh toán',
-            'paid' => 'Đã thanh toán',
-            default => 'Không xác định',
-        };
     }
 }

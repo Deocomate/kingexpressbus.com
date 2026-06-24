@@ -2,11 +2,14 @@
 
 namespace App\Filament\Widgets;
 
+use App\Enums\BookingStatus;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
 
 class BookingStatusChart extends ChartWidget
 {
+    protected static ?int $sort = 3;
+
     protected ?string $heading = 'Trạng thái đặt vé';
 
     protected function getData(): array
@@ -16,22 +19,22 @@ class BookingStatusChart extends ChartWidget
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $labels = [
-            'pending' => 'Chờ xác nhận',
-            'confirmed' => 'Đã xác nhận',
-            'cancelled' => 'Đã hủy',
-            'completed' => 'Hoàn thành',
+        $statuses = [
+            BookingStatus::Pending,
+            BookingStatus::Confirmed,
+            BookingStatus::Cancelled,
+            BookingStatus::Completed,
         ];
 
         return [
             'datasets' => [
                 [
                     'label' => 'Đặt vé',
-                    'data' => collect(array_keys($labels))->map(fn (string $status): int => (int) ($stats[$status] ?? 0))->all(),
+                    'data' => collect($statuses)->map(fn (BookingStatus $status): int => (int) ($stats[$status->value] ?? 0))->all(),
                     'backgroundColor' => ['#f59e0b', '#22c55e', '#ef4444', '#3b82f6'],
                 ],
             ],
-            'labels' => array_values($labels),
+            'labels' => collect($statuses)->map(fn (BookingStatus $status): string => $status->getLabel())->all(),
         ];
     }
 

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Services\BookingService;
@@ -22,23 +25,23 @@ class SePayController extends Controller
     {
         $booking = Booking::where('booking_code', $code)->firstOrFail();
 
-        if ($booking->status === 'cancelled') {
+        if ($booking->status === BookingStatus::Cancelled) {
             return redirect()
                 ->route('client.home')
                 ->with('error', __('client.booking.sepay.booking_cancelled'));
         }
 
-        if ($booking->status !== 'confirmed') {
+        if ($booking->status !== BookingStatus::Confirmed) {
             return redirect()
                 ->route('client.home')
                 ->with('error', __('client.booking.sepay.booking_not_confirmed'));
         }
 
-        if ($booking->payment_status === 'paid') {
+        if ($booking->payment_status === PaymentStatus::Paid) {
             return redirect()->route('client.booking.success')->with('booking_id', $booking->id);
         }
 
-        if ($booking->payment_method !== 'online_banking') {
+        if ($booking->payment_method !== PaymentMethod::OnlineBanking) {
             return redirect()
                 ->route('client.home')
                 ->with('error', __('client.booking.sepay.invalid_payment_method'));
@@ -135,7 +138,7 @@ class SePayController extends Controller
                 return;
             }
 
-            if ($booking->status !== 'confirmed') {
+            if ($booking->status !== BookingStatus::Confirmed) {
                 Log::warning('SePay IPN skipped because booking is not confirmed for payment.', [
                     'booking_id' => $booking->id,
                     'booking_code' => $invoiceNumber,
@@ -146,12 +149,12 @@ class SePayController extends Controller
                 return;
             }
 
-            if ($booking->payment_status === 'paid') {
+            if ($booking->payment_status === PaymentStatus::Paid) {
                 return;
             }
 
             $booking->update([
-                'payment_status' => 'paid',
+                'payment_status' => PaymentStatus::Paid,
                 'payment_transaction_id' => is_string($transactionId) ? $transactionId : null,
                 'payment_log' => $payload,
             ]);
@@ -182,7 +185,7 @@ class SePayController extends Controller
 
     private function waitForPaidStatus(Booking $booking): Booking
     {
-        if ($booking->payment_status === 'paid') {
+        if ($booking->payment_status === PaymentStatus::Paid) {
             return $booking;
         }
 
@@ -190,7 +193,7 @@ class SePayController extends Controller
             usleep(500000);
             $booking->refresh();
 
-            if ($booking->payment_status === 'paid') {
+            if ($booking->payment_status === PaymentStatus::Paid) {
                 break;
             }
         }

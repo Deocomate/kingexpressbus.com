@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TripBlockResource extends Resource
 {
@@ -25,6 +26,11 @@ class TripBlockResource extends Resource
     protected static ?string $modelLabel = 'Khóa chuyến';
 
     protected static ?string $pluralModelLabel = 'Khóa chuyến';
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['trip.route', 'trip.bus']);
+    }
 
     public static function form(Schema $schema): Schema
     {

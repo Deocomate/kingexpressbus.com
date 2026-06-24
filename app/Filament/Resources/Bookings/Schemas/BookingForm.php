@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Bookings\Schemas;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -65,31 +68,20 @@ class BookingForm
                             ->suffix('VND'),
                         Select::make('status')
                             ->label('Trạng thái')
-                            ->options([
-                                'pending' => 'Chờ xác nhận',
-                                'confirmed' => 'Đã xác nhận',
-                                'cancelled' => 'Đã hủy',
-                                'completed' => 'Hoàn thành',
-                            ])
-                            ->default('pending')
+                            ->options(BookingStatus::class)
+                            ->default(BookingStatus::Pending)
                             ->required(),
                         DateTimePicker::make('confirmed_at')
                             ->label('Thời gian xác nhận'),
                         Select::make('payment_method')
                             ->label('Phương thức thanh toán')
-                            ->options([
-                                'online_banking' => 'Chuyển khoản online',
-                                'cash_on_pickup' => 'Thanh toán khi đón',
-                            ])
-                            ->default('cash_on_pickup')
+                            ->options(PaymentMethod::class)
+                            ->default(PaymentMethod::CashOnPickup)
                             ->required(),
                         Select::make('payment_status')
                             ->label('Trạng thái thanh toán')
-                            ->options([
-                                'unpaid' => 'Chưa thanh toán',
-                                'paid' => 'Đã thanh toán',
-                            ])
-                            ->default('unpaid')
+                            ->options(PaymentStatus::class)
+                            ->default(PaymentStatus::Unpaid)
                             ->required(),
                         TextInput::make('payment_transaction_id')
                             ->label('Mã giao dịch'),

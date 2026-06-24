@@ -28,6 +28,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('King Express Bus')
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::hex('#FF9B00'),
             ])
@@ -38,8 +40,8 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Tổng quan',
                 'Cấu hình website',
-                'Quản lý Địa điểm',
-                'Quản lý Đội xe',
+                'Quản lý địa điểm',
+                'Quản lý đội xe',
                 'Vận hành',
                 'Đặt vé',
             ])

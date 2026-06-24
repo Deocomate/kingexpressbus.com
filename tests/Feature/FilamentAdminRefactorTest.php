@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BookingStatus;
 use App\Filament\Resources\Bookings\BookingResource;
 use App\Filament\Resources\Bookings\Pages\ListBookings;
 use App\Filament\Resources\Buses\BusResource;
@@ -125,12 +126,12 @@ test('booking row actions call booking service transitions', function () {
     Livewire::test(ListBookings::class)
         ->callAction(TestAction::make('confirm')->table($booking));
 
-    expect($booking->refresh()->status)->toBe('confirmed');
+    expect($booking->refresh()->status)->toBe(BookingStatus::Confirmed);
 
     Livewire::test(ListBookings::class)
         ->callAction(TestAction::make('complete')->table($booking));
 
-    expect($booking->refresh()->status)->toBe('completed');
+    expect($booking->refresh()->status)->toBe(BookingStatus::Completed);
 });
 
 test('menu root sentinel is used for top level menu items', function () {
@@ -143,18 +144,18 @@ test('menu root sentinel is used for top level menu items', function () {
 
 test('filament resources expose Vietnamese labels', function () {
     $resources = [
-        BookingResource::class => ['Đơn đặt vé', 'Đơn đặt vé', 'Quản lý đặt vé'],
-        BusResource::class => ['Xe', 'Xe', 'Quản lý xe'],
+        BookingResource::class => ['Đơn hàng', 'Đơn hàng', 'Danh sách Đơn hàng'],
+        BusResource::class => ['Xe', 'Xe', 'Danh sách Xe'],
         BusServiceResource::class => ['Dịch vụ xe', 'Dịch vụ xe', 'Dịch vụ xe'],
-        DistrictResource::class => ['Địa điểm', 'Địa điểm', 'Địa điểm'],
-        DistrictTypeResource::class => ['Loại địa điểm', 'Loại địa điểm', 'Loại địa điểm'],
-        HolidaySurchargeResource::class => ['Phụ thu ngày lễ', 'Phụ thu ngày lễ', 'Phụ thu ngày lễ'],
-        MenuResource::class => ['Menu', 'Menu', 'Quản lý menu'],
-        ProvinceResource::class => ['Tỉnh/thành', 'Tỉnh/thành', 'Tỉnh/thành'],
-        RouteResource::class => ['Tuyến đường', 'Tuyến đường', 'Quản lý tuyến đường'],
+        DistrictResource::class => ['Quận/Huyện', 'Quận/Huyện', 'Địa điểm'],
+        DistrictTypeResource::class => ['Loại Quận/Huyện', 'Loại Quận/Huyện', 'Loại địa điểm'],
+        HolidaySurchargeResource::class => ['Phụ thu lễ', 'Phụ thu lễ', 'Phụ thu ngày lễ'],
+        MenuResource::class => ['Menu', 'Menu', 'Danh sách Menu'],
+        ProvinceResource::class => ['Tỉnh/Thành phố', 'Tỉnh/Thành phố', 'Tỉnh/thành'],
+        RouteResource::class => ['Tuyến đường', 'Tuyến đường', 'Danh sách Tuyến đường'],
         StopResource::class => ['Điểm dừng', 'Điểm dừng', 'Điểm dừng'],
-        TripResource::class => ['Chuyến xe', 'Chuyến xe', 'Quản lý chuyến xe'],
-        WebProfileResource::class => ['Cấu hình website', 'Cấu hình website', 'Cấu hình website'],
+        TripResource::class => ['Chuyến đi', 'Chuyến đi', 'Danh sách Chuyến đi'],
+        WebProfileResource::class => ['Hồ sơ web', 'Hồ sơ web', 'Cấu hình website'],
     ];
 
     foreach ($resources as $resource => [$modelLabel, $pluralModelLabel, $navigationLabel]) {

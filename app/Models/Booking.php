@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
+use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +51,9 @@ class Booking extends Model
         'total_surcharge_amount' => 'integer',
         'confirmed_at' => 'datetime',
         'payment_log' => 'array',
+        'status' => BookingStatus::class,
+        'payment_method' => PaymentMethod::class,
+        'payment_status' => PaymentStatus::class,
     ];
 
     /**
@@ -87,7 +93,11 @@ class Booking extends Model
      */
     public function scopeActive($query)
     {
-        return $query->whereIn('status', ['pending', 'confirmed', 'completed']);
+        return $query->whereIn('status', [
+            BookingStatus::Pending,
+            BookingStatus::Confirmed,
+            BookingStatus::Completed,
+        ]);
     }
 
     /**
@@ -95,7 +105,7 @@ class Booking extends Model
      */
     public function scopePending($query)
     {
-        return $query->where('status', 'pending');
+        return $query->where('status', BookingStatus::Pending);
     }
 
     /**
@@ -103,6 +113,6 @@ class Booking extends Model
      */
     public function scopeConfirmed($query)
     {
-        return $query->where('status', 'confirmed');
+        return $query->where('status', BookingStatus::Confirmed);
     }
 }
