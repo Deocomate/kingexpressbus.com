@@ -1,0 +1,724 @@
+@import '@fontsource/be-vietnam-pro/400.css';
+@import '@fontsource/be-vietnam-pro/500.css';
+@import '@fontsource/be-vietnam-pro/600.css';
+@import '@fontsource/be-vietnam-pro/700.css';
+@import '@fontsource/be-vietnam-pro/800.css';
+@import '@fontsource/manrope/500.css';
+@import '@fontsource/manrope/600.css';
+@import '@fontsource/manrope/700.css';
+@import '@fontsource/manrope/800.css';
+@import '@fortawesome/fontawesome-free/css/all.min.css';
+@import 'flatpickr/dist/flatpickr.min.css';
+@import 'toastr/build/toastr.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --ksb-primary-50: #fff9e6;
+        --ksb-primary-100: #ffefbf;
+        --ksb-primary-500: #ffc900;
+        --ksb-primary-600: #ff9b00;
+        --ksb-primary-700: #d97d00;
+        --ksb-navy-800: #071a2e;
+        --ksb-navy-900: #04111f;
+        --ksb-surface: #ffffff;
+        --ksb-page: #fffdf7;
+        --ksb-border: #ede4d3;
+        --ksb-text: #0f172a;
+        --ksb-muted: #5b6472;
+        --ksb-shadow-soft: 0 12px 28px -18px rgba(15, 23, 42, 0.28);
+        --ksb-shadow-card: 0 24px 60px -34px rgba(4, 17, 31, 0.38);
+        --ksb-focus: 0 0 0 3px rgba(255, 155, 0, 0.24);
+        --ksb-radius-panel: 2px;
+        --ksb-radius-control: 2px;
+        --ksb-z-elevated: 10;
+        --ksb-z-search: 20;
+        --ksb-z-header: 40;
+        --ksb-z-header-menu: 45;
+        --ksb-z-drawer: 60;
+        --ksb-z-modal: 70;
+        --ksb-z-alert: 80;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        text-rendering: optimizeLegibility;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        @apply bg-page text-ink font-sans antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-display leading-tight;
+    }
+
+    body {
+        line-height: 1.5;
+    }
+
+    body,
+    button,
+    input,
+    select,
+    textarea {
+        font-feature-settings: 'kern' 1;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    :focus-visible {
+        outline: 2px solid theme('colors.brand.600');
+        outline-offset: 3px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    *::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    *::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    *::-webkit-scrollbar-thumb {
+        background: theme('colors.line.strong');
+        border-radius: 2px;
+        border: 2px solid transparent;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .kx-btn-primary,
+    .kx-btn-secondary,
+    .kx-btn-ghost {
+        @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-control font-bold transition duration-base ease-out-soft;
+    }
+
+    .kx-btn-primary {
+        @apply bg-brand-500 text-ink hover:bg-brand-600 active:translate-y-px;
+    }
+
+    .kx-btn-primary-sm {
+        @apply inline-flex h-7 items-center justify-center gap-1.5 rounded-control bg-brand-500 px-2.5 text-xs font-bold text-ink transition duration-base ease-out-soft hover:bg-brand-600 active:translate-y-px;
+    }
+
+    .kx-btn-secondary {
+        @apply border border-brand-600/30 bg-surface text-brand-800 hover:border-brand-600 hover:bg-brand-50 active:translate-y-px active:scale-[0.99];
+    }
+
+    .kx-btn-ghost {
+        @apply border border-white/25 bg-white/10 text-white hover:bg-white/20 active:translate-y-px active:scale-[0.99];
+    }
+
+    .kx-panel {
+        @apply rounded-panel border border-line bg-surface;
+    }
+
+    .kx-panel-strong {
+        @apply rounded-panel border border-line-strong bg-surface shadow-card;
+    }
+
+    .kx-card {
+        @apply rounded-panel border border-line bg-surface transition duration-base ease-out-soft hover:border-brand-600/50;
+    }
+
+    .kx-chip {
+        @apply rounded-sm border border-line bg-panel text-muted;
+    }
+
+    .kx-chip-active {
+        @apply border-brand-600 bg-brand-600 text-white;
+    }
+
+    .kx-section-label {
+        @apply text-[0.78rem] font-extrabold tracking-wide text-brand-800;
+    }
+
+    .kx-price {
+        @apply text-brand-700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .kx-form-control {
+        @apply min-h-[46px] rounded-control border border-line-strong bg-panel text-ink transition duration-fast ease-out-soft focus:border-brand-600 focus:bg-surface focus:shadow-[0_0_0_3px_rgba(255,155,0,0.24)] focus:outline-none;
+    }
+
+    .kx-surface {
+        @apply w-full max-w-full rounded-panel border border-line-strong bg-surface;
+    }
+
+    .kx-badge {
+        @apply inline-flex items-center gap-1.5 rounded-sm border border-line bg-panel px-2.5 py-1 text-xs font-semibold text-muted;
+    }
+
+    .ksb-header,
+    .kx-header {
+        z-index: theme('zIndex.header');
+        @apply font-header;
+    }
+
+    .kx-header-top {
+        @apply bg-white;
+    }
+
+    .kx-nav-link {
+        @apply shrink-0 whitespace-nowrap rounded-sm px-2.5 py-2 text-sm font-semibold tracking-tight text-ink/80 transition-colors duration-fast ease-out-soft hover:bg-brand-50 hover:text-ink;
+    }
+
+    .kx-nav-link--active {
+        @apply bg-brand-100 text-ink;
+    }
+
+    .kx-header-utility {
+        @apply text-xs font-semibold tracking-tight text-ink/70 transition-colors duration-fast ease-out-soft hover:bg-brand-50 hover:text-ink;
+    }
+
+    .kx-footer {
+        @apply bg-contrast-900 font-header text-white;
+    }
+
+    .kx-footer-heading {
+        @apply mb-4 text-base font-bold tracking-tight text-white;
+    }
+
+    .kx-footer-link {
+        @apply text-sm text-white/70 transition-colors duration-fast ease-out-soft hover:text-brand-500;
+    }
+
+    .kx-footer-text {
+        @apply text-sm leading-relaxed text-white/65;
+    }
+
+    .kx-footer-social {
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-sm border border-white/15 bg-white/5 text-white transition duration-fast ease-out-soft hover:border-brand-500 hover:bg-brand-500 hover:text-ink;
+    }
+
+    .kx-footer-contact-icon {
+        @apply mt-0.5 w-4 shrink-0 text-center text-sm text-white/45;
+    }
+
+    .kx-footer-hotline {
+        @apply font-bold text-brand-500 transition-colors duration-fast ease-out-soft hover:text-white;
+    }
+
+    .kx-floating-contact {
+        z-index: theme('zIndex.alert');
+    }
+
+    .kx-floating-btn {
+        @apply inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-ink text-white shadow-[0_8px_24px_-8px_rgba(4,17,31,0.55)] transition duration-base ease-out-soft hover:scale-[1.04] hover:border-brand-500 hover:bg-brand-500 hover:text-ink;
+    }
+
+    .kx-floating-btn--primary {
+        @apply border-brand-600/40 bg-brand-500 text-ink hover:scale-[1.04] hover:border-brand-600 hover:bg-brand-600 hover:text-ink;
+    }
+
+    .ksb-header-menu {
+        z-index: theme('zIndex.header-menu');
+    }
+
+    .ksb-hero-search {
+        @apply relative isolate;
+        z-index: theme('zIndex.elevated');
+    }
+
+    .kx-search-bar {
+        @apply relative;
+    }
+
+    .kx-search-bar__field--open {
+        @apply relative;
+        z-index: theme('zIndex.search');
+    }
+
+    .kx-search-bar__menu {
+        @apply absolute left-0 right-0 top-[calc(100%+8px)];
+        z-index: theme('zIndex.search');
+    }
+
+    .ksb-drawer,
+    .ksb-drawer-backdrop {
+        z-index: theme('zIndex.drawer');
+    }
+
+    .ksb-modal {
+        z-index: theme('zIndex.modal');
+    }
+
+    .ksb-alert,
+    .ksb-floating-contact {
+        z-index: theme('zIndex.alert');
+    }
+
+    .ksb-page-band,
+    .ksb-section-band {
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 253, 247, 0)),
+            theme('colors.page');
+    }
+
+    .ksb-section {
+        @apply py-8 md:py-10 lg:py-12;
+    }
+
+    .ksb-section-compact {
+        @apply py-5;
+    }
+
+    .ksb-section-hero {
+        @apply py-10 md:py-12 lg:py-14;
+    }
+
+    .ksb-section-cta {
+        @apply py-8 md:py-10;
+    }
+
+    .ksb-container {
+        @apply mx-auto w-full max-w-7xl px-4;
+    }
+
+    .ksb-panel,
+    .ksb-panel-strong,
+    .ksb-surface {
+        @apply rounded-panel border border-line bg-surface;
+    }
+
+    .ksb-panel-strong {
+        @apply border-line-strong;
+    }
+
+    .ksb-muted-card,
+    .ksb-surface-quiet {
+        @apply rounded-panel border border-slate-200 bg-slate-50;
+    }
+
+    .ksb-surface {
+        @apply w-full max-w-full;
+    }
+
+    .ksb-surface>.grid>* {
+        min-width: 0;
+    }
+
+    .ksb-hero {
+        @apply relative z-10 overflow-visible bg-contrast-900;
+    }
+
+    .ksb-hero-media-wrapper {
+        @apply pointer-events-none absolute inset-0 -z-10 overflow-hidden;
+    }
+
+    .ksb-home-hero {
+        @apply flex min-h-[clamp(480px,62vh,640px)] flex-col;
+    }
+
+    .ksb-home-hero-body {
+        @apply relative mx-auto flex w-full max-w-7xl flex-1 flex-col justify-between px-4 py-10 md:py-12 lg:py-14;
+    }
+
+    .ksb-home-hero-main {
+        @apply flex flex-col justify-center;
+    }
+
+    .ksb-home-hero-features {
+        @apply mt-8 grid gap-2 sm:grid-cols-3 md:mt-10 md:gap-3;
+    }
+
+    .ksb-destination-mosaic {
+        display: grid;
+        gap: 0.5rem;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: minmax(7.5rem, auto);
+    }
+
+    .ksb-destination-tile {
+        @apply relative min-h-[7.5rem] overflow-hidden rounded-sm border border-line bg-contrast-900;
+    }
+
+    .ksb-destination-tile img {
+        @apply h-full w-full object-cover transition duration-base ease-out-soft;
+    }
+
+    .ksb-destination-tile:hover img {
+        @apply scale-[1.04];
+    }
+
+    .ksb-destination-tile-overlay {
+        @apply pointer-events-none absolute inset-0;
+        background: linear-gradient(180deg, rgba(4, 17, 31, 0.05) 35%, rgba(4, 17, 31, 0.82) 100%);
+    }
+
+    .ksb-destination-tile:hover .ksb-destination-tile-overlay {
+        background: linear-gradient(180deg, rgba(4, 17, 31, 0.12) 20%, rgba(4, 17, 31, 0.9) 100%);
+    }
+
+    .ksb-destination-tile-copy {
+        @apply absolute inset-x-0 bottom-0 z-[1] p-3 md:p-3.5;
+    }
+
+    .ksb-destination-tile-tag {
+        @apply mt-0.5 line-clamp-2 text-[11px] leading-4 text-white/75 md:text-xs md:leading-5;
+    }
+
+    .ksb-destination-tile--hanoi {
+        grid-column: span 2;
+        min-height: 11.5rem;
+    }
+
+    .ksb-destination-tile--sapa {
+        min-height: 9.5rem;
+    }
+
+    .ksb-destination-tile--ninh_binh,
+    .ksb-destination-tile--hue {
+        min-height: 8rem;
+    }
+
+    @media (min-width: 768px) {
+        .ksb-destination-mosaic {
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            grid-template-rows: repeat(4, minmax(6.5rem, 1fr));
+            min-height: clamp(26rem, 42vw, 34rem);
+            gap: 0.625rem;
+        }
+
+        .ksb-destination-tile--hanoi {
+            grid-area: 1 / 1 / 4 / 6;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--sapa {
+            grid-area: 1 / 6 / 3 / 10;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--ninh_binh {
+            grid-area: 1 / 10 / 2 / 13;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--hue {
+            grid-area: 2 / 10 / 3 / 13;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--da_nang {
+            grid-area: 3 / 6 / 4 / 9;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--hoi_an {
+            grid-area: 3 / 9 / 4 / 13;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--cat_ba {
+            grid-area: 4 / 1 / 5 / 4;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--phong_nha {
+            grid-area: 4 / 4 / 5 / 9;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile--ha_giang {
+            grid-area: 4 / 9 / 5 / 13;
+            min-height: 0;
+        }
+
+        .ksb-destination-tile-name {
+            @apply text-lg;
+        }
+
+        .ksb-destination-tile--hanoi .ksb-destination-tile-name {
+            @apply text-xl;
+        }
+    }
+
+    .ksb-hero-media {
+        @apply absolute inset-0 -z-10 bg-cover bg-center;
+    }
+
+    .ksb-hero-media::after {
+        content: "";
+        @apply absolute inset-0;
+        background: linear-gradient(180deg, rgba(4, 17, 31, 0.55), rgba(4, 17, 31, 0.72));
+    }
+
+    .ksb-trust-strip {
+        @apply border-y border-white/10 bg-contrast-900 text-white;
+    }
+
+    .ksb-trust-item {
+        @apply relative min-h-[76px] overflow-hidden rounded-sm border border-white/10 bg-white/[0.055] p-4;
+        opacity: 1;
+        transform: none;
+    }
+
+    .ksb-trust-item:hover {
+        @apply border-brand-500/30 bg-white/[0.082];
+    }
+
+    .ksb-btn-primary,
+    .ksb-btn-secondary,
+    .ksb-btn-ghost {
+        @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-control font-bold transition duration-base ease-out-soft;
+    }
+
+    .ksb-btn-primary {
+        @apply bg-brand-500 text-ink hover:bg-brand-600 active:translate-y-px;
+    }
+
+    .ksb-btn-secondary {
+        @apply border border-brand-600/30 bg-surface text-brand-800 hover:border-brand-600 hover:bg-brand-50 active:translate-y-px active:scale-[0.99];
+    }
+
+    .ksb-btn-ghost {
+        @apply border border-white/25 bg-white/10 text-white hover:bg-white/20 active:translate-y-px active:scale-[0.99];
+    }
+
+    .ksb-route-card {
+        @apply rounded-panel border border-slate-200 bg-surface transition duration-base ease-out-soft hover:border-brand-600/50;
+    }
+
+    .ksb-trip-row {
+        @apply relative overflow-hidden rounded-sm border border-slate-200 bg-surface transition duration-base ease-out-soft hover:border-brand-600/50;
+    }
+
+    .ksb-trip-row::before {
+        content: "";
+        @apply absolute inset-y-0 left-0 w-0.5 bg-brand-500;
+    }
+
+    .ksb-filter-shell {
+        @apply overflow-hidden rounded-panel border border-line bg-surface;
+    }
+
+    .ksb-mobile-action-bar {
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+    }
+
+    .ksb-booking-step {
+        @apply w-full min-w-0;
+    }
+
+    .ksb-booking-step .step-circle {
+        box-shadow: 0 0 0 4px #ffffff;
+    }
+
+    .ksb-booking-step .step-item {
+        @apply min-w-0 flex-1 text-center;
+    }
+
+    .ksb-booking-step .step-label {
+        max-width: 6.5rem;
+        line-height: 1.35;
+    }
+
+    .ksb-sticky-summary {
+        @apply sticky top-28;
+    }
+
+    .ksb-route-timeline {
+        @apply relative min-h-0.5;
+        background: linear-gradient(90deg, theme('colors.pickup'), theme('colors.slate.200') 48%, theme('colors.dropoff'));
+    }
+
+    .ksb-route-timeline::before,
+    .ksb-route-timeline::after {
+        content: "";
+        @apply absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full border-[3px] border-current bg-white;
+    }
+
+    .ksb-route-timeline::before {
+        @apply left-0 text-pickup;
+    }
+
+    .ksb-route-timeline::after {
+        @apply right-0 text-dropoff;
+    }
+
+    .ksb-form-control {
+        @apply min-h-[46px] rounded-control border border-line-strong bg-panel text-ink transition duration-fast ease-out-soft focus:border-brand-600 focus:bg-surface focus:shadow-[0_0_0_3px_rgba(255,155,0,0.24)] focus:outline-none;
+    }
+
+    .ksb-chip {
+        @apply rounded-sm border border-line bg-panel text-muted;
+    }
+
+    .ksb-chip-active {
+        @apply border-brand-600 bg-brand-600 text-white;
+    }
+
+    .ksb-section-label {
+        @apply text-[0.78rem] font-extrabold tracking-wide text-brand-800;
+    }
+
+    .ksb-text-balance {
+        text-wrap: balance;
+    }
+
+    .ksb-price {
+        @apply text-brand-700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ksb-slide-fade {
+        animation: ksb-slide-fade 220ms ease-out;
+    }
+
+    .kx-prose {
+        @apply text-base leading-8 text-slate-700;
+    }
+
+    .kx-prose :where(h2, h3, h4) {
+        @apply scroll-mt-28 font-display font-extrabold leading-tight text-ink;
+    }
+
+    .kx-prose :where(h2) {
+        @apply mt-8 text-2xl md:text-3xl;
+    }
+
+    .kx-prose :where(h3) {
+        @apply mt-7 text-xl md:text-2xl;
+    }
+
+    .kx-prose :where(p, ul, ol, blockquote, table, img) {
+        @apply my-4;
+    }
+
+    .kx-prose :where(ul, ol) {
+        @apply pl-6;
+    }
+
+    .kx-prose :where(ul) {
+        @apply list-disc;
+    }
+
+    .kx-prose :where(ol) {
+        @apply list-decimal;
+    }
+
+    .kx-prose :where(a) {
+        @apply font-bold text-brand-700 no-underline transition hover:text-brand-600;
+    }
+
+    .kx-prose :where(img) {
+        @apply max-w-full rounded-sm border border-line;
+    }
+
+    .kx-prose :where(table) {
+        @apply w-full overflow-hidden rounded-sm border border-line text-sm;
+    }
+
+    .kx-prose :where(th) {
+        @apply bg-brand-50 px-4 py-3 text-left font-extrabold text-ink;
+    }
+
+    .kx-prose :where(td) {
+        @apply border-t border-line px-4 py-3;
+    }
+
+    /*
+     * Kept as `.ksb-reveal` (not renamed to `.reveal`) so pages not yet
+     * migrated to the new design system keep working with the same
+     * IntersectionObserver hook in resources/js/modules/reveal.js.
+     */
+    .ksb-reveal {
+        opacity: 1;
+        transform: none;
+    }
+
+    .ksb-reveal.is-visible {
+        opacity: 1;
+        transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .ksb-reveal {
+            opacity: 1;
+            transform: none;
+            animation: none !important;
+        }
+    }
+
+    .flatpickr-calendar.open {
+        z-index: theme('zIndex.search');
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+        border-color: theme('colors.brand.600');
+        background: theme('colors.brand.600');
+    }
+
+    .flatpickr-day.today {
+        border-color: theme('colors.brand.500');
+    }
+
+    .flatpickr-day:hover {
+        border-color: theme('colors.brand.100');
+        background: theme('colors.brand.100');
+    }
+}
+
+@keyframes ksb-slide-fade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

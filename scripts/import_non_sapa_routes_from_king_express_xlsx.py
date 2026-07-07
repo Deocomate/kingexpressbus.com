@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import re
@@ -382,7 +382,7 @@ def main() -> None:
                 avg_minutes = int(round(sum(agg.durations) / max(1, len(agg.durations))))
                 route_distance = int(round((avg_minutes / 60) * 45))
                 route_price_default = min(agg.prices)
-                route_thumbnail = f"/client/images/city_imgs/{image_file_by_key.get(end_key, 'ha-noi.jpg')}"
+                route_thumbnail = f"/assets/client/images/city_imgs/{image_file_by_key.get(end_key, 'ha-noi.jpg')}"
                 route_images = json.dumps([route_thumbnail], ensure_ascii=False)
                 route_content = build_route_content(route_name, agg, min(agg.prices), max(agg.prices))
 

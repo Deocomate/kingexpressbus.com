@@ -4,16 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ __('client.booking.sepay.redirect_title') }}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css'])
     <style>
         body {
             align-items: center;
-            background:
-                linear-gradient(135deg, rgba(4, 17, 31, 0.94), rgba(4, 17, 31, 0.82)),
-                #04111f;
-            color: #111827;
+            background: #fffdf7;
+            color: #0f172a;
             display: flex;
             font-family: "Be Vietnam Pro", system-ui, sans-serif;
             justify-content: center;
@@ -23,17 +19,18 @@
 
         .loader {
             background: #fff;
-            border: 1px solid rgba(245, 158, 11, 0.24);
-            border-radius: 24px;
-            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+            border: 1px solid #ede4d3;
+            border-radius: 2px;
+            box-shadow: 0 24px 60px -34px rgba(4, 17, 31, 0.38);
             max-width: 420px;
             padding: 32px;
             text-align: center;
         }
 
         h1 {
-            font-family: "Manrope", "Be Vietnam Pro", system-ui, sans-serif;
+            font-family: "Be Vietnam Pro", system-ui, sans-serif;
             font-size: 1.45rem;
+            font-weight: 800;
             margin: 0 0 12px;
         }
 
@@ -45,8 +42,8 @@
 
         .spinner {
             animation: spin 0.9s linear infinite;
-            border: 4px solid #fde68a;
-            border-top-color: #d97706;
+            border: 4px solid #ffefbf;
+            border-top-color: #ff9b00;
             border-radius: 999px;
             height: 48px;
             margin: 0 auto 24px;
@@ -60,6 +57,12 @@
         @keyframes spin {
             to {
                 transform: rotate(360deg);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .spinner {
+                animation-duration: 1.8s;
             }
         }
     </style>

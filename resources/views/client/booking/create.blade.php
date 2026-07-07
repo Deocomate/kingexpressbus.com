@@ -1,10 +1,10 @@
-<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.create.meta_title')" :description="$description ?? ''" body-class="bg-[#F8FAFC]">
+<x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.booking.create.meta_title')" :description="$description ?? ''" body-class="bg-page text-ink">
     @push('styles')
         <style>
             .booking-hero {
                 background-image:
-                    linear-gradient(112deg, rgba(9, 25, 47, 0.82), rgba(255, 155, 0, 0.52)),
-                    url('/client/images/kingexpressbus/cabin/2.jpg');
+                    linear-gradient(180deg, rgba(4, 17, 31, 0.58), rgba(4, 17, 31, 0.78)),
+                    url('/assets/client/images/kingexpressbus/cabin/2.jpg');
                 background-size: cover;
                 background-position: center;
             }
@@ -13,14 +13,14 @@
                 background: #ffffff;
                 border: 1px solid rgba(234, 217, 184, 0.9);
                 border-radius: var(--ksb-radius-panel);
-                box-shadow: var(--ksb-shadow-soft);
+                box-shadow: var(--ksb-);
             }
 
             .booking-sidebar-card {
                 background: #ffffff;
                 border: 1px solid rgba(234, 217, 184, 0.9);
                 border-radius: var(--ksb-radius-panel);
-                box-shadow: var(--ksb-shadow-soft);
+                box-shadow: var(--ksb-);
             }
 
             /* Phone input with searchable country dropdown */
@@ -28,7 +28,7 @@
                 display: flex;
                 align-items: stretch;
                 border: 1px solid #e5e7eb;
-                border-radius: 0.75rem;
+                border-radius: 2px;
                 background-color: #f8fafc;
                 overflow: visible;
                 transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -48,7 +48,7 @@
                 padding: 0 10px;
                 cursor: pointer;
                 border-right: 1px solid #e5e7eb;
-                border-radius: 0.375rem 0 0 0.375rem;
+                border-radius: 2px 0 0 2px;
                 outline: none;
                 white-space: nowrap;
                 transition: background 0.15s;
@@ -95,10 +95,10 @@
                 position: absolute;
                 top: calc(100% + 4px);
                 left: 0;
-                z-index: var(--ksb-z-dropdown);
+                z-index: var(--ksb-z-search);
                 background: #fff;
                 border: 1px solid #d4d4d4;
-                border-radius: 0.5rem;
+                border-radius: 2px;
                 box-shadow: 0 8px 24px rgba(0,0,0,0.12);
                 width: 300px;
                 max-width: calc(100vw - 3rem);
@@ -111,7 +111,7 @@
             .phone-dropdown-search input {
                 width: 100%;
                 border: 1px solid #d4d4d4;
-                border-radius: 0.375rem;
+                border-radius: 2px;
                 padding: 6px 10px;
                 font-size: 0.875rem;
                 outline: none;
@@ -205,7 +205,7 @@
             .step-circle {
                 width: 32px;
                 height: 32px;
-                border-radius: 50%;
+                border-radius: 2px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -238,7 +238,7 @@
     @endpush
 
     @php
-        $busImage = $busImages[0] ?? ($trip->bus_thumbnail ?? '/client/images/kingexpressbus/cabin/1.jpg');
+        $busImage = $busImages[0] ?? ($trip->bus_thumbnail ?? '/assets/client/images/kingexpressbus/cabin/1.jpg');
         $baseUnitPrice = (int) ($trip->base_price ?? $trip->price ?? 0);
         $globalSurchargeUnit = (int) ($trip->global_surcharge ?? 0);
         $routeSurchargeUnit = (int) ($trip->route_surcharge ?? 0);
@@ -265,7 +265,7 @@
         <div class="container mx-auto max-w-7xl">
             <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-3">
                 <div class="space-y-4 lg:col-span-2">
-                    <span class="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90">
+                    <span class="inline-flex items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-white/90">
                         <i class="fa-solid fa-ticket"></i>
                         {{ __('client.booking.create.header_subtitle') }}
                     </span>
@@ -288,9 +288,9 @@
                         </span>
                     </div>
                 </div>
-                <div class="relative h-44 overflow-hidden rounded-2xl border border-white/20 shadow-soft lg:h-52">
+                <div class="relative h-44 overflow-hidden rounded-sm border border-white/20  lg:h-52">
                     <img src="{{ $busImage }}" alt="{{ $trip->bus_name }}" class="h-full w-full object-cover" loading="lazy">
-                    <span class="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-xl bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-800">
+                    <span class="absolute bottom-3 left-3 inline-flex items-center gap-2 rounded-sm bg-white/95 px-3 py-1.5 text-xs font-semibold text-slate-800">
                         <i class="fa-solid fa-shield-heart text-primary-600"></i>
                         {{ __('client.booking.create.insurance_badge') }}
                     </span>
@@ -324,13 +324,13 @@
         <div class="container mx-auto grid max-w-7xl grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_380px]">
             <form class="space-y-6" method="POST" action="{{ route('client.booking.store') }}" id="booking-form" novalidate>
                 @if (session('error'))
-                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
+                    <div class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
                         <strong class="font-bold">{{ __('client.booking.create.error_title') }}</strong>
                         <span class="block sm:inline">{{ session('error') }}</span>
                     </div>
                 @endif
                 @if ($errors->any())
-                    <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
+                    <div class="rounded-sm border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">
                         <strong class="font-bold">{{ __('client.booking.create.validation_error_title') }}</strong>
                         <p class="mt-2">{{ __('client.booking.create.general_validation_error') }}</p>
                     </div>
@@ -343,7 +343,7 @@
                 {{-- Step 1: Trip --}}
                 <section class="booking-panel space-y-5 p-5 md:p-6" id="section-step-1">
                     <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">1</span>
+                        <span class="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-600 text-sm text-white">1</span>
                         {{ __('client.booking.create.trip_info_title') }}
                     </h2>
 
@@ -356,7 +356,7 @@
                                 <i class="fa-solid fa-calendar-day pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
                                 <input type="text" id="booking_date" name="booking_date"
                                     value="{{ $bookingDate->format('d/m/Y') }}" readonly
-                                    class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 pl-10 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
+                                    class="w-full rounded-sm border-neutral-200 bg-neutral-50 p-3 pl-10 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
                                     required>
                             </div>
                         </div>
@@ -365,9 +365,9 @@
                                 {{ __('client.booking.create.quantity_label') }}
                             </label>
                             <div class="flex items-center gap-2">
-                                <div class="inline-flex items-center rounded-xl border border-neutral-200 bg-neutral-50 p-1">
+                                <div class="inline-flex items-center rounded-sm border border-neutral-200 bg-neutral-50 p-1">
                                     <button type="button" id="decrease-quantity" aria-label="-"
-                                        class="quantity-btn flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm hover:border-gray-300 hover:text-gray-900">
+                                        class="quantity-btn flex h-10 w-10 items-center justify-center rounded-sm border border-gray-200 bg-white text-gray-600 shadow-sm hover:border-gray-300 hover:text-gray-900">
                                         <i class="fa-solid fa-minus text-sm"></i>
                                     </button>
                                     <div class="flex w-16 flex-col items-center justify-center">
@@ -379,11 +379,11 @@
                                         <span class="-mt-1 text-[10px] uppercase tracking-wide text-gray-400">{{ __('client.booking.create.tickets_unit') }}</span>
                                     </div>
                                     <button type="button" id="increase-quantity" aria-label="+"
-                                        class="quantity-btn flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600 text-white shadow-sm hover:bg-primary-700">
+                                        class="quantity-btn flex h-10 w-10 items-center justify-center rounded-sm bg-primary-600 text-white shadow-sm hover:bg-primary-700">
                                         <i class="fa-solid fa-plus text-sm"></i>
                                     </button>
                                 </div>
-                                <div class="inline-flex items-center gap-1.5 rounded-lg border border-green-100 bg-green-50 px-3 py-2">
+                                <div class="inline-flex items-center gap-1.5 rounded-sm border border-green-100 bg-green-50 px-3 py-2">
                                     <i class="fa-solid fa-couch text-xs text-green-500"></i>
                                     <span class="text-xs font-medium text-green-700">
                                         {!! trans_choice('client.booking.create.seats_left', $availableSeats, ['count' => $availableSeats]) !!}
@@ -398,7 +398,7 @@
                 <section class="booking-panel space-y-5 p-5 md:p-6" id="section-step-2">
                     <div class="flex flex-wrap items-center justify-between gap-2">
                         <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
-                            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">2</span>
+                            <span class="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-600 text-sm text-white">2</span>
                             {{ __('client.booking.create.location_title') }}
                         </h2>
                         @if ($totalStopCount > 6)
@@ -406,7 +406,7 @@
                                 <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400"></i>
                                 <input type="text" id="stop-search" autocomplete="off"
                                     placeholder="{{ __('client.booking.create.search_stop_placeholder') }}"
-                                    class="w-full rounded-lg border-neutral-200 bg-neutral-50 py-2 pl-9 pr-3 text-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100">
+                                    class="w-full rounded-sm border-neutral-200 bg-neutral-50 py-2 pl-9 pr-3 text-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100">
                             </div>
                         @endif
                     </div>
@@ -419,7 +419,7 @@
                         </legend>
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2" id="pickup-stops-container">
                             @if ($trip->available_hotel_pickup)
-                                <label class="stop-card hotel-pickup-badge flex items-start gap-3 rounded-xl p-4 {{ $selectedPickup == 'hotel_pickup' ? 'selected' : '' }}"
+                                <label class="stop-card hotel-pickup-badge flex items-start gap-3 rounded-sm p-4 {{ $selectedPickup == 'hotel_pickup' ? 'selected' : '' }}"
                                     data-stop-name="{{ __('client.booking.create.pickup_at_hotel') }}">
                                     <input type="radio" name="pickup_stop_id" value="hotel_pickup" class="sr-only stop-input"
                                         data-type="pickup" @checked($selectedPickup == 'hotel_pickup')>
@@ -434,7 +434,7 @@
                                 </label>
                             @endif
                             @foreach ($pickupStops as $stop)
-                                <label class="stop-card flex items-start gap-3 rounded-xl border border-gray-200 p-4 {{ $selectedPickup == $stop->id ? 'selected' : '' }}"
+                                <label class="stop-card flex items-start gap-3 rounded-sm border border-gray-200 p-4 {{ $selectedPickup == $stop->id ? 'selected' : '' }}"
                                     data-stop-name="{{ $stop->name }}"
                                     data-search="{{ \Illuminate\Support\Str::lower($stop->name . ' ' . $stop->address . ' ' . $stop->district_name . ' ' . $stop->province_name) }}">
                                     <input type="radio" name="pickup_stop_id" value="{{ $stop->id }}" class="sr-only stop-input"
@@ -457,7 +457,7 @@
                         </label>
                         <input type="text" id="hotel_pickup_address" name="hotel_pickup_address"
                             value="{{ old('hotel_pickup_address', request('hotel_pickup_address')) }}"
-                            class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
+                            class="w-full rounded-sm border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
                             placeholder="{{ __('client.booking.create.hotel_address_placeholder') }}">
                     </div>
 
@@ -469,7 +469,7 @@
                         </legend>
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2" id="dropoff-stops-container">
                             @foreach ($dropoffStops as $stop)
-                                <label class="stop-card flex items-start gap-3 rounded-xl border border-gray-200 p-4 {{ $selectedDropoff == $stop->id ? 'selected' : '' }}"
+                                <label class="stop-card flex items-start gap-3 rounded-sm border border-gray-200 p-4 {{ $selectedDropoff == $stop->id ? 'selected' : '' }}"
                                     data-stop-name="{{ $stop->name }}"
                                     data-search="{{ \Illuminate\Support\Str::lower($stop->name . ' ' . $stop->address . ' ' . $stop->district_name . ' ' . $stop->province_name) }}">
                                     <input type="radio" name="dropoff_stop_id" value="{{ $stop->id }}" class="sr-only stop-input"
@@ -490,7 +490,7 @@
                 {{-- Step 3: Passenger --}}
                 <section class="booking-panel space-y-5 p-5 md:p-6" id="section-step-3">
                     <h2 class="flex items-center gap-2 font-display text-lg font-bold text-gray-900">
-                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-sm text-white">3</span>
+                        <span class="flex h-8 w-8 items-center justify-center rounded-sm bg-primary-600 text-sm text-white">3</span>
                         {{ __('client.booking.create.passenger_info_title') }}
                     </h2>
 
@@ -501,7 +501,7 @@
                             </label>
                             <input type="text" id="customer_name" name="customer_name"
                                 value="{{ old('customer_name', request('customer_name', $user->name ?? '')) }}"
-                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
+                                class="w-full rounded-sm border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
                                 required placeholder="{{ __('client.booking.create.name_placeholder') }}">
                         </div>
                         <div>
@@ -532,7 +532,7 @@
                             </label>
                             <input type="email" id="customer_email" name="customer_email"
                                 value="{{ old('customer_email', request('customer_email', $user->email ?? '')) }}"
-                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
+                                class="w-full rounded-sm border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
                                 required placeholder="{{ __('client.booking.create.email_placeholder') }}">
                         </div>
                         <div>
@@ -540,7 +540,7 @@
                                 {{ __('client.booking.create.notes_label') }}
                             </label>
                             <textarea id="notes" name="notes" rows="1"
-                                class="w-full rounded-xl border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
+                                class="w-full rounded-sm border-neutral-200 bg-neutral-50 p-3 text-base shadow-sm focus:border-primary-600 focus:bg-white focus:ring-primary-100"
                                 placeholder="{{ __('client.booking.create.notes_placeholder') }}">{{ old('notes', request('notes')) }}</textarea>
                         </div>
                     </div>
@@ -550,12 +550,12 @@
                         <h3 class="mb-3 text-sm font-semibold text-gray-800">{{ __('client.booking.create.payment_method_title') }}</h3>
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                             @foreach ($paymentMethods as $method)
-                                <label class="payment-method-label block rounded-xl border border-gray-200 p-4 {{ $selectedPayment === $method['key'] ? 'selected' : '' }}">
+                                <label class="payment-method-label block rounded-sm border border-gray-200 p-4 {{ $selectedPayment === $method['key'] ? 'selected' : '' }}">
                                     <input type="radio" name="payment_method" value="{{ $method['key'] }}"
                                         class="sr-only payment-method-input" @checked($selectedPayment === $method['key'])>
                                     <span class="flex items-start gap-3">
-                                        <span class="radio-icon mt-0.5 flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-300">
-                                            <span class="hidden h-2.5 w-2.5 rounded-full bg-primary-600"></span>
+                                        <span class="radio-icon mt-0.5 flex h-5 w-5 items-center justify-center rounded-sm border-2 border-gray-300">
+                                            <span class="hidden h-2.5 w-2.5 rounded-sm bg-primary-600"></span>
                                         </span>
                                         <span class="flex-1">
                                             <span class="block text-sm font-semibold text-gray-900">{{ $method['label'] }}</span>
@@ -571,21 +571,21 @@
                 {{-- Confirm + Trust + Submit --}}
                 <section class="booking-panel space-y-4 p-5 md:p-6">
                     <div class="grid grid-cols-3 gap-3 text-center">
-                        <div class="flex flex-col items-center gap-1.5 rounded-xl bg-gray-50 p-3">
+                        <div class="flex flex-col items-center gap-1.5 rounded-sm bg-gray-50 p-3">
                             <i class="fa-solid fa-shield-halved text-lg text-primary-600"></i>
                             <span class="text-[11px] font-medium text-gray-600">{{ __('client.booking.create.trust_secure') }}</span>
                         </div>
-                        <div class="flex flex-col items-center gap-1.5 rounded-xl bg-gray-50 p-3">
+                        <div class="flex flex-col items-center gap-1.5 rounded-sm bg-gray-50 p-3">
                             <i class="fa-solid fa-headset text-lg text-primary-600"></i>
                             <span class="text-[11px] font-medium text-gray-600">{{ __('client.booking.create.trust_support') }}</span>
                         </div>
-                        <div class="flex flex-col items-center gap-1.5 rounded-xl bg-gray-50 p-3">
+                        <div class="flex flex-col items-center gap-1.5 rounded-sm bg-gray-50 p-3">
                             <i class="fa-solid fa-bolt text-lg text-primary-600"></i>
                             <span class="text-[11px] font-medium text-gray-600">{{ __('client.booking.create.trust_instant') }}</span>
                         </div>
                     </div>
 
-                    <label for="confirm_info" class="flex cursor-pointer items-start gap-3 rounded-xl border border-gray-200 p-4 transition hover:border-primary-600 hover:bg-primary-50/40">
+                    <label for="confirm_info" class="flex cursor-pointer items-start gap-3 rounded-sm border border-gray-200 p-4 transition hover:border-primary-600 hover:bg-primary-50/40">
                         <input type="checkbox" id="confirm_info"
                             class="mt-0.5 h-5 w-5 shrink-0 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
                         <span class="text-sm text-gray-700">{{ __('client.booking.create.confirm_info_label') }}</span>
@@ -666,14 +666,14 @@
                     <div class="space-y-2">
                         @if (!empty($web_profile?->hotline))
                             <a href="tel:{{ preg_replace('/[^\d+]/', '', $web_profile->hotline) }}"
-                                class="flex items-center gap-2 rounded-lg bg-gray-50 p-2 text-sm transition hover:bg-gray-100">
+                                class="flex items-center gap-2 rounded-sm bg-gray-50 p-2 text-sm transition hover:bg-gray-100">
                                 <i class="fa-solid fa-phone text-primary-600"></i>
                                 <span class="font-medium text-gray-800">{{ $web_profile->hotline }}</span>
                             </a>
                         @endif
                         @if (!empty($web_profile?->zalo_url))
                             <a href="{{ $web_profile->zalo_url }}" target="_blank"
-                                class="flex items-center gap-2 rounded-lg bg-gray-50 p-2 text-sm transition hover:bg-gray-100">
+                                class="flex items-center gap-2 rounded-sm bg-gray-50 p-2 text-sm transition hover:bg-gray-100">
                                 <i class="fa-solid fa-comment-dots text-primary-600"></i>
                                 <span class="font-medium text-gray-800">Zalo</span>
                             </a>
@@ -707,16 +707,16 @@
     <div id="price-sheet-backdrop" class="fixed inset-0 z-modal bg-black/40 opacity-0 pointer-events-none xl:hidden"></div>
     <div id="price-sheet" class="fixed bottom-0 left-0 right-0 z-modal translate-y-full xl:hidden" role="dialog" aria-modal="true" aria-label="{{ __('client.booking.create.price_details_title') }}">
         <div class="max-h-[80vh] overflow-y-auto rounded-t-2xl bg-white p-5 shadow-2xl">
-            <div class="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300"></div>
+            <div class="mx-auto mb-3 h-1.5 w-12 rounded-sm bg-gray-300"></div>
             <div class="mb-3 flex items-center justify-between">
                 <h3 class="font-display font-bold text-gray-900">{{ __('client.booking.create.price_details_title') }}</h3>
-                <button type="button" id="close-price-sheet" class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500" aria-label="{{ __('client.booking.create.hide_price_details') }}">
+                <button type="button" id="close-price-sheet" class="flex h-8 w-8 items-center justify-center rounded-sm bg-gray-100 text-gray-500" aria-label="{{ __('client.booking.create.hide_price_details') }}">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
             {{-- Route summary --}}
-            <div class="mb-3 space-y-2 rounded-xl bg-gray-50 p-3 text-sm">
+            <div class="mb-3 space-y-2 rounded-sm bg-gray-50 p-3 text-sm">
                 <div class="flex items-start gap-2">
                     <i class="fa-solid fa-location-dot mt-0.5 text-green-500"></i>
                     <div class="min-w-0">
@@ -782,7 +782,7 @@
 
                 const showValidationError = (message) => {
                     if (window.Swal && typeof window.Swal.fire === 'function') {
-                        window.Swal.fire({ icon: 'warning', title: validationMessages.generalValidationError, text: message, confirmButtonText: 'OK' });
+                        window.Swal.fire({ icon: 'warning', title: validationMessages.generalValidationError, text: message, confirmButtonText: @json(__('client.common.ok')) });
                     } else if (window.toastr && typeof window.toastr.warning === 'function') {
                         window.toastr.warning(message);
                     } else {

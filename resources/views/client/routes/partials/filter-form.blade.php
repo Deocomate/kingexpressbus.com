@@ -37,12 +37,12 @@
             <div class="flex items-center gap-3">
                 <input type="number" name="price_min" value="{{ $filterState['price_min'] ?? '' }}"
                     placeholder="{{ $priceRange['min'] ?? 0 ? number_format($priceRange['min']) : __('client.route_show.filters.price_from') }}"
-                    class="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    class="w-full rounded-sm border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
                 <span class="text-neutral-300">-</span>
                 <input type="number" name="price_max" value="{{ $filterState['price_max'] ?? '' }}"
                     placeholder="{{ $priceRange['max'] ?? 0 ? number_format($priceRange['max']) : __('client.route_show.filters.price_to') }}"
-                    class="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    class="w-full rounded-sm border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm transition focus:border-primary-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100"
                     min="0" inputmode="numeric">
             </div>
         </div>
@@ -63,7 +63,7 @@
                         <label class="cursor-pointer">
                             <input type="checkbox" name="time_ranges[]" value="{{ $key }}"
                                 @checked(in_array($key, $filterState['time_ranges'] ?? [])) class="peer sr-only">
-                            <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white">
+                            <span class="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white">
                                 {{ $range['label'] ?? $key }}
                             </span>
                         </label>
@@ -95,7 +95,7 @@
                         @endphp
                         <label class="cursor-pointer">
                             <input type="checkbox" name="services[]" value="{{ $serviceValue }}" @checked($isChecked) class="peer sr-only">
-                            <span class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white">
+                            <span class="inline-flex items-center gap-1 rounded-sm border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 transition peer-checked:border-primary-600 peer-checked:bg-primary-600 peer-checked:text-white">
                                 <i class="{{ $serviceIcon }}"></i>
                                 {{ $serviceName }}
                             </span>
@@ -130,12 +130,12 @@
 
 <div class="border-t border-amber-100 bg-amber-50/60 p-4">
     <button type="submit"
-        class="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-primary-700">
+        class="flex w-full items-center justify-center gap-2 rounded-sm bg-primary-600 py-2.5 text-sm font-semibold text-white transition duration-200 hover:bg-primary-700">
         <i class="fa-solid fa-check"></i>
         {{ __('client.route_show.filters.apply_button') }}
     </button>
     <a href="{{ $clearFiltersUrl }}"
-        class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white py-2.5 text-sm font-medium text-neutral-600 transition duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700">
+        class="mt-2 flex w-full items-center justify-center gap-2 rounded-sm border border-neutral-200 bg-white py-2.5 text-sm font-medium text-neutral-600 transition duration-200 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700">
         <i class="fa-solid fa-rotate-left"></i>
         {{ __('client.route_show.filters.clear_button') }}
     </a>

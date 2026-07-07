@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Enums\BookingStatus;
 use App\Filament\Resources\Bookings\BookingResource;
@@ -238,6 +238,16 @@ test('booking table formats status and payment states in Vietnamese', function (
 });
 
 test('admin media URLs support client asset paths', function () {
-    expect(SystemHelper::mediaUrl('/client/images/demo.jpg'))
-        ->toBe(asset('client/images/demo.jpg'));
+    expect(SystemHelper::mediaUrl('/assets/client/images/demo.jpg'))
+        ->toBe(asset('assets/client/images/demo.jpg'));
+});
+
+test('resolves legacy client image paths via mediaUrl', function () {
+    expect(SystemHelper::mediaUrl('/client/images/city_imgs/ha-noi.jpg'))
+        ->toBe(asset('assets/client/images/city_imgs/ha-noi.jpg'));
+});
+
+test('resolves legacy userfiles paths via mediaUrl', function () {
+    expect(SystemHelper::mediaUrl('/userfiles/files/kingexpressbus/cabin/1.jpg'))
+        ->toBe(Storage::disk('public')->url('media/files/kingexpressbus/cabin/1.jpg'));
 });

@@ -1,5 +1,5 @@
 {{-- ===== resources/views/client/contact/index.blade.php ===== --}}
-<x-client.layout :title="$title" :description="$description" body-class="bg-[#F8FAFC] text-slate-800">
+<x-client.layout :title="$title" :description="$description" body-class="bg-page text-ink">
     @php
         $safeExternalUrl = static function (?string $url): ?string {
             if (!$url) {
@@ -33,42 +33,42 @@
                 'label' => __('client.contact.channels.hotline'),
                 'href' => data_get($webProfile, 'hotline') ? 'tel:' . preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) : null,
                 'icon' => 'fa-solid fa-phone-volume',
-                'tone' => 'from-amber-100 to-amber-50 text-amber-700 border-amber-200',
+                'tone' => 'bg-amber-50 text-amber-700 border-amber-200',
             ],
             [
                 'value' => data_get($webProfile, 'phone'),
                 'label' => __('client.contact.channels.care'),
                 'href' => data_get($webProfile, 'phone') ? 'tel:' . preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'phone')) : null,
                 'icon' => 'fa-solid fa-headset',
-                'tone' => 'from-blue-100 to-blue-50 text-blue-700 border-blue-200',
+                'tone' => 'bg-blue-50 text-blue-700 border-blue-200',
             ],
             [
                 'value' => data_get($webProfile, 'email'),
                 'label' => __('client.contact.channels.email'),
                 'href' => data_get($webProfile, 'email') ? 'mailto:' . data_get($webProfile, 'email') : null,
                 'icon' => 'fa-regular fa-envelope',
-                'tone' => 'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200',
+                'tone' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
             ],
             [
                 'value' => 'Facebook',
                 'label' => __('client.contact.channels.facebook'),
                 'href' => $facebookUrl,
                 'icon' => 'fa-brands fa-facebook-f',
-                'tone' => 'from-sky-100 to-sky-50 text-sky-700 border-sky-200',
+                'tone' => 'bg-sky-50 text-sky-700 border-sky-200',
             ],
             [
                 'value' => 'Zalo',
                 'label' => __('client.contact.channels.zalo'),
                 'href' => $zaloUrl,
                 'icon' => 'fa-solid fa-comments',
-                'tone' => 'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200',
+                'tone' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
             ],
             [
                 'value' => data_get($webProfile, 'whatsapp'),
                 'label' => __('client.contact.channels.whatsapp'),
                 'href' => data_get($webProfile, 'whatsapp') ? 'https://wa.me/' . preg_replace('/[^\d]/', '', (string) data_get($webProfile, 'whatsapp')) : null,
                 'icon' => 'fa-brands fa-whatsapp',
-                'tone' => 'from-green-100 to-green-50 text-green-700 border-green-200',
+                'tone' => 'bg-green-50 text-green-700 border-green-200',
             ],
         ];
     @endphp
@@ -87,8 +87,8 @@
 
             .contact-hero-bg {
                 background-image:
-                    linear-gradient(108deg, rgba(4, 17, 31, 0.9), rgba(4, 17, 31, 0.64) 54%, rgba(255, 155, 0, 0.36)),
-                    url('/client/images/city_imgs/ha-noi.jpg');
+                    linear-gradient(180deg, rgba(4, 17, 31, 0.58), rgba(4, 17, 31, 0.78)),
+                    url('/assets/client/images/city_imgs/ha-noi.jpg');
                 background-size: cover;
                 background-position: center;
                 animation: contact-hero-shift 17s ease-in-out infinite alternate;
@@ -97,7 +97,7 @@
             .contact-map-wrap {
                 position: relative;
                 overflow: hidden;
-                border-radius: 1rem;
+                border-radius: 2px;
                 min-height: 320px;
             }
 
@@ -121,10 +121,10 @@
     {{-- Header được render trong x-client.layout --}}
 
     {{-- HERO/SEARCH --}}
-    <section class="contact-hero-bg ksb-section-hero relative overflow-visible px-4">
+    <section class="contact-hero-bg ksb-section-hero relative z-elevated overflow-visible px-4">
         <div class="container mx-auto max-w-7xl">
             <div class="max-w-3xl">
-                <span class="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
+                <span class="mb-4 inline-flex items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
                     <i class="fa-solid fa-headset" aria-hidden="true"></i>
                     {{ __('client.contact.hero.badge') }}
                 </span>
@@ -139,34 +139,34 @@
             <div class="mt-6 flex flex-wrap gap-3">
                 @if (data_get($webProfile, 'hotline'))
                     <a href="tel:{{ preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) }}"
-                        class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
+                        class="inline-flex items-center gap-2 rounded-sm bg-primary-600 px-5 py-3 text-sm font-bold text-white  transition hover:bg-primary-700 ">
                         <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
                         {{ data_get($webProfile, 'hotline') }}
                     </a>
                 @endif
                 @if ($zaloUrl)
                     <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer"
-                        class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
+                        class="inline-flex items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20 ">
                         <i class="fa-solid fa-comments" aria-hidden="true"></i>
                         {{ __('client.contact.hero.zalo_cta') }}
                     </a>
                 @endif
             </div>
 
-            <div class="ksb-dropdown relative mt-8">
+            <div class="ksb-hero-search mt-8">
                 <x-client.search-bar :submit-label="__('client.contact.hero.search_submit')" />
             </div>
 
             <div class="mt-6 grid gap-3 sm:grid-cols-3">
-                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                <article class="rounded-sm border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
                     <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.routes') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'route_count', 0)) }}+</p>
                 </article>
-                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                <article class="rounded-sm border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
                     <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.fleet') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'bus_count', 0)) }}+</p>
                 </article>
-                <article class="rounded-2xl border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
+                <article class="rounded-sm border border-white/20 bg-white/10 p-4 text-white backdrop-blur-sm">
                     <p class="text-xs uppercase tracking-wide text-white/80">{{ __('client.contact.hero.stats.trips') }}</p>
                     <p class="mt-2 text-2xl font-extrabold">{{ number_format(data_get($stats, 'trip_count', 0)) }}+</p>
                 </article>
@@ -177,7 +177,7 @@
     {{-- MAIN CONTENT --}}
     <section class="ksb-section px-4">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
-            <article class="lg:col-span-7 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
+            <article class="lg:col-span-7 rounded-sm border border-amber-100 bg-white p-5  md:p-7">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.support_channels') }}</p>
                 <h2 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.support_title') }}</h2>
                 <p class="mt-2 text-sm text-slate-500 md:text-base">{{ __('client.contact.support_desc') }}</p>
@@ -187,9 +187,9 @@
                         @if ($channel['href'])
                             <a href="{{ $channel['href'] }}"
                                 @if (str_starts_with($channel['href'], 'http')) target="_blank" rel="noopener noreferrer" @endif
-                                class="group rounded-2xl border bg-gradient-to-br p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl {{ $channel['tone'] }}">
+                                class="group rounded-sm border p-4 transition-colors duration-200 hover:border-brand-600/40 {{ $channel['tone'] }}">
                                 <div class="flex items-start gap-3">
-                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 text-base">
+                                    <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-white/80 text-base">
                                         <i class="{{ $channel['icon'] }}" aria-hidden="true"></i>
                                     </span>
                                     <span class="min-w-0">
@@ -204,38 +204,38 @@
             </article>
 
             <aside class="lg:col-span-5 space-y-6">
-                <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
+                <article class="rounded-sm border border-amber-100 bg-white p-5  md:p-6">
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.working_hours') }}</p>
                     <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ __('client.contact.working_hours_title') }}</h3>
                     <div class="mt-5 space-y-3">
-                        <div class="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                        <div class="flex items-center justify-between rounded-sm border border-emerald-200 bg-emerald-50 p-3">
                             <p class="text-sm font-semibold text-slate-800">{{ __('client.contact.hours.weekday_label') }}</p>
                             <p class="text-sm font-extrabold text-emerald-700">07:00 - 22:00</p>
                         </div>
-                        <div class="flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50 p-3">
+                        <div class="flex items-center justify-between rounded-sm border border-blue-200 bg-blue-50 p-3">
                             <p class="text-sm font-semibold text-slate-800">{{ __('client.contact.hours.weekend_label') }}</p>
                             <p class="text-sm font-extrabold text-blue-700">08:00 - 21:00</p>
                         </div>
-                        <p class="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                        <p class="rounded-sm border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                             <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                             {{ __('client.contact.hours.note') }}
                         </p>
                     </div>
                 </article>
 
-                <article class="rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-6">
+                <article class="rounded-sm border border-amber-100 bg-white p-5  md:p-6">
                     <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.offices') }}</p>
                     <h3 class="mt-1 text-xl font-extrabold text-slate-800 md:text-2xl">{{ __('client.contact.offices_title') }}</h3>
                     <div class="mt-4 max-h-72 space-y-2 overflow-y-auto pr-1">
                         @forelse ($officeItems as $office)
-                            <div class="rounded-xl border border-slate-200 bg-slate-50 p-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-soft">
+                            <div class="rounded-sm border border-slate-200 bg-slate-50 p-3 transition-all duration-300  hover:border-primary-200 hover:">
                                 <p class="text-sm font-bold text-slate-800">{{ data_get($office, 'name', __('client.contact.office_fallback_name')) }}</p>
                                 <p class="mt-1 text-xs text-slate-500 md:text-sm">
                                     {{ data_get($office, 'address', __('client.booking.common.updating')) }}, {{ data_get($office, 'district_name', '') }}, {{ data_get($office, 'province_name', '') }}
                                 </p>
                             </div>
                         @empty
-                            <p class="rounded-xl border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">{{ __('client.contact.no_offices') }}</p>
+                            <p class="rounded-sm border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">{{ __('client.contact.no_offices') }}</p>
                         @endforelse
                     </div>
                 </article>
@@ -245,20 +245,20 @@
 
     <section class="ksb-section bg-white px-4">
         <div class="container mx-auto max-w-7xl grid grid-cols-1 gap-6 lg:grid-cols-12">
-            <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-[#fffdf8] p-5 shadow-soft md:p-7" x-data="{ openFaq: 0 }">
+            <article class="lg:col-span-6 rounded-sm border border-amber-100 bg-[#fffdf8] p-5  md:p-7" x-data="{ openFaq: 0 }">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.faq_badge') }}</p>
                 <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.headings.faq') }}</h3>
 
                 <div class="mt-5 space-y-3">
                     @foreach($faqItems as $index => $faq)
-                        <div class="rounded-xl border border-amber-100 bg-white">
+                        <div class="rounded-sm border border-amber-100 bg-white">
                             <button type="button" @click="openFaq = openFaq === {{ $index }} ? -1 : {{ $index }}"
                                 id="contact-faq-trigger-{{ $index }}"
                                 :aria-expanded="openFaq === {{ $index }}"
                                 aria-controls="contact-faq-panel-{{ $index }}"
                                 class="flex w-full items-center justify-between gap-3 p-4 text-left">
                                 <span class="text-sm font-bold text-slate-800 md:text-base">{{ $faq['question'] }}</span>
-                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700 transition" :class="openFaq === {{ $index }} ? 'rotate-180' : ''">
+                                <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-primary-50 text-primary-700 transition" :class="openFaq === {{ $index }} ? 'rotate-180' : ''">
                                     <i class="fa-solid fa-chevron-down text-xs" aria-hidden="true"></i>
                                 </span>
                             </button>
@@ -274,16 +274,16 @@
                 </div>
             </article>
 
-            <article class="lg:col-span-6 rounded-2xl border border-amber-100 bg-white p-5 shadow-soft md:p-7">
+            <article class="lg:col-span-6 rounded-sm border border-amber-100 bg-white p-5  md:p-7">
                 <p class="text-xs font-bold uppercase tracking-wider text-primary-600">{{ __('client.contact.headings.map') }}</p>
                 <h3 class="mt-1 text-2xl font-extrabold text-slate-800 md:text-3xl">{{ __('client.contact.map_desc') }}</h3>
 
                 @if ($mapEmbedSrc)
-                    <div class="contact-map-wrap mt-5 border border-amber-100 bg-slate-50 shadow-soft">
+                    <div class="contact-map-wrap mt-5 border border-amber-100 bg-slate-50 ">
                         <iframe src="{{ $mapEmbedSrc }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
                     </div>
                 @else
-                    <div class="mt-5 rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                    <div class="mt-5 rounded-sm border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
                         {{ __('client.contact.map_updating') }}
                     </div>
                 @endif
@@ -293,23 +293,23 @@
 
     <section class="ksb-section-cta px-4">
         <div class="container mx-auto max-w-7xl">
-            <div class="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-soft">
-                <div class="pointer-events-none absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/70"></div>
+            <div class="relative overflow-hidden rounded-sm border border-slate-800 bg-slate-900 ">
+                <div class="pointer-events-none absolute inset-0 bg-contrast-900/90"></div>
                 <div class="relative grid items-center gap-6 p-6 text-white md:p-12 lg:grid-cols-[1.15fr_0.85fr]">
                     <div>
-                        <p class="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">{{ __('client.contact.cta.badge') }}</p>
+                        <p class="inline-flex rounded-sm bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber-200">{{ __('client.contact.cta.badge') }}</p>
                         <h3 class="mt-3 text-2xl font-extrabold leading-tight md:text-4xl">{{ __('client.contact.cta.title') }}</h3>
                         <p class="mt-4 max-w-2xl text-sm text-slate-200 md:text-base">{{ __('client.contact.cta.subtitle') }}</p>
                     </div>
                     <div class="flex flex-wrap gap-3 lg:justify-end">
                         <a href="{{ route('client.home') }}"
-                            class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white shadow-soft transition hover:bg-primary-700 active:scale-95">
+                            class="inline-flex items-center gap-2 rounded-sm bg-primary-600 px-6 py-3 text-sm font-bold text-white  transition hover:bg-primary-700 ">
                             <i class="fa-solid fa-ticket" aria-hidden="true"></i>
                             {{ __('client.contact.cta.book_button') }}
                         </a>
                         @if (data_get($webProfile, 'hotline'))
                             <a href="tel:{{ preg_replace('/[^\d+]/', '', (string) data_get($webProfile, 'hotline')) }}"
-                                class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20 active:scale-95">
+                                class="inline-flex items-center gap-2 rounded-sm border border-white/25 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/20 ">
                                 <i class="fa-solid fa-phone" aria-hidden="true"></i>
                                 {{ __('client.contact.cta.call_button') }}
                             </a>

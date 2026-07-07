@@ -24,9 +24,9 @@
     ];
 @endphp
 
-<div x-data="kingSearchBar(@js($searchPayload))" x-init="init()" class="relative">
+<div x-data="kingSearchBar(@js($searchPayload))" x-init="init()" class="kx-search-bar">
     <form x-ref="form" action="{{ $action }}" method="GET" @submit.prevent="submitForm"
-        class="ksb-surface p-3 sm:p-4">
+        class="kx-surface p-3 sm:p-4" :class="activeDropdown ? 'overflow-visible' : ''">
         <input type="hidden" name="origin_id" :value="origin.id || ''">
         <input type="hidden" name="origin_type" :value="origin.type || ''">
         <input type="hidden" name="origin_label" :value="origin.name || ''">
@@ -36,113 +36,113 @@
         <input type="hidden" name="departure_date" :value="departureDate">
         <input type="hidden" name="return_date" :value="showReturn ? returnDate : ''">
 
-        <div class="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1.2fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_auto] lg:items-center">
-            <div class="relative" @click.outside="if (activeDropdown === 'origin') activeDropdown = null">
+        <div class="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_auto_minmax(0,1.2fr)_minmax(0,0.85fr)_minmax(0,0.85fr)_auto] lg:items-center" :class="activeDropdown ? 'overflow-visible' : ''">
+            <div class="relative" :class="activeDropdown === 'origin' ? 'kx-search-bar__field--open' : ''" @click.outside="if (activeDropdown === 'origin') activeDropdown = null">
                 <button type="button" @click="toggleDropdown('origin')"
-                    class="ksb-form-control group flex h-14 w-full items-center gap-3 px-4 text-left"
-                    :class="activeDropdown === 'origin' ? 'border-primary-600 bg-white shadow-[var(--ksb-focus)]' : ''"
+                    class="kx-form-control group flex h-14 w-full items-center gap-3 px-4 text-left"
+                    :class="activeDropdown === 'origin' ? 'border-brand-600 bg-white shadow-[0_0_0_3px_rgba(255,155,0,0.24)]' : ''"
                     aria-haspopup="listbox" :aria-expanded="activeDropdown === 'origin'">
-                    <img src="{{ asset('/client/icons/pickup.svg') }}" alt="{{ __('client.search.origin_icon_alt') }}" class="h-5 w-5 shrink-0">
+                    <img src="{{ asset('/assets/client/icons/pickup.svg') }}" alt="{{ __('client.search.origin_icon_alt') }}" class="h-5 w-5 shrink-0">
                     <span class="min-w-0 flex-1">
-                        <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400" x-text="translations.originLabel"></span>
-                        <span class="block truncate text-sm font-bold text-slate-800"
+                        <span class="block text-[11px] font-semibold uppercase tracking-wide text-muted" x-text="translations.originLabel"></span>
+                        <span class="block truncate text-sm font-bold text-ink"
                             x-text="origin.name || '{{ __('client.search.origin_placeholder') }}'"></span>
                     </span>
-                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition" :class="activeDropdown === 'origin' ? 'rotate-180 text-primary-600' : ''"></i>
+                    <i class="fa-solid fa-chevron-down text-xs text-muted transition" :class="activeDropdown === 'origin' ? 'rotate-180 text-brand-600' : ''"></i>
                 </button>
 
-                <div x-show="activeDropdown === 'origin'" x-cloak x-transition class="ksb-dropdown absolute left-0 right-0 top-[calc(100%+8px)]">
-                    <div class="ksb-slide-fade overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-card">
-                        <div class="border-b border-amber-100 p-3">
+                <div x-show="activeDropdown === 'origin'" x-cloak x-transition class="kx-search-bar__menu">
+                    <div class="overflow-hidden rounded-sm border border-line-strong bg-white shadow-card">
+                        <div class="border-b border-line-strong p-3">
                             <label class="relative block">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted"></i>
                                 <input x-ref="originSearch" x-model="queries.origin" type="text" autocomplete="off"
-                                    class="ksb-form-control h-11 w-full pl-9 pr-3 text-sm"
+                                    class="kx-form-control h-11 w-full pl-9 pr-3 text-sm"
                                     :placeholder="translations.originLabel">
                             </label>
                         </div>
                         <div class="max-h-72 overflow-y-auto p-2" role="listbox">
                             <template x-for="group in groupedLocations('origin')" :key="group.type">
                                 <div class="mb-2 last:mb-0">
-                                    <p class="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-400" x-text="group.label"></p>
+                                    <p class="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-muted" x-text="group.label"></p>
                                     <template x-for="item in group.items" :key="item.type + '-' + item.id">
                                         <button type="button" @click="selectLocation('origin', item)"
-                                            class="mb-1 flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left transition last:mb-0"
-                                            :class="isSelected('origin', item) ? 'bg-primary-50 text-primary-700' : 'text-slate-700 hover:bg-slate-50'">
-                                            <i class="fa-solid fa-location-dot mt-1 text-xs" :class="isSelected('origin', item) ? 'text-primary-600' : 'text-slate-300'"></i>
+                                            class="mb-1 flex w-full items-start gap-2 rounded-sm px-3 py-2 text-left transition last:mb-0"
+                                            :class="isSelected('origin', item) ? 'bg-brand-50 text-brand-700' : 'text-ink hover:bg-panel'">
+                                            <i class="fa-solid fa-location-dot mt-1 text-xs" :class="isSelected('origin', item) ? 'text-brand-600' : 'text-line-strong'"></i>
                                             <span class="min-w-0">
                                                 <span class="block truncate text-sm font-semibold" x-text="item.name"></span>
-                                                <span class="block truncate text-xs text-slate-500" x-text="item.context || item.type_label || ''"></span>
+                                                <span class="block truncate text-xs text-muted" x-text="item.context || item.type_label || ''"></span>
                                             </span>
                                         </button>
                                     </template>
                                 </div>
                             </template>
-                            <p x-show="groupedLocations('origin').length === 0" class="px-3 py-5 text-center text-sm text-slate-500" x-text="translations.noResults"></p>
+                            <p x-show="groupedLocations('origin').length === 0" class="px-3 py-5 text-center text-sm text-muted" x-text="translations.noResults"></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <button type="button" @click="swapLocations"
-                class="hidden h-11 w-11 items-center justify-center rounded-xl border border-primary-100 bg-white text-primary-600 shadow-soft transition hover:border-primary-500 hover:text-primary-700 active:scale-95 lg:inline-flex"
+                class="hidden h-11 w-11 items-center justify-center rounded-sm border border-brand-100 bg-white text-brand-600 transition hover:border-brand-500 hover:text-brand-700  lg:inline-flex"
                 aria-label="{{ __('client.search.swap_aria') }}">
                 <i class="fa-solid fa-right-left"></i>
             </button>
 
-            <div class="relative" @click.outside="if (activeDropdown === 'destination') activeDropdown = null">
+            <div class="relative" :class="activeDropdown === 'destination' ? 'kx-search-bar__field--open' : ''" @click.outside="if (activeDropdown === 'destination') activeDropdown = null">
                 <button type="button" @click="toggleDropdown('destination')"
-                    class="ksb-form-control group flex h-14 w-full items-center gap-3 px-4 text-left"
-                    :class="activeDropdown === 'destination' ? 'border-primary-600 bg-white shadow-[var(--ksb-focus)]' : ''"
+                    class="kx-form-control group flex h-14 w-full items-center gap-3 px-4 text-left"
+                    :class="activeDropdown === 'destination' ? 'border-brand-600 bg-white shadow-[0_0_0_3px_rgba(255,155,0,0.24)]' : ''"
                     aria-haspopup="listbox" :aria-expanded="activeDropdown === 'destination'">
-                    <img src="{{ asset('/client/icons/dropoff.svg') }}" alt="{{ __('client.search.destination_icon_alt') }}" class="h-5 w-5 shrink-0">
+                    <img src="{{ asset('/assets/client/icons/dropoff.svg') }}" alt="{{ __('client.search.destination_icon_alt') }}" class="h-5 w-5 shrink-0">
                     <span class="min-w-0 flex-1">
-                        <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400" x-text="translations.destinationLabel"></span>
-                        <span class="block truncate text-sm font-bold text-slate-800"
+                        <span class="block text-[11px] font-semibold uppercase tracking-wide text-muted" x-text="translations.destinationLabel"></span>
+                        <span class="block truncate text-sm font-bold text-ink"
                             x-text="destination.name || '{{ __('client.search.destination_placeholder') }}'"></span>
                     </span>
-                    <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition" :class="activeDropdown === 'destination' ? 'rotate-180 text-primary-600' : ''"></i>
+                    <i class="fa-solid fa-chevron-down text-xs text-muted transition" :class="activeDropdown === 'destination' ? 'rotate-180 text-brand-600' : ''"></i>
                 </button>
 
-                <div x-show="activeDropdown === 'destination'" x-cloak x-transition class="ksb-dropdown absolute left-0 right-0 top-[calc(100%+8px)]">
-                    <div class="ksb-slide-fade overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-card">
-                        <div class="border-b border-amber-100 p-3">
+                <div x-show="activeDropdown === 'destination'" x-cloak x-transition class="kx-search-bar__menu">
+                    <div class="overflow-hidden rounded-sm border border-line-strong bg-white shadow-card">
+                        <div class="border-b border-line-strong p-3">
                             <label class="relative block">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted"></i>
                                 <input x-ref="destinationSearch" x-model="queries.destination" type="text" autocomplete="off"
-                                    class="ksb-form-control h-11 w-full pl-9 pr-3 text-sm"
+                                    class="kx-form-control h-11 w-full pl-9 pr-3 text-sm"
                                     :placeholder="translations.destinationLabel">
                             </label>
                         </div>
                         <div class="max-h-72 overflow-y-auto p-2" role="listbox">
                             <template x-for="group in groupedLocations('destination')" :key="group.type">
                                 <div class="mb-2 last:mb-0">
-                                    <p class="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-slate-400" x-text="group.label"></p>
+                                    <p class="px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-muted" x-text="group.label"></p>
                                     <template x-for="item in group.items" :key="item.type + '-' + item.id">
                                         <button type="button" @click="selectLocation('destination', item)"
-                                            class="mb-1 flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left transition last:mb-0"
-                                            :class="isSelected('destination', item) ? 'bg-primary-50 text-primary-700' : 'text-slate-700 hover:bg-slate-50'">
-                                            <i class="fa-solid fa-location-dot mt-1 text-xs" :class="isSelected('destination', item) ? 'text-primary-600' : 'text-slate-300'"></i>
+                                            class="mb-1 flex w-full items-start gap-2 rounded-sm px-3 py-2 text-left transition last:mb-0"
+                                            :class="isSelected('destination', item) ? 'bg-brand-50 text-brand-700' : 'text-ink hover:bg-panel'">
+                                            <i class="fa-solid fa-location-dot mt-1 text-xs" :class="isSelected('destination', item) ? 'text-brand-600' : 'text-line-strong'"></i>
                                             <span class="min-w-0">
                                                 <span class="block truncate text-sm font-semibold" x-text="item.name"></span>
-                                                <span class="block truncate text-xs text-slate-500" x-text="item.context || item.type_label || ''"></span>
+                                                <span class="block truncate text-xs text-muted" x-text="item.context || item.type_label || ''"></span>
                                             </span>
                                         </button>
                                     </template>
                                 </div>
                             </template>
-                            <p x-show="groupedLocations('destination').length === 0" class="px-3 py-5 text-center text-sm text-slate-500" x-text="translations.noResults"></p>
+                            <p x-show="groupedLocations('destination').length === 0" class="px-3 py-5 text-center text-sm text-muted" x-text="translations.noResults"></p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <button type="button" @click="openDeparturePicker"
-                class="ksb-form-control group flex h-14 w-full items-center gap-3 px-4 text-left">
-                <img src="{{ asset('/client/icons/date.svg') }}" alt="{{ __('client.search.departure_icon_alt') }}" class="h-5 w-5 shrink-0">
+                class="kx-form-control group flex h-14 w-full items-center gap-3 px-4 text-left">
+                <img src="{{ asset('/assets/client/icons/date.svg') }}" alt="{{ __('client.search.departure_icon_alt') }}" class="h-5 w-5 shrink-0">
                 <span class="min-w-0 flex-1">
-                    <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400" x-text="translations.departureLabel"></span>
-                    <span class="block truncate text-sm font-bold" :class="departureDate ? 'text-slate-800' : 'text-slate-400'" x-text="departureDate || translations.datePlaceholder"></span>
+                    <span class="block text-[11px] font-semibold uppercase tracking-wide text-muted" x-text="translations.departureLabel"></span>
+                    <span class="block truncate text-sm font-bold" :class="departureDate ? 'text-ink' : 'text-muted'" x-text="departureDate || translations.datePlaceholder"></span>
                 </span>
                 <input x-ref="departureInput" type="text" class="pointer-events-none absolute h-0 w-0 opacity-0" aria-hidden="true" tabindex="-1">
             </button>
@@ -151,15 +151,15 @@
                 <template x-if="showReturn">
                     <div class="relative">
                         <button type="button" @click="openReturnPicker"
-                            class="ksb-form-control group flex h-14 w-full items-center gap-3 px-4 pr-10 text-left">
-                            <img src="{{ asset('/client/icons/date.svg') }}" alt="{{ __('client.search.return_icon_alt') }}" class="h-5 w-5 shrink-0">
+                            class="kx-form-control group flex h-14 w-full items-center gap-3 px-4 pr-10 text-left">
+                            <img src="{{ asset('/assets/client/icons/date.svg') }}" alt="{{ __('client.search.return_icon_alt') }}" class="h-5 w-5 shrink-0">
                             <span class="min-w-0 flex-1">
-                                <span class="block text-[11px] font-semibold uppercase tracking-wide text-slate-400" x-text="translations.returnLabel"></span>
-                                <span class="block truncate text-sm font-bold" :class="returnDate ? 'text-slate-800' : 'text-slate-400'" x-text="returnDate || translations.datePlaceholder"></span>
+                                <span class="block text-[11px] font-semibold uppercase tracking-wide text-muted" x-text="translations.returnLabel"></span>
+                                <span class="block truncate text-sm font-bold" :class="returnDate ? 'text-ink' : 'text-muted'" x-text="returnDate || translations.datePlaceholder"></span>
                             </span>
                         </button>
                         <button type="button" @click="removeReturnDate"
-                            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-500"
+                            class="absolute right-2 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-sm text-muted transition hover:bg-rose-50 hover:text-rose-500"
                             aria-label="{{ __('client.search.remove_return_aria') }}">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -168,7 +168,7 @@
                 </template>
                 <template x-if="!showReturn">
                     <button type="button" @click="enableReturnDate"
-                        class="flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-primary-500/35 bg-primary-50 text-sm font-semibold text-primary-700 transition hover:border-primary-600 hover:bg-primary-100 active:scale-[0.99]">
+                        class="flex h-14 w-full items-center justify-center gap-2 rounded-sm border border-dashed border-brand-500/35 bg-brand-50 text-sm font-semibold text-brand-700 transition hover:border-brand-600 hover:bg-brand-100 ">
                         <i class="fa-solid fa-plus"></i>
                         <span x-text="translations.addReturn"></span>
                     </button>
@@ -177,17 +177,17 @@
 
             <div class="flex items-center gap-2 lg:justify-end">
                 <button type="button" @click="swapLocations"
-                    class="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition hover:border-primary-500 hover:text-primary-600 active:scale-95 lg:hidden"
+                    class="inline-flex h-12 w-12 items-center justify-center rounded-sm border border-line-strong text-muted transition hover:border-brand-500 hover:text-brand-600  lg:hidden"
                     aria-label="{{ __('client.search.swap_aria') }}">
                     <i class="fa-solid fa-right-left"></i>
                 </button>
                 <button type="submit" x-ref="submitButton" data-default-label="{{ $submitLabel ?? __('client.search.submit') }}"
-                    class="ksb-btn-primary h-14 min-w-36 px-6 text-sm disabled:cursor-not-allowed disabled:opacity-70">
+                    class="kx-btn-primary h-14 min-w-36 px-6 text-sm disabled:cursor-not-allowed disabled:opacity-70">
                     {{ $submitLabel ?? __('client.search.submit') }}
                 </button>
             </div>
         </div>
 
-        <p x-show="errorMessage" x-text="errorMessage" class="mt-3 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-sm text-rose-600"></p>
+        <p x-show="errorMessage" x-text="errorMessage" class="mt-3 rounded-sm border border-rose-100 bg-rose-50 px-3 py-2 text-sm text-rose-600"></p>
     </form>
 </div>

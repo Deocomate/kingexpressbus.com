@@ -5,6 +5,8 @@ namespace App\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+use App\Helpers\SystemHelper;
+
 /**
  * Service class for handling homepage-related business logic.
  */
@@ -52,6 +54,24 @@ class HomeService
 
                 return $bus;
             });
+    }
+
+    /**
+     * Get curated destination tiles for the homepage mosaic.
+     */
+    public function getFeaturedDestinations(): Collection
+    {
+        return collect([
+            ['key' => 'hanoi', 'image' => SystemHelper::clientAsset('images/city_imgs/ha-noi.jpg'), 'layout' => 'hanoi'],
+            ['key' => 'sapa', 'image' => SystemHelper::clientAsset('images/city_imgs/sapa.jpg'), 'layout' => 'sapa'],
+            ['key' => 'ninh_binh', 'image' => SystemHelper::clientAsset('images/city_imgs/ninh-binh.jpg'), 'layout' => 'ninh_binh'],
+            ['key' => 'hue', 'image' => SystemHelper::clientAsset('images/city_imgs/hue.jpg'), 'layout' => 'hue'],
+            ['key' => 'da_nang', 'image' => SystemHelper::clientAsset('images/city_imgs/da-nang.jpg'), 'layout' => 'da_nang'],
+            ['key' => 'hoi_an', 'image' => SystemHelper::clientAsset('images/city_imgs/hoi-an.jpg'), 'layout' => 'hoi_an'],
+            ['key' => 'cat_ba', 'image' => SystemHelper::clientAsset('images/city_imgs/cat-ba.jpg'), 'layout' => 'cat_ba'],
+            ['key' => 'phong_nha', 'image' => SystemHelper::clientAsset('images/city_imgs/phong-nha.jpg'), 'layout' => 'phong_nha'],
+            ['key' => 'ha_giang', 'image' => SystemHelper::clientAsset('images/city_imgs/ha-giang.jpg'), 'layout' => 'ha_giang'],
+        ]);
     }
 
     /**

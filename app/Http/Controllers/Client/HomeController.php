@@ -25,12 +25,15 @@ class HomeController extends Controller
         // Featured buses (single-tenant: show buses instead of companies)
         $featuredBuses = $this->homeService->getFeaturedBuses(8);
 
+        $featuredDestinations = $this->homeService->getFeaturedDestinations();
+
         // Statistics (optional for display)
         $statistics = $this->homeService->getStatistics();
 
         return view('client.home.index', compact(
             'popularRoutes',
             'featuredBuses',
+            'featuredDestinations',
             'statistics'
         ));
     }

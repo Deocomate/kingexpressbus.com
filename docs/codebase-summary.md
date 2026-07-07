@@ -28,6 +28,8 @@ Main responsibilities:
 - Locale switching (`en`, `vi`)
 - Profile/account pages under customer-auth middleware
 
+Client UI assets are built with Vite + Tailwind from `resources/css/app.css` and `resources/js/app.js`. Shared client design guidance lives in `docs/design-guidelines.md`.
+
 ### 2.3 Authentication & Middleware
 
 - Admin auth middleware: `App\Http\Middleware\Roles\AdminAuthMiddleware`
@@ -40,6 +42,11 @@ Main responsibilities:
 - `app/Http/Controllers/Auth`: authentication controllers
 - `app/Services`: business logic services for booking, bus, route, trip, and home
 - `app/Models`: Eloquent models (Booking, Bus, District, Province, Route, Stop, Trip, User, etc.)
+- `resources/views/client`: public client Blade views
+- `resources/css` and `resources/js`: Vite-built client frontend assets
+- `assets/client`: committed client static images and icons (served via `public/assets/client`)
+- `assets/admin`: admin static assets; Filament vendor assets publish to `public/assets/admin/filament`
+- `storage/app/public`: user uploads from Filament (`buses/`, `routes/`, `media/`, etc.)
 - `routes/web.php`: primary route definitions
 - `database/migrations`: schema source of truth
 
@@ -89,6 +96,5 @@ Legacy historical tables (dropped in single-tenant refactor):
 ## 6. Dependencies
 
 - `laravel/framework` ^12.0
-- `ckfinder/ckfinder-laravel-package` ^5.0
 - `resend/resend-php` ^0.11
 - `laravel/sanctum` ^4.2

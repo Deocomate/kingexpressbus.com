@@ -1,7 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 .claude/*
 plans/*
-assets/*
 dist/*
 coverage/*
 build/*
@@ -126,7 +125,8 @@ yarn-error.log
 .claude/
 _codebase/
 .github/
-/public/userfiles
+/assets/admin/filament/
+/public/assets/
 
 # Database files - should not be in production
 *.sql
@@ -156,10 +156,6 @@ backup_*.sql
 !/storage/framework/views/.gitignore
 /storage/logs/*
 !/storage/logs/.gitignore
-
-# User uploaded files
-/public/userfiles/*
-!/public/userfiles/.gitignore
 
 # Local environment files
 .env.local

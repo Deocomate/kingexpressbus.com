@@ -105,8 +105,8 @@ function seedClientUiTripFixture(string $suffix = 'ui'): array
         'name' => 'King Sleeper '.$suffix,
         'model_name' => 'Limousine',
         'seat_count' => 34,
-        'thumbnail_url' => '/client/images/kingexpressbus/cabin/1.jpg',
-        'image_list_url' => json_encode(['/client/images/kingexpressbus/cabin/1.jpg']),
+        'thumbnail_url' => '/assets/client/images/kingexpressbus/cabin/1.jpg',
+        'image_list_url' => json_encode(['/assets/client/images/kingexpressbus/cabin/1.jpg']),
         'content' => null,
         'priority' => 10,
         'created_at' => $now,
@@ -139,12 +139,10 @@ it('renders the client shell with versioned assets and externalized search alpin
 
     $this->get(route('client.home'))
         ->assertSuccessful()
-        ->assertSee('/client/css/custom.css?v=1.1.0', false)
-        ->assertSee('/client/js/client-ui.js?v=1.1.0', false)
-        ->assertSee('Be Vietnam Pro', false)
-        ->assertSee('Manrope', false)
+        ->assertSee('/build/assets/app-', false)
         ->assertSee('x-data="kingSearchBar', false)
-        ->assertSee('ksb-hero', false);
+        ->assertSee('kx-header-top', false)
+        ->assertSee('ksb-home-hero-features', false);
 });
 
 it('renders route pages with the professional route list and drawer tokens', function () {
@@ -179,4 +177,32 @@ it('renders the booking create flow with refactored panels and primary booking C
         ->assertSee('payment-method-label', false)
         ->assertSee('ksb-sticky-summary', false)
         ->assertSee('ksb-btn-primary', false);
+});
+
+it('keeps the client frontend on Vite assets with required runtime globals', function () {
+    $legacyPatterns = [
+        'cdn.tailwindcss.com',
+        'custom.css',
+        'client-ui.js',
+        'fonts.googleapis.com',
+        'fonts.gstatic.com',
+    ];
+
+    $views = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(resource_path('views/client')));
+
+    foreach ($views as $viewPath) {
+        if (! $viewPath->isFile() || ! str_ends_with($viewPath->getFilename(), '.blade.php')) {
+            continue;
+        }
+
+        $contents = file_get_contents($viewPath->getPathname());
+
+        foreach ($legacyPatterns as $pattern) {
+            expect($contents)->not->toContain($pattern);
+        }
+    }
+
+    expect(file_exists(public_path('client/css/custom.css')))->toBeFalse()
+        ->and(file_exists(public_path('client/js/client-ui.js')))->toBeFalse()
+        ->and(file_get_contents(resource_path('js/app.js')))->toContain('window.Swal = Swal');
 });

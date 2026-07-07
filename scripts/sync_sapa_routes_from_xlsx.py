@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
 import math
@@ -321,7 +321,7 @@ def main() -> None:
                 route_description = f"Đặt vé xe giường nằm, cabin đơn, cabin đôi chất lượng cao tuyến {route_name}"
                 route_duration = compute_duration_label(route.schedules)
                 route_distance = distance_by_pair.get((route.start_key, route.end_key))
-                route_thumbnail = f"/client/images/city_imgs/{image_file_by_key[route.end_key]}"
+                route_thumbnail = f"/assets/client/images/city_imgs/{image_file_by_key[route.end_key]}"
                 route_images = json.dumps([route_thumbnail], ensure_ascii=False)
                 route_content = build_route_content(route_name, route)
                 cur.execute("SELECT id FROM provinces WHERE name=%s", (start_name,))

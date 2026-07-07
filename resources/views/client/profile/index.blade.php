@@ -6,29 +6,25 @@
         $preferredRoutes = ($preferredRoutes ?? collect())->values();
     @endphp
 
-    <section class="relative bg-neutral-800 text-white">
-        <!-- Background Image -->
-        <div class="absolute inset-0 opacity-20"
-            style="background-image: url('/userfiles/files/kingexpressbus/cabin/1.jpg'); background-size: cover; background-position: center;">
-        </div>
-        <div class="absolute inset-0 bg-neutral-800/90"></div>
+    <section class="relative border-b border-line bg-page text-ink">
+        <div class="absolute inset-0 pointer-events-none bg-page"></div>
 
         <div
             class="ksb-section-hero relative container mx-auto flex flex-col items-center justify-between gap-8 px-4 md:flex-row">
             <div class="space-y-4 text-center md:text-left">
                 <span
-                    class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-accent-500 text-white uppercase tracking-wide">
+                    class="kx-badge uppercase tracking-wide">
                     <i class="fa-solid fa-crown mr-2"></i> {{ __('client.profile_page.hero.badge') }}
                 </span>
-                <h1 class="font-display text-4xl font-semibold tracking-tight md:text-5xl">{{ __('client.profile_page.hero.greeting', ['name' => $userName]) }}</h1>
-                <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-white/80 text-base">
+                <h1 class="font-display text-4xl font-extrabold tracking-tight md:text-5xl">{{ __('client.profile_page.hero.greeting', ['name' => $userName]) }}</h1>
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-muted text-base">
                     @if ($userEmail)
-                        <span class="inline-flex items-center gap-2 transition-colors hover:text-white"><i
-                                class="fa-regular fa-envelope text-primary-400"></i>{{ $userEmail }}</span>
+                        <span class="inline-flex items-center gap-2 transition-colors hover:text-ink"><i
+                                class="fa-regular fa-envelope text-brand-600"></i>{{ $userEmail }}</span>
                     @endif
                     @if ($userPhone)
-                        <span class="inline-flex items-center gap-2 transition-colors hover:text-white"><i
-                                class="fa-solid fa-phone text-green-400"></i>{{ $userPhone }}</span>
+                        <span class="inline-flex items-center gap-2 transition-colors hover:text-ink"><i
+                                class="fa-solid fa-phone text-pickup"></i>{{ $userPhone }}</span>
                     @endif
                 </div>
             </div>
@@ -36,7 +32,7 @@
             <form method="POST" action="{{ route('client.logout') }}" class="shrink-0">
                 @csrf
                 <button type="submit"
-                    class="group relative px-6 py-3 rounded-md bg-white/10 border border-white/20 hover:bg-white/20 transition-colors duration-200 text-white font-semibold">
+                    class="kx-btn-secondary group px-6 py-3 text-sm">
                     <span class="inline-flex items-center gap-2">
                         <i class="fa-solid fa-power-off text-red-400 group-hover:text-red-300 transition-colors"></i>
                         <span>{{ __('client.nav.logout') }}</span>
@@ -46,17 +42,17 @@
         </div>
     </section>
 
-    <section class="ksb-section min-h-screen bg-neutral-50">
+    <section class="ksb-section min-h-screen bg-page">
         <div class="container mx-auto px-4 space-y-12">
 
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Card 1 -->
                 <div
-                    class="bg-white rounded-lg p-6 shadow-soft hover:shadow-card transition-shadow duration-200 border border-neutral-200">
+                    class="kx-card p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div
-                            class="w-12 h-12 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center text-xl">
+                            class="w-12 h-12 rounded-sm bg-primary-50 text-brand-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-ticket"></i>
                         </div>
                         <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.total_tickets') }}</span>
@@ -68,10 +64,10 @@
 
                 <!-- Card 2 -->
                 <div
-                    class="bg-white rounded-lg p-6 shadow-soft hover:shadow-card transition-shadow duration-200 border border-neutral-200">
+                    class="kx-card p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div
-                            class="w-12 h-12 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center text-xl">
+                            class="w-12 h-12 rounded-sm bg-accent-50 text-accent-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-clock"></i>
                         </div>
                         <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.upcoming') }}</span>
@@ -83,10 +79,10 @@
 
                 <!-- Card 3 -->
                 <div
-                    class="bg-white rounded-lg p-6 shadow-soft hover:shadow-card transition-shadow duration-200 border border-neutral-200">
+                    class="kx-card p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div
-                            class="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                            class="w-12 h-12 rounded-sm bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-flag-checkered"></i>
                         </div>
                         <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.completed') }}</span>
@@ -98,10 +94,10 @@
 
                 <!-- Card 4 -->
                 <div
-                    class="bg-white rounded-lg p-6 shadow-soft hover:shadow-card transition-shadow duration-200 border border-neutral-200">
+                    class="kx-card p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div
-                            class="w-12 h-12 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                            class="w-12 h-12 rounded-sm bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
                             <i class="fa-solid fa-wallet"></i>
                         </div>
                         <span class="text-xs font-semibold text-neutral-400 uppercase">{{ __('client.profile_page.stats.spending') }}</span>
@@ -121,16 +117,16 @@
                     <!-- Tabs Navigation -->
                     <div class="flex flex-nowrap overflow-x-auto gap-2 border-b border-neutral-200 pb-1" id="profileTabs">
                         <button
-                            class="tab-btn active whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-lg border-b-2 border-primary-600 text-primary-600 hover:bg-primary-50 transition-colors"
+                            class="tab-btn active whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-sm border-b-2 border-brand-600 text-brand-600 hover:bg-brand-50 transition-colors"
                             data-target="#upcoming">
                             {{ __('client.profile_page.tabs.upcoming') }} <span
-                                class="ml-2 px-2 py-0.5 rounded-md bg-primary-100 text-primary-600 text-xs">{{ $upcomingBookings->count() }}</span>
+                                class="ml-2 px-2 py-0.5 rounded-sm bg-brand-100 text-brand-600 text-xs">{{ $upcomingBookings->count() }}</span>
                         </button>
                         <button
-                            class="tab-btn whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-lg border-b-2 border-transparent text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-colors"
+                            class="tab-btn whitespace-nowrap px-6 py-3 text-sm font-semibold rounded-t-sm border-b-2 border-transparent text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-colors"
                             data-target="#history">
                             {{ __('client.profile_page.tabs.history') }} <span
-                                class="ml-2 px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-500 text-xs">{{ $bookingHistory->count() }}</span>
+                                class="ml-2 px-2 py-0.5 rounded-sm bg-neutral-100 text-neutral-500 text-xs">{{ $bookingHistory->count() }}</span>
                         </button>
                     </div>
 
@@ -139,15 +135,15 @@
                         @forelse ($upcomingBookings as $booking)
                             <x-client.booking-card :booking="$booking" type="upcoming" />
                         @empty
-                            <div class="bg-white rounded-lg p-10 text-center border border-dashed border-neutral-300">
+                            <div class="kx-panel p-10 text-center border-dashed">
                                 <div
-                                    class="w-20 h-20 bg-primary-50 rounded-lg flex items-center justify-center mx-auto text-primary-500 mb-4">
+                                    class="w-20 h-20 bg-primary-50 rounded-sm flex items-center justify-center mx-auto text-primary-500 mb-4">
                                     <i class="fa-solid fa-suitcase-rolling text-3xl"></i>
                                 </div>
                                 <h3 class="text-xl font-semibold text-neutral-800">{{ __('client.profile_page.empty_upcoming.title') }}</h3>
                                 <p class="text-neutral-500 mt-2">{{ __('client.profile_page.empty_upcoming.description') }}</p>
                                 <a href="{{ route('client.routes.index') }}"
-                                    class="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md font-semibold transition-colors duration-200">
+                                    class="kx-btn-primary mt-6 px-6 py-3">
                                     <i class="fa-solid fa-magnifying-glass-location"></i>
                                     {{ __('client.profile_page.empty_upcoming.cta') }}
                                 </a>
@@ -160,9 +156,9 @@
                         @forelse ($bookingHistory as $booking)
                             <x-client.booking-card :booking="$booking" type="history" />
                         @empty
-                            <div class="bg-white rounded-lg p-10 text-center border border-dashed border-neutral-300">
+                            <div class="kx-panel p-10 text-center border-dashed">
                                 <div
-                                    class="w-20 h-20 bg-neutral-50 rounded-lg flex items-center justify-center mx-auto text-neutral-400 mb-4">
+                                    class="w-20 h-20 bg-neutral-50 rounded-sm flex items-center justify-center mx-auto text-neutral-400 mb-4">
                                     <i class="fa-regular fa-calendar-xmark text-3xl"></i>
                                 </div>
                                 <h3 class="text-xl font-semibold text-neutral-800">{{ __('client.profile_page.empty_history.title') }}</h3>
@@ -182,7 +178,7 @@
                 <aside class="space-y-6">
                     <!-- Preferred Routes -->
                     @if ($preferredRoutes->isNotEmpty())
-                        <div class="bg-white border border-neutral-200 rounded-lg shadow-soft p-6">
+                        <div class="kx-panel p-6">
                             <h2 class="text-lg font-semibold text-neutral-800 mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-heart text-red-500"></i> {{ __('client.profile_page.preferred_routes.title') }}
                             </h2>
@@ -190,13 +186,13 @@
                                 @foreach ($preferredRoutes as $item)
                                     <li>
                                         <a href="{{ route('client.routes.show', ['slug' => $item['slug']]) }}"
-                                            class="group flex items-center justify-between p-3 rounded-md hover:bg-neutral-50 transition-colors border border-transparent hover:border-neutral-100">
+                                            class="group flex items-center justify-between p-3 rounded-sm hover:bg-neutral-50 transition-colors border border-transparent hover:border-neutral-100">
                                             <span
-                                                class="text-sm font-semibold text-neutral-700 group-hover:text-primary-600 transition-colors">
+                                                class="text-sm font-semibold text-neutral-700 group-hover:text-brand-600 transition-colors">
                                                 {{ $item['name'] }}
                                             </span>
                                             <span
-                                                class="inline-flex items-center gap-1 text-xs font-semibold bg-primary-100 text-primary-600 px-2 py-1 rounded-md">
+                                                class="inline-flex items-center gap-1 text-xs font-semibold bg-brand-100 text-brand-600 px-2 py-1 rounded-sm">
                                                 {{ $item['count'] }} <i class="fa-solid fa-check"></i>
                                             </span>
                                         </a>
@@ -208,7 +204,7 @@
 
                     <!-- Quick Actions / Support -->
                     <div
-                        class="bg-primary-600 rounded-lg shadow-card p-6 text-white">
+                        class="rounded-sm bg-contrast-900 p-6 text-white shadow-card">
                         <h2 class="text-lg font-semibold mb-4">{{ __('client.profile_page.support.title') }}</h2>
                         <ul class="space-y-3 text-sm text-primary-100 mb-6">
                             <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>{{ __('client.profile_page.support.item_1') }}</span></li>
@@ -216,7 +212,7 @@
                             <li class="flex gap-2"><i class="fa-solid fa-check-circle mt-1"></i> <span>{{ __('client.profile_page.support.item_3') }}</span></li>
                         </ul>
                         <a href="{{ route('client.contact') }}"
-                            class="block w-full text-center px-4 py-3 bg-white text-primary-600 rounded-md font-semibold hover:bg-neutral-50 transition-colors duration-200">
+                            class="block w-full text-center px-4 py-3 bg-white text-brand-600 rounded-sm font-semibold hover:bg-neutral-50 transition-colors duration-200">
                             {{ __('client.profile_page.support.cta') }}
                         </a>
                     </div>
@@ -236,14 +232,14 @@
                     tab.addEventListener('click', () => {
                         // Remove active classes
                         tabs.forEach(t => {
-                            t.classList.remove('border-primary-600', 'text-primary-600', 'active');
+                            t.classList.remove('border-brand-600', 'text-brand-600', 'active');
                             t.classList.add('border-transparent', 'text-neutral-500');
                         });
                         contents.forEach(c => c.classList.add('hidden'));
 
                         // Add active classes
                         tab.classList.remove('border-transparent', 'text-neutral-500');
-                        tab.classList.add('border-primary-600', 'text-primary-600', 'active');
+                        tab.classList.add('border-brand-600', 'text-brand-600', 'active');
 
                         const target = document.querySelector(tab.dataset.target);
                         target.classList.remove('hidden');

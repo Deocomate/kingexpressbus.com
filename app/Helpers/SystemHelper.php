@@ -87,6 +87,45 @@ class SystemHelper
         return $parsed ? $parsed->format('Y-m-d') : date('Y-m-d');
     }
 
+    public static function clientAsset(string $relativePath): string
+    {
+        $relativePath = ltrim($relativePath, '/');
+
+        return '/'.config('assets.client_static_prefix').'/'.$relativePath;
+    }
+
+    public static function normalizeMediaPath(string $path): string
+    {
+        $value = trim($path);
+
+        if ($value === '') {
+            return $value;
+        }
+
+        if (Str::startsWith($value, ['http://', 'https://', '//'])) {
+            return $value;
+        }
+
+        $value = str_replace('web information', 'web-information', $value);
+
+        $legacyClientPrefix = '/'.config('assets.legacy_client_prefix').'/';
+        $clientStaticPrefix = '/'.config('assets.client_static_prefix').'/';
+
+        if (Str::startsWith($value, $legacyClientPrefix)) {
+            return $clientStaticPrefix.substr($value, strlen($legacyClientPrefix));
+        }
+
+        $uploadsDirectory = config('assets.uploads_directory');
+
+        foreach (['/userfiles/', 'userfiles/'] as $userfilesPrefix) {
+            if (Str::startsWith($value, $userfilesPrefix)) {
+                return $uploadsDirectory.'/'.ltrim(substr($value, strlen($userfilesPrefix)), '/');
+            }
+        }
+
+        return $value;
+    }
+
     public static function mediaUrl(?string $path, ?string $fallback = null): ?string
     {
         $value = trim((string) $path);
@@ -99,15 +138,17 @@ class SystemHelper
             return $value;
         }
 
-        if (Str::startsWith($value, '/')) {
-            return asset(ltrim($value, '/'));
+        $normalized = self::normalizeMediaPath($value);
+
+        if (Str::startsWith($normalized, '/')) {
+            return asset(ltrim($normalized, '/'));
         }
 
-        if (Str::startsWith($value, 'storage/')) {
-            return asset($value);
+        if (Str::startsWith($normalized, 'storage/')) {
+            return asset($normalized);
         }
 
-        return Storage::disk('public')->url($value);
+        return Storage::disk('public')->url($normalized);
     }
 
     /**

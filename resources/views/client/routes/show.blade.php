@@ -1,7 +1,7 @@
 {{-- ===== resources\views\client\routes\show.blade.php ===== --}}
 <x-client.layout :web-profile="$web_profile ?? null" :main-menu="$mainMenu ?? []" :title="$title ?? __('client.route_show.meta_title')" :description="$description ?? ''">
     @php
-        $heroImage = \App\Helpers\SystemHelper::mediaUrl($route->banner_url ?? $route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/ha-noi.jpg'));
+        $heroImage = \App\Helpers\SystemHelper::mediaUrl($route->banner_url ?? $route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/assets/client/images/city_imgs/ha-noi.jpg'));
         $minPrice = (int) ($route->min_price ?? 0);
         $priceDisplay =
             $minPrice > 0
@@ -68,19 +68,19 @@
             'price_high' => __('client.route_show.filters.sort_price_high'),
             'seats_available' => __('client.route_show.filters.sort_seats'),
         ];
-        $galleryFallback = \App\Helpers\SystemHelper::mediaUrl('/client/images/kingexpressbus/sleeper/1.jpg');
+        $galleryFallback = \App\Helpers\SystemHelper::mediaUrl('/assets/client/images/kingexpressbus/sleeper/1.jpg');
     @endphp
 
     @push('styles')
         <style>
             .route-hero {
                 background:
-                    linear-gradient(105deg, rgba(4, 17, 31, 0.9), rgba(4, 17, 31, 0.64) 52%, rgba(255, 155, 0, 0.34)),
+                    linear-gradient(180deg, rgba(4, 17, 31, 0.58), rgba(4, 17, 31, 0.78)),
                     url('{{ $heroImage }}');
                 background-size: cover;
                 background-position: center;
                 position: relative;
-                overflow: hidden;
+                overflow: visible;
             }
 
             .route-hero::after {
@@ -126,29 +126,29 @@
     @endpush
 
     {{-- Hero + Search --}}
-    <section id="search-section" class="route-hero ksb-section-hero text-white">
+    <section id="search-section" class="route-hero ksb-section-hero relative z-elevated text-white">
         <div class="container relative z-10 mx-auto max-w-7xl px-4">
             <div class="grid gap-6 lg:grid-cols-[1fr_0.55fr] lg:items-end">
                 <div>
-                    <span class="mb-3 inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/78">
+                    <span class="mb-3 inline-flex items-center gap-2 rounded-sm border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white/78">
                         <i class="fa-solid fa-map-location-dot"></i>
                         {{ __('client.route_show.hero_brand') }}
                     </span>
                     <h1 class="ksb-text-balance font-display text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">{{ $route->name }}</h1>
                 </div>
                 <div class="flex flex-wrap items-center gap-3 text-sm text-white/86 lg:justify-end">
-                    <span class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2">
+                    <span class="inline-flex items-center gap-2 rounded-sm border border-white/15 bg-white/10 px-3 py-2">
                         <i class="fa-solid fa-bus text-accent"></i>
                         {{ $trips->count() }} {{ __('client.route_show.hero_trips') }}
                     </span>
-                    <span class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2">
+                    <span class="inline-flex items-center gap-2 rounded-sm border border-white/15 bg-white/10 px-3 py-2">
                         <i class="fa-solid fa-tag text-accent"></i>
                         {{ $priceDisplay }}
                     </span>
                 </div>
             </div>
 
-            <div class="ksb-panel-strong mt-8 text-slate-800">
+            <div class="ksb-panel-strong ksb-hero-search mt-8 text-slate-800">
                 <x-client.search-bar :search-data="$searchData" :submit-label="__('client.route_show.search_submit_label')" />
             </div>
         </div>
@@ -182,7 +182,7 @@
                             $filterUrl = request()->fullUrlWithQuery(['time_ranges' => $newTimeRanges]);
                         @endphp
                         <a href="{{ $filterUrl }}"
-                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition {{ $isActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
+                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border px-3 py-1.5 text-xs font-semibold transition {{ $isActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
                             @if ($isActive) aria-current="true" @endif>
                             <i class="fa-solid {{ $filter['icon'] }}"></i>
                             {{ $filter['label'] }}
@@ -195,7 +195,7 @@
                         $seatsUrl = request()->fullUrlWithQuery(['has_seats' => $hasSeatsActive ? null : 1]);
                     @endphp
                     <a href="{{ $seatsUrl }}"
-                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition {{ $hasSeatsActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
+                        class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border px-3 py-1.5 text-xs font-semibold transition {{ $hasSeatsActive ? 'border-primary-600 bg-primary-600 text-white' : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50' }}"
                         @if ($hasSeatsActive) aria-current="true" @endif>
                         <i class="fa-solid fa-chair"></i>
                         {{ __('client.route_show.quick_filters.has_seats') }}
@@ -204,7 +204,7 @@
                     {{-- Clear All Filters --}}
                     @if ($hasActiveFilters)
                         <a href="{{ $clearFiltersUrl }}"
-                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
+                            class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-sm border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100">
                             <i class="fa-solid fa-xmark"></i>
                             {{ __('client.route_show.quick_filters.clear_all') }}
                         </a>
@@ -237,7 +237,7 @@
                         <span>{{ __('client.route_show.filters.mobile_button') }}</span>
                         @if ($hasActiveFilters)
                             <span
-                                class="inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">{{ $activeFilterCount }}</span>
+                                class="inline-flex h-5 w-5 items-center justify-center rounded-sm bg-primary-600 text-xs font-bold text-white">{{ $activeFilterCount }}</span>
                         @endif
                     </button>
                 </div>
@@ -281,7 +281,7 @@
                                     {{ __('client.route_show.filters.sidebar_title') }}
                                 </h3>
                                 @if ($hasActiveFilters)
-                                    <span class="inline-flex items-center justify-center rounded-full bg-primary-100 px-2.5 py-0.5 text-xs font-bold text-primary-700">
+                                    <span class="inline-flex items-center justify-center rounded-sm bg-primary-100 px-2.5 py-0.5 text-xs font-bold text-primary-700">
                                         {{ $activeFilterCount }} {{ __('client.route_show.filters.active') }}
                                     </span>
                                 @endif
@@ -351,7 +351,7 @@
                             <article class="trip-card ksb-trip-row"
                                 id="trip-card-{{ $trip->trip_id }}">
                                 <div class="trip-card-inner grid gap-4 p-4 md:grid-cols-[160px_1fr] lg:p-5">
-                                    <div class="trip-image-wrapper relative aspect-video w-full overflow-hidden rounded-xl md:aspect-square md:w-40 md:shrink-0">
+                                    <div class="trip-image-wrapper relative aspect-video w-full overflow-hidden rounded-sm md:aspect-square md:w-40 md:shrink-0">
                                         <img id="trip-image-{{ $trip->trip_id }}" src="{{ $primaryImage }}"
                                             alt="{{ $trip->bus_name }}" loading="lazy"
                                             class="h-full w-full object-cover">
@@ -369,7 +369,7 @@
                                                         {{ number_format($trip->effective_price ?? $trip->price) }}<span class="text-xs font-medium text-slate-500">đ</span>
                                                     </p>
                                                     @if (!empty($trip->has_surcharge))
-                                                        <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                                                        <span class="inline-flex items-center gap-1 rounded-sm bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
                                                             <i class="fa-solid fa-bolt"></i>
                                                             {{ __('client.route_show.trip_card.holiday_surcharge_badge') }}
                                                         </span>
@@ -377,7 +377,7 @@
                                                 @else
                                                     <p class="text-sm font-bold text-primary-600">{{ __('client.route_show.price_contact') }}</p>
                                                 @endif
-                                                <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold {{ !empty($trip->is_off_day) || !$hasSeats ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }}">
+                                                <span class="inline-flex items-center gap-1 rounded-sm px-2 py-0.5 text-[11px] font-semibold {{ !empty($trip->is_off_day) || !$hasSeats ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }}">
                                                     <i class="fa-solid fa-circle text-[5px]"></i>
                                                     @if (!empty($trip->is_off_day))
                                                         {{ __('client.route_show.trip_card.off_day_badge') }}
@@ -390,7 +390,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                                        <div class="rounded-sm border border-slate-100 bg-slate-50 p-3">
                                             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                                                 <div class="min-w-0">
                                                     <p class="font-display text-xl font-extrabold leading-none text-slate-900">{{ $tripStart->format('H:i') }}</p>
@@ -399,11 +399,11 @@
                                                     </p>
                                                 </div>
                                                 <div class="flex items-center gap-2 sm:flex-1 sm:px-2">
-                                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                                    <span class="h-2 w-2 rounded-sm bg-amber-500"></span>
                                                     <span class="h-px flex-1 border-t border-dashed border-slate-300"></span>
                                                     <span class="whitespace-nowrap text-[11px] font-semibold text-slate-500">{{ $durationLabel }}</span>
                                                     <span class="h-px flex-1 border-t border-dashed border-slate-300"></span>
-                                                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                                    <span class="h-2 w-2 rounded-sm bg-emerald-500"></span>
                                                 </div>
                                                 <div class="min-w-0 sm:text-right">
                                                     <p class="font-display text-xl font-extrabold leading-none text-slate-900">{{ $tripEnd->format('H:i') }}</p>
@@ -466,7 +466,7 @@
                                 style="z-index: 100010;">
                                 <div class="trip-detail-backdrop absolute inset-0 bg-slate-950/65 opacity-0 backdrop-blur-sm" data-trip-modal-close></div>
 
-                                <div class="trip-detail-panel relative z-10 flex max-h-[94dvh] w-full max-w-4xl translate-y-6 scale-[0.98] flex-col overflow-hidden rounded-t-2xl bg-white opacity-0 shadow-2xl sm:max-h-[90dvh] sm:rounded-2xl">
+                                <div class="trip-detail-panel relative z-10 flex max-h-[94dvh] w-full max-w-4xl translate-y-6 scale-[0.98] flex-col overflow-hidden rounded-t-2xl bg-white opacity-0 shadow-2xl sm:max-h-[90dvh] sm:rounded-sm">
                                         <div class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-5">
                                             <div class="flex items-start justify-between gap-4">
                                                 <div class="min-w-0">
@@ -475,10 +475,10 @@
                                                         {{ $trip->bus_name }}
                                                     </h3>
                                                     <div class="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                                                        <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-semibold text-slate-700">
+                                                        <span class="inline-flex items-center gap-1 rounded-sm bg-slate-100 px-2.5 py-1 font-semibold text-slate-700">
                                                             {{ __('client.route_show.trip_card.trip_code') }} #{{ $trip->trip_id }}
                                                         </span>
-                                                        <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold {{ !empty($trip->is_off_day) || !$hasSeats ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700' }}">
+                                                        <span class="inline-flex items-center gap-1 rounded-sm px-2.5 py-1 font-semibold {{ !empty($trip->is_off_day) || !$hasSeats ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700' }}">
                                                             <i class="fa-solid fa-circle text-[5px]"></i>
                                                             @if (!empty($trip->is_off_day))
                                                                 {{ __('client.route_show.trip_card.off_day_badge') }}
@@ -499,7 +499,7 @@
                                                 </div>
 
                                                 <button type="button"
-                                                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+                                                    class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
                                                     aria-label="{{ __('client.route_show.details_modal.close') }}"
                                                     data-trip-modal-close>
                                                     <i class="fa-solid fa-xmark"></i>
@@ -510,7 +510,7 @@
                                         <div class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-5 sm:px-6">
                                             <div class="grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
                                                 <section class="trip-detail-section lg:border-t-0 lg:pt-0">
-                                                    <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-100 sm:aspect-[16/10]">
+                                                    <div class="relative aspect-[4/3] overflow-hidden rounded-sm bg-slate-100 sm:aspect-[16/10]">
                                                         <img id="gallery-featured-{{ $trip->trip_id }}"
                                                             src="{{ $primaryImage }}"
                                                             alt="{{ __('client.route_show.details_modal.bus_image_alt') }}"
@@ -519,7 +519,7 @@
                                                             data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
                                                             data-lightbox-index="0"
                                                             data-lightbox-images='@json($imageGallery->values())'>
-                                                        <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-slate-950/70 to-transparent px-4 pb-4 pt-12 text-white">
+                                                        <div class="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-slate-950/75 px-4 py-4 text-white">
                                                             <span class="text-sm font-semibold">{{ __('client.route_show.details_modal.gallery_title') }}</span>
                                                             <span class="text-xs text-white/80">{{ __('client.route_show.details_modal.gallery_hint') }}</span>
                                                         </div>
@@ -529,7 +529,7 @@
                                                         <div class="mt-3 grid grid-cols-4 gap-2 sm:grid-cols-5">
                                                             @foreach ($imageGallery as $idx => $image)
                                                                 <button type="button"
-                                                                    class="detail-gallery-thumb relative aspect-[4/3] w-full overflow-hidden rounded-lg border-2 {{ $idx === 0 ? 'border-primary-600 ring-2 ring-primary-50' : 'border-transparent' }} transition hover:border-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
+                                                                    class="detail-gallery-thumb relative aspect-[4/3] w-full overflow-hidden rounded-sm border-2 {{ $idx === 0 ? 'border-primary-600 ring-2 ring-primary-50' : 'border-transparent' }} transition hover:border-primary-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500"
                                                                     data-gallery-preview="#gallery-featured-{{ $trip->trip_id }}"
                                                                     data-image="{{ $image }}"
                                                                     data-lightbox-gallery="gallery-{{ $trip->trip_id }}"
@@ -565,7 +565,7 @@
                                                         </div>
                                                         <div class="grid grid-cols-[76px_minmax(0,1fr)] gap-3 py-3">
                                                             <div class="flex items-center">
-                                                                <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
+                                                                <span class="flex h-9 w-9 items-center justify-center rounded-sm bg-slate-100 text-slate-500">
                                                                     <i class="fa-regular fa-clock text-sm"></i>
                                                                 </span>
                                                             </div>
@@ -614,7 +614,7 @@
                                                                 <i class="fa-solid fa-location-dot text-slate-400"></i>
                                                                 {{ __('client.route_show.details_modal.pickup_points_title') }}
                                                             </h4>
-                                                            <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                                                            <span class="shrink-0 rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                                                                 {{ __('client.route_show.trip_card.point_count', ['count' => $pickupPoints->count()]) }}
                                                             </span>
                                                         </div>
@@ -622,7 +622,7 @@
                                                         <div class="relative ml-2 space-y-4 border-l border-dashed border-slate-200 pl-5">
                                                             @forelse ($pickupPoints as $pickup)
                                                                 <div class="relative">
-                                                                    <span class="absolute -left-[27px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-slate-400"></span>
+                                                                    <span class="absolute -left-[27px] top-1.5 h-3.5 w-3.5 rounded-sm border-2 border-white bg-slate-400"></span>
                                                                     <p class="text-sm font-semibold leading-6 text-slate-800">{{ $pickup->name }}</p>
                                                                 </div>
                                                             @empty
@@ -637,7 +637,7 @@
                                                                 <i class="fa-solid fa-flag-checkered text-slate-400"></i>
                                                                 {{ __('client.route_show.details_modal.dropoff_points_title') }}
                                                             </h4>
-                                                            <span class="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+                                                            <span class="shrink-0 rounded-sm bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
                                                                 {{ __('client.route_show.trip_card.point_count', ['count' => $dropoffPoints->count()]) }}
                                                             </span>
                                                         </div>
@@ -645,7 +645,7 @@
                                                         <div class="relative ml-2 space-y-4 border-l border-dashed border-slate-200 pl-5">
                                                             @forelse ($dropoffPoints as $dropoff)
                                                                 <div class="relative">
-                                                                    <span class="absolute -left-[27px] top-1.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-slate-400"></span>
+                                                                    <span class="absolute -left-[27px] top-1.5 h-3.5 w-3.5 rounded-sm border-2 border-white bg-slate-400"></span>
                                                                     <p class="text-sm font-semibold leading-6 text-slate-800">{{ $dropoff->name }}</p>
                                                                 </div>
                                                             @empty
@@ -669,7 +669,7 @@
                                                                     $serviceName = is_array($service) ? ($service['name'] ?? '') : $service;
                                                                     $serviceIcon = is_array($service) ? ($service['icon'] ?? 'fa-solid fa-circle-check') : 'fa-solid fa-circle-check';
                                                                 @endphp
-                                                                <span class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
+                                                                <span class="inline-flex min-h-10 items-center gap-2 rounded-sm border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700">
                                                                     <i class="{{ $serviceIcon }} text-xs text-primary-600"></i>
                                                                     {{ $serviceName }}
                                                                 </span>
@@ -740,7 +740,7 @@
             <section class="ksb-section bg-white border-t border-amber-100">
                 <div class="container mx-auto max-w-7xl px-4">
                     <div class="mb-6">
-                        <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
+                        <span class="inline-flex items-center gap-2 rounded-sm bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-amber-700">
                             <i class="fa-solid fa-rotate-left"></i>
                             {{ __('client.route_show.return_section.badge') }}
                         </span>
@@ -769,7 +769,7 @@
                                                 {{ $returnRoute->name }} Â· {{ $returnStart->format('H:i') }} - {{ $returnEnd->format('H:i') }}
                                             </p>
                                             <div class="mt-2 flex items-center gap-2 text-xs">
-                                                <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-slate-600">
+                                                <span class="inline-flex items-center gap-1 rounded-sm bg-slate-100 px-2 py-1 text-slate-600">
                                                     <i class="fa-solid fa-couch"></i>
                                                     @if (!empty($returnTrip->is_off_day))
                                                         {{ __('client.route_show.trip_card.off_day_badge') }}
@@ -780,7 +780,7 @@
                                                     @endif
                                                 </span>
                                                 @if (!empty($returnTrip->has_surcharge))
-                                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-amber-700">
+                                                    <span class="inline-flex items-center gap-1 rounded-sm bg-amber-100 px-2 py-1 text-amber-700">
                                                         <i class="fa-solid fa-bolt"></i>
                                                         {{ __('client.route_show.trip_card.holiday_surcharge_badge') }}
                                                     </span>
@@ -807,7 +807,7 @@
                             @endforeach
                         </div>
                     @else
-                        <div class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-6 text-center text-sm text-amber-700">
+                        <div class="rounded-sm border border-dashed border-amber-200 bg-amber-50/50 p-6 text-center text-sm text-amber-700">
                             {{ __('client.route_show.return_section.no_trips') }}
                         </div>
                     @endif
@@ -818,7 +818,7 @@
         {{-- No Results --}}
         <section class="ksb-section ksb-section-band">
             <div class="container mx-auto px-4 text-center max-w-lg">
-                <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 shadow-inner">
+                <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-sm border border-line bg-gray-100">
                     <i class="fa-solid fa-calendar-xmark text-4xl text-gray-400"></i>
                 </div>
                 <h2 class="mb-3 font-display text-2xl font-extrabold text-gray-800">{{ __('client.route_show.no_trips.title') }}</h2>
@@ -1211,24 +1211,24 @@
     @endpush
 
     {{-- Fullscreen Image Lightbox --}}
-    <div id="image-lightbox" class="ksb-modal fixed inset-0 hidden items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" aria-label="Image preview">
+    <div id="image-lightbox" class="ksb-modal fixed inset-0 hidden items-center justify-center bg-black/90 p-4" role="dialog" aria-modal="true" aria-label="{{ __('client.route_show.details_modal.lightbox_preview_aria') }}">
         <button type="button"
-            class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
-            data-lightbox-close aria-label="Close">
+            class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-sm border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-close aria-label="{{ __('client.route_show.details_modal.lightbox_close_aria') }}">
             <i class="fa-solid fa-xmark"></i>
         </button>
         <button type="button"
-            class="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
-            data-lightbox-prev aria-label="Previous image">
+            class="absolute left-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-prev aria-label="{{ __('client.route_show.details_modal.lightbox_prev_aria') }}">
             <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <img class="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl" data-lightbox-image src="" alt="Preview">
+        <img class="max-h-[85vh] max-w-[90vw] rounded-sm object-contain shadow-2xl" data-lightbox-image src="" alt="{{ __('client.route_show.details_modal.lightbox_image_alt') }}">
         <button type="button"
-            class="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
-            data-lightbox-next aria-label="Next image">
+            class="absolute right-4 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm border border-white/25 bg-white/15 text-white transition hover:bg-white/25"
+            data-lightbox-next aria-label="{{ __('client.route_show.details_modal.lightbox_next_aria') }}">
             <i class="fa-solid fa-chevron-right"></i>
         </button>
-        <div class="absolute bottom-5 rounded-full bg-black/45 px-4 py-1.5 text-xs font-semibold text-white/75" data-lightbox-counter></div>
+        <div class="absolute bottom-5 rounded-sm bg-black/45 px-4 py-1.5 text-xs font-semibold text-white/75" data-lightbox-counter></div>
     </div>
 
     {{-- Mobile Sticky Booking Bar --}}

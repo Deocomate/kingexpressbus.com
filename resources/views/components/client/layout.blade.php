@@ -15,15 +15,15 @@
     $pageKeywords = trim(strip_tags((string) ($keywords ?? $defaultKeywords)));
     $faviconUrl = \App\Helpers\SystemHelper::mediaUrl(
         $favicon ?? data_get($webProfile, 'favicon_url'),
-        \App\Helpers\SystemHelper::mediaUrl('/client/icons/logo.ico'),
+        \App\Helpers\SystemHelper::mediaUrl('/assets/client/icons/logo.ico'),
     );
-    $bodyClassName = trim($bodyClass ?? '') !== '' ? trim($bodyClass) : 'bg-[#F8FAFC] text-slate-800';
+    $bodyClassName = trim($bodyClass ?? '') !== '' ? trim($bodyClass) : 'bg-page text-ink';
 
     $currentUrl = $canonicalUrl ?? url()->current();
     $baseUrl = url('/');
     $logoUrl = \App\Helpers\SystemHelper::mediaUrl(
         data_get($webProfile, 'logo_url'),
-        \App\Helpers\SystemHelper::mediaUrl('/client/images/web information/logo.jpg'),
+        \App\Helpers\SystemHelper::mediaUrl('/assets/client/images/web-information/logo.jpg'),
     );
     $shareImage = \App\Helpers\SystemHelper::mediaUrl($ogImage ?? data_get($webProfile, 'share_image_url'), $logoUrl);
     $shareImageAlt = $ogImageAlt ?? $pageTitle;
@@ -36,8 +36,6 @@
     $contactPhone = data_get($webProfile, 'hotline', data_get($webProfile, 'phone', ''));
     $contactAddress = data_get($webProfile, 'address', '');
     $facebookUrl = data_get($webProfile, 'facebook_url', '');
-    $messengerPath = parse_url((string) $facebookUrl, PHP_URL_PATH);
-    $messengerId = $messengerPath ? trim((string) basename($messengerPath)) : '';
     $clientAssetVersion = '1.1.0';
 
     $authUser = auth()->user();
@@ -127,138 +125,7 @@
         {!! json_encode($structuredData, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#fff9e6',
-                            100: '#ffefbf',
-                            200: '#ffe08a',
-                            300: '#ffd156',
-                            400: '#ffc43a',
-                            500: '#FFC900',
-                            600: '#FF9B00',
-                            700: '#d97d00',
-                            800: '#a85f00',
-                            900: '#744100'
-                        },
-                        accent: {
-                            DEFAULT: '#FFE100',
-                            50: '#fffce5',
-                            100: '#fff5b8',
-                            500: '#FFE100',
-                            600: '#FFC900',
-                            700: '#b86100'
-                        },
-                        navy: {
-                            50: '#eef6ff',
-                            100: '#d9ebff',
-                            700: '#0f2a44',
-                            800: '#071a2e',
-                            900: '#04111f',
-                            950: '#020915'
-                        },
-                        pastel: '#EBE389',
-                        pickup: '#10B981',
-                        dropoff: '#EF4444'
-                    },
-                    fontFamily: {
-                        sans: ['Be Vietnam Pro', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-                        display: ['Manrope', 'Be Vietnam Pro', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        soft: '0 12px 28px -18px rgba(15, 23, 42, 0.28)',
-                        card: '0 24px 60px -34px rgba(4, 17, 31, 0.38)',
-                        lift: '0 18px 42px -28px rgba(4, 17, 31, 0.36)',
-                    },
-                    borderRadius: {
-                        control: '12px',
-                        panel: '18px',
-                    },
-                    zIndex: {
-                        header: '40',
-                        dropdown: '50',
-                        drawer: '60',
-                        modal: '70',
-                        alert: '80',
-                    },
-                }
-            }
-        }
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="{{ asset('/client/css/custom.css') }}?v={{ $clientAssetVersion }}">
-    <script defer src="{{ asset('/client/js/client-ui.js') }}?v={{ $clientAssetVersion }}"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
-
-    <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-        }
-
-        [x-cloak] {
-            display: none !important;
-        }
-
-        @keyframes ksb-float-up {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes ksb-soft-pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 155, 0, 0.16);
-            }
-
-            50% {
-                box-shadow: 0 0 0 12px rgba(255, 155, 0, 0);
-            }
-        }
-
-        .animate-ksb-float-up {
-            animation: ksb-float-up .45s ease-out;
-        }
-
-        .animate-ksb-soft-pulse {
-            animation: ksb-soft-pulse 2.4s ease-in-out infinite;
-        }
-
-        *::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        *::-webkit-scrollbar-track {
-            background: #fff7d6;
-        }
-
-        *::-webkit-scrollbar-thumb {
-            background: #FFC900;
-            border-radius: 999px;
-            border: 2px solid #fff7d6;
-        }
-    </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 
@@ -274,61 +141,22 @@
     {{-- FOOTER --}}
     <x-client.footer :web-profile="$webProfile" />
 
-    @if ($webProfile)
-        <div class="ksb-floating-contact fixed bottom-6 right-4 flex flex-col gap-3 md:right-6">
-            @if ($messengerId !== '')
-                <a href="https://m.me/{{ $messengerId }}" target="_blank" rel="noopener noreferrer"
-                    class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0099FF] text-white shadow-soft transition hover:-translate-y-1 hover:shadow-lg"
-                    aria-label="Messenger">
-                    <i class="fab fa-facebook-messenger"></i>
-                </a>
-            @endif
-            @if (data_get($webProfile, 'zalo_url'))
-                <a href="{{ data_get($webProfile, 'zalo_url') }}" target="_blank" rel="noopener noreferrer"
-                    class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0068FF] text-white shadow-soft transition hover:-translate-y-1 hover:shadow-lg"
-                    aria-label="Zalo">
-                    <span class="text-sm font-bold">Za</span>
-                </a>
-            @endif
-            @if (data_get($webProfile, 'hotline'))
-                <a href="tel:{{ str_replace([' ', '.'], '', data_get($webProfile, 'hotline')) }}"
-                    class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500 text-white shadow-soft transition hover:-translate-y-1 hover:shadow-lg animate-ksb-soft-pulse"
-                    aria-label="Hotline">
-                    <i class="fas fa-phone-alt"></i>
-                </a>
-            @endif
-        </div>
-    @endif
+    <x-client.floating-contact :web-profile="$webProfile" />
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            toastr.options = {
-                closeButton: true,
-                progressBar: true,
-                positionClass: 'toast-top-right'
-            };
-
-            @if (session('success'))
-                toastr.success('{{ addslashes(session('success')) }}');
-            @endif
-            @if (session('error'))
-                toastr.error('{{ addslashes(session('error')) }}');
-            @endif
-            @if (session('warning'))
-                toastr.warning('{{ addslashes(session('warning')) }}');
-            @endif
-            @if (session('info'))
-                toastr.info('{{ addslashes(session('info')) }}');
-            @endif
-            @if ($errors->any())
+        window.__kingFlashMessages = {
+            success: [@if (session('success')) '{{ addslashes(session('success')) }}' @endif],
+            error: [
+                @if (session('error'))
+                    '{{ addslashes(session('error')) }}',
+                @endif
                 @foreach ($errors->all() as $error)
-                    toastr.error('{{ addslashes($error) }}');
+                    '{{ addslashes($error) }}',
                 @endforeach
-            @endif
-        });
+            ],
+            warning: [@if (session('warning')) '{{ addslashes(session('warning')) }}' @endif],
+            info: [@if (session('info')) '{{ addslashes(session('info')) }}' @endif],
+        };
     </script>
     @stack('scripts')
 </body>

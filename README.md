@@ -16,7 +16,8 @@ The current architecture is single-tenant (company-specific multi-tenant tables 
 - Laravel 12
 - MySQL
 - Blade (SSR)
-- CKFinder (media/files)
+- Vite + Tailwind CSS for the client portal
+- Laravel `public` disk for user uploads (Filament FileUpload)
 
 ## 3. Documentation Map
 
@@ -24,6 +25,7 @@ The current architecture is single-tenant (company-specific multi-tenant tables 
 - [Codebase Summary](docs/codebase-summary.md)
 - [System Architecture and Full Database Catalog](docs/system-architecture.md)
 - [Coding Standards](docs/code-standards.md)
+- [Client Frontend Design Guidelines](docs/design-guidelines.md)
 
 ## 4. Quick Start
 
@@ -49,6 +51,28 @@ Run backend/frontend separately if needed:
 ```bash
 php artisan serve
 npm run dev
+```
+
+Build production client assets:
+
+```bash
+npm run build
+php artisan storage:link
+php artisan filament:assets
+```
+
+On Linux production, symlink committed static assets into `public/`:
+
+```bash
+mkdir -p public/assets
+ln -sfn ../../assets/client public/assets/client
+```
+
+On Windows development, use a junction from the project root:
+
+```powershell
+New-Item -ItemType Directory -Force -Path public/assets
+cmd /c mklink /J public\assets\client assets\client
 ```
 
 ## 5. Current Functional Areas

@@ -1,31 +1,31 @@
 {{-- ===== resources/views/client/about/index.blade.php ===== --}}
-<x-client.layout :title="$title" :description="$description" body-class="bg-[#F7F8FA] text-slate-900">
+<x-client.layout :title="$title" :description="$description" body-class="bg-page text-ink">
 
     @php
         $fleetCards = [
             [
                 'name' => __('client.about_page.fleet_cards.cabin.name'),
-                'image' => '/client/images/kingexpressbus/cabin/1.jpg',
+                'image' => '/assets/client/images/kingexpressbus/cabin/1.jpg',
                 'meta' => __('client.about_page.fleet_cards.cabin.meta'),
             ],
             [
                 'name' => __('client.about_page.fleet_cards.limousine.name'),
-                'image' => '/client/images/kingexpressbus/limousine/1.png',
+                'image' => '/assets/client/images/kingexpressbus/limousine/1.png',
                 'meta' => __('client.about_page.fleet_cards.limousine.meta'),
             ],
             [
                 'name' => __('client.about_page.fleet_cards.sleeper.name'),
-                'image' => '/client/images/kingexpressbus/sleeper/1.jpg',
+                'image' => '/assets/client/images/kingexpressbus/sleeper/1.jpg',
                 'meta' => __('client.about_page.fleet_cards.sleeper.meta'),
             ],
         ];
 
         $destinationCards = [
-            ['name' => 'Sa Pa', 'image' => '/client/images/city_imgs/sapa.jpg'],
-            ['name' => 'Hà Nội', 'image' => '/client/images/city_imgs/ha-noi.jpg'],
-            ['name' => 'Ninh Bình', 'image' => '/client/images/city_imgs/ninh-binh.jpg'],
-            ['name' => 'Đà Nẵng', 'image' => '/client/images/city_imgs/da-nang.jpg'],
-            ['name' => 'Hội An', 'image' => '/client/images/city_imgs/hoi-an.jpg'],
+            ['key' => 'sapa', 'image' => '/assets/client/images/city_imgs/sapa.jpg'],
+            ['key' => 'hanoi', 'image' => '/assets/client/images/city_imgs/ha-noi.jpg'],
+            ['key' => 'ninh_binh', 'image' => '/assets/client/images/city_imgs/ninh-binh.jpg'],
+            ['key' => 'da_nang', 'image' => '/assets/client/images/city_imgs/da-nang.jpg'],
+            ['key' => 'hoi_an', 'image' => '/assets/client/images/city_imgs/hoi-an.jpg'],
         ];
 
         $statItems = [
@@ -91,7 +91,7 @@
         <style>
             .about-hero {
                 position: relative;
-                overflow: hidden;
+                overflow: visible;
                 min-height: clamp(660px, 78vh, 860px);
                 background: #04111f;
             }
@@ -101,9 +101,8 @@
                 position: absolute;
                 inset: 0;
                 background-image:
-                    linear-gradient(90deg, rgba(2, 9, 21, 0.94), rgba(4, 17, 31, 0.76) 48%, rgba(255, 155, 0, 0.12)),
-                    linear-gradient(180deg, rgba(4, 17, 31, 0.12), rgba(4, 17, 31, 0.62)),
-                    url('/client/images/kingexpressbus/cabin/2.jpg');
+                    linear-gradient(180deg, rgba(4, 17, 31, 0.58), rgba(4, 17, 31, 0.78)),
+                    url('/assets/client/images/kingexpressbus/cabin/2.jpg');
                 background-size: cover;
                 background-position: 58% center;
                 transform: scale(1.015);
@@ -120,7 +119,7 @@
             .about-image-mask,
             .about-destination-tile {
                 overflow: hidden;
-                border-radius: 18px;
+                border-radius: 2px;
                 background: #e2e8f0;
             }
 
@@ -146,7 +145,7 @@
             }
 
             .about-editorial-band {
-                background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 248, 250, 0.96));
+                background: #f7f8fa;
             }
 
             .about-hero-shot img,
@@ -177,21 +176,17 @@
 
             .about-route-row {
                 border: 1px solid rgba(226, 232, 240, 0.95);
-                border-radius: 16px;
+                border-radius: 2px;
                 background: rgba(255, 255, 255, 0.92);
                 transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
             }
 
             .about-route-row:hover {
-                border-color: rgba(255, 155, 0, 0.46);
-                box-shadow: 0 24px 60px -38px rgba(4, 17, 31, 0.48);
-                transform: translateY(-2px);
+                border-color: rgba(4, 17, 31, 0.22);
             }
 
             .about-cta-band {
-                background:
-                    radial-gradient(circle at 88% 18%, rgba(255, 201, 0, 0.16), transparent 34%),
-                    linear-gradient(100deg, #020915, #04111f 58%, #142033);
+                background: #04111f;
             }
 
             @keyframes about-hero-drift {
@@ -230,7 +225,7 @@
         </style>
     @endpush
 
-    <section class="about-hero px-4 py-14 md:py-20 lg:py-24">
+    <section class="about-hero relative z-elevated px-4 py-14 md:py-20 lg:py-24">
         <div class="container relative z-10 mx-auto w-full max-w-7xl">
             <div class="grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(380px,0.78fr)] lg:gap-14">
                 <div class="max-w-3xl text-white" data-aos="fade-up" data-aos-duration="650">
@@ -266,16 +261,16 @@
                 <aside class="space-y-3 text-white" data-aos="fade-left" data-aos-duration="700" data-aos-delay="120" aria-label="{{ __('client.about_page.hero.review_label') }}">
                     <div class="grid grid-cols-[1.12fr_0.88fr] gap-3">
                         <div class="about-hero-shot min-h-72">
-                            <img src="/client/images/kingexpressbus/cabin/1.jpg" alt="{{ __('client.about_page.fleet_cards.cabin.name') }}" class="h-full w-full object-cover">
+                            <img src="/assets/client/images/kingexpressbus/cabin/1.jpg" alt="{{ __('client.about_page.fleet_cards.cabin.name') }}" class="h-full w-full object-cover">
                             <span>{{ __('client.about_page.fleet_cards.cabin.name') }}</span>
                         </div>
                         <div class="grid gap-3">
                             <div class="about-hero-shot min-h-[8.25rem]">
-                                <img src="/client/images/kingexpressbus/limousine/1.png" alt="{{ __('client.about_page.fleet_cards.limousine.name') }}" class="h-full w-full object-cover">
+                                <img src="/assets/client/images/kingexpressbus/limousine/1.png" alt="{{ __('client.about_page.fleet_cards.limousine.name') }}" class="h-full w-full object-cover">
                                 <span>{{ __('client.about_page.fleet_cards.limousine.name') }}</span>
                             </div>
                             <div class="about-hero-shot min-h-[8.25rem]">
-                                <img src="/client/images/kingexpressbus/sleeper/1.jpg" alt="{{ __('client.about_page.fleet_cards.sleeper.name') }}" class="h-full w-full object-cover">
+                                <img src="/assets/client/images/kingexpressbus/sleeper/1.jpg" alt="{{ __('client.about_page.fleet_cards.sleeper.name') }}" class="h-full w-full object-cover">
                                 <span>{{ __('client.about_page.fleet_cards.sleeper.name') }}</span>
                             </div>
                         </div>
@@ -302,7 +297,7 @@
                 </aside>
             </div>
 
-            <div class="ksb-hero-search ksb-dropdown relative z-dropdown mt-10" data-aos="fade-up" data-aos-duration="600" data-aos-delay="220">
+            <div class="ksb-hero-search mt-10" data-aos="fade-up" data-aos-duration="600" data-aos-delay="220">
                 <x-client.search-bar :submit-label="__('client.about_page.hero.search_submit')" />
             </div>
         </div>
@@ -345,7 +340,7 @@
                     <div class="mt-8 grid gap-4 border-t border-slate-200 pt-6 md:grid-cols-3">
                         @foreach(__('client.about.why_choose.items') as $item)
                             <div class="group" data-aos="fade-up" data-aos-duration="520" data-aos-delay="{{ $loop->index * 70 }}">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700 transition group-hover:bg-primary-600 group-hover:text-white">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-sm bg-primary-50 text-primary-700 transition group-hover:bg-primary-600 group-hover:text-white">
                                     <i class="{{ $item['icon'] }}"></i>
                                 </span>
                                 <h3 class="mt-4 text-base font-extrabold text-slate-950">{{ $item['title'] }}</h3>
@@ -358,20 +353,20 @@
                 <aside class="lg:col-span-5" data-aos="fade-left" data-aos-duration="650">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="about-image-mask col-span-2">
-                            <img src="/client/images/kingexpressbus/cabin/3.jpg" alt="{{ __('client.about.hero.image_alt') }}" loading="lazy" class="aspect-[16/10] w-full object-cover">
+                            <img src="/assets/client/images/kingexpressbus/cabin/3.jpg" alt="{{ __('client.about.hero.image_alt') }}" loading="lazy" class="aspect-[16/10] w-full object-cover">
                         </div>
                         <div class="about-image-mask">
-                            <img src="/client/images/kingexpressbus/cabin_double/1.jpg" alt="{{ __('client.about_page.fleet_cards.cabin.name') }}" loading="lazy" class="aspect-[4/3] w-full object-cover">
+                            <img src="/assets/client/images/kingexpressbus/cabin_double/1.jpg" alt="{{ __('client.about_page.fleet_cards.cabin.name') }}" loading="lazy" class="aspect-[4/3] w-full object-cover">
                         </div>
                         <div class="about-image-mask">
-                            <img src="/client/images/kingexpressbus/limousine/2.png" alt="{{ __('client.about_page.fleet_cards.limousine.name') }}" loading="lazy" class="aspect-[4/3] w-full object-cover">
+                            <img src="/assets/client/images/kingexpressbus/limousine/2.png" alt="{{ __('client.about_page.fleet_cards.limousine.name') }}" loading="lazy" class="aspect-[4/3] w-full object-cover">
                         </div>
                     </div>
 
                     <div class="about-timeline mt-8 space-y-8 pl-6">
                         @foreach($timelineItems as $item)
                             <article class="relative" data-aos="fade-left" data-aos-duration="520" data-aos-delay="{{ $loop->index * 80 }}">
-                                <span class="about-timeline-dot absolute -left-[31px] top-1 inline-flex h-3 w-3 rounded-full bg-primary-600"></span>
+                                <span class="about-timeline-dot absolute -left-[31px] top-1 inline-flex h-3 w-3 rounded-sm bg-primary-600"></span>
                                 <p class="font-display text-2xl font-extrabold text-slate-950">{{ $item['year'] }}</p>
                                 <h3 class="mt-1 text-sm font-extrabold uppercase tracking-[0.04em] text-primary-700">{{ $item['title'] }}</h3>
                                 <p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-500">{{ $item['description'] }}</p>
@@ -401,23 +396,23 @@
 
             <div class="mt-10 grid gap-3 md:grid-cols-3">
                 <div class="about-image-mask md:col-span-2" data-aos="zoom-in" data-aos-duration="620">
-                    <img src="/client/images/kingexpressbus/cabin/4.jpg" alt="{{ __('client.about.hero.image_alt') }}" loading="lazy" class="aspect-[16/7] w-full object-cover">
+                    <img src="/assets/client/images/kingexpressbus/cabin/4.jpg" alt="{{ __('client.about.hero.image_alt') }}" loading="lazy" class="aspect-[16/7] w-full object-cover">
                 </div>
                 <div class="about-image-mask" data-aos="zoom-in" data-aos-duration="620" data-aos-delay="90">
-                    <img src="/client/images/kingexpressbus/sleeper/2.jpg" alt="{{ __('client.about_page.fleet_cards.sleeper.name') }}" loading="lazy" class="aspect-[16/7] w-full object-cover md:aspect-auto md:h-full">
+                    <img src="/assets/client/images/kingexpressbus/sleeper/2.jpg" alt="{{ __('client.about_page.fleet_cards.sleeper.name') }}" loading="lazy" class="aspect-[16/7] w-full object-cover md:aspect-auto md:h-full">
                 </div>
             </div>
 
             <div class="mt-12 grid gap-8 border-t border-slate-200 pt-10 lg:grid-cols-2">
                 <article data-aos="fade-up" data-aos-duration="580">
-                    <p class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                    <p class="inline-flex h-11 w-11 items-center justify-center rounded-sm bg-primary-50 text-primary-700">
                         <i class="fa-solid fa-heart"></i>
                     </p>
                     <h3 class="mt-5 font-display text-2xl font-extrabold text-slate-950">{{ __('client.about.mission.with_customers.title') }}</h3>
                     <p class="mt-3 text-base leading-8 text-slate-600">{{ __('client.about.mission.with_customers.content') }}</p>
                 </article>
                 <article data-aos="fade-up" data-aos-duration="580" data-aos-delay="90">
-                    <p class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                    <p class="inline-flex h-11 w-11 items-center justify-center rounded-sm bg-primary-50 text-primary-700">
                         <i class="fa-solid fa-earth-asia"></i>
                     </p>
                     <h3 class="mt-5 font-display text-2xl font-extrabold text-slate-950">{{ __('client.about.mission.with_society.title') }}</h3>
@@ -434,7 +429,7 @@
                 <div>
                     @foreach(__('client.about.core_values.items') as $item)
                         <article class="about-value-row grid gap-4 py-5 md:grid-cols-[48px_1fr]" data-aos="fade-left" data-aos-duration="520" data-aos-delay="{{ $loop->index * 70 }}">
-                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white text-primary-700 shadow-soft">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-sm bg-white text-primary-700 ">
                                 <i class="{{ $item['icon'] }}"></i>
                             </span>
                             <div>
@@ -453,7 +448,7 @@
             <div class="grid gap-10 lg:grid-cols-12 lg:items-center">
                 <div class="lg:col-span-7" data-aos="fade-right" data-aos-duration="650">
                     <div class="about-image-mask">
-                        <img src="/client/images/kingexpressbus/limousine/1.png" alt="{{ __('client.about.fleet.title') }}" loading="lazy" class="aspect-[16/10] w-full object-cover">
+                        <img src="/assets/client/images/kingexpressbus/limousine/1.png" alt="{{ __('client.about.fleet.title') }}" loading="lazy" class="aspect-[16/10] w-full object-cover">
                     </div>
                 </div>
                 <div class="lg:col-span-5" data-aos="fade-left" data-aos-duration="650">
@@ -510,7 +505,7 @@
                 @forelse ($popularRoutes as $route)
                     <a href="{{ route('client.routes.show', ['slug' => $route->slug]) }}" class="about-route-row group grid overflow-hidden sm:grid-cols-[164px_1fr]" data-aos="fade-up" data-aos-duration="520" data-aos-delay="{{ $loop->index * 70 }}">
                         <div class="relative min-h-40 overflow-hidden">
-                            <img src="{{ \App\Helpers\SystemHelper::mediaUrl($route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/client/images/city_imgs/sapa.jpg')) }}"
+                            <img src="{{ \App\Helpers\SystemHelper::mediaUrl($route->thumbnail_url, \App\Helpers\SystemHelper::mediaUrl('/assets/client/images/city_imgs/sapa.jpg')) }}"
                                 alt="{{ $route->name }}"
                                 loading="lazy"
                                 class="h-full w-full object-cover">
@@ -538,7 +533,7 @@
                         </div>
                     </a>
                 @empty
-                    <p class="col-span-full rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
+                    <p class="col-span-full rounded-sm border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">
                         {{ __('client.about_page.popular_routes.empty') }}
                     </p>
                 @endforelse
@@ -565,9 +560,9 @@
                         data-aos="zoom-in"
                         data-aos-duration="520"
                         data-aos-delay="{{ $loop->index * 70 }}">
-                        <img src="{{ $destination['image'] }}" alt="{{ $destination['name'] }}" loading="lazy" class="h-full w-full object-cover">
-                        <span class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-900/86 to-transparent p-4 text-lg font-extrabold text-white">
-                            {{ $destination['name'] }}
+                        <img src="{{ $destination['image'] }}" alt="{{ __('client.about_page.destinations.cities.' . $destination['key']) }}" loading="lazy" class="h-full w-full object-cover">
+                        <span class="absolute inset-x-0 bottom-0 bg-contrast-900/75 p-4 text-lg font-extrabold text-white">
+                            {{ __('client.about_page.destinations.cities.' . $destination['key']) }}
                         </span>
                     </a>
                 @endforeach
