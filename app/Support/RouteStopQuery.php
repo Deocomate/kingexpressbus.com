@@ -33,7 +33,7 @@ class RouteStopQuery
                 'd.name as district_name',
             ])
             ->orderBy('rs.route_id')
-            ->orderBy('rs.priority')
+            ->orderByDesc('rs.priority')
             ->get()
             ->groupBy('route_id')
             ->map(fn (Collection $stops) => $stops->values()->all())

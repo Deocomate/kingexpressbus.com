@@ -153,38 +153,48 @@ class SystemHelper
 
     /**
      * Get status badge HTML for booking status.
+     * Delegates to BookingStatus enum for label and color to avoid drift.
      */
     public static function getBookingStatusBadge(string $status): string
     {
-        $config = [
-            'pending' => ['class' => 'badge-warning', 'text' => 'Chờ xác nhận'],
-            'confirmed' => ['class' => 'badge-success', 'text' => 'Đã xác nhận'],
-            'cancelled' => ['class' => 'badge-danger', 'text' => 'Đã hủy'],
-            'completed' => ['class' => 'badge-primary', 'text' => 'Hoàn thành'],
-        ];
+        $enum = \App\Enums\BookingStatus::tryFrom($status);
+        $label = $enum?->getLabel() ?? ucfirst($status);
+        $color = $enum?->getColor() ?? 'secondary';
+        $class = self::enumColorToBadgeClass($color);
 
-        $data = $config[$status] ?? ['class' => 'badge-secondary', 'text' => ucfirst($status)];
-
-        return sprintf('<span class="badge %s">%s</span>', $data['class'], $data['text']);
+        return sprintf('<span class="badge %s">%s</span>', $class, e($label));
     }
 
     /**
      * Get payment status badge HTML.
+     * Delegates to PaymentStatus enum for label and color.
      */
     public static function getPaymentStatusBadge(string $status, string $method = ''): string
     {
-        $config = [
-            'unpaid' => ['class' => 'badge-warning', 'text' => 'Chưa thanh toán'],
-            'paid' => ['class' => 'badge-success', 'text' => 'Đã thanh toán'],
-        ];
+        $enum = \App\Enums\PaymentStatus::tryFrom($status);
+        $label = $enum?->getLabel() ?? ucfirst($status);
+        $color = $enum?->getColor() ?? 'secondary';
+        $class = self::enumColorToBadgeClass($color);
 
-        $data = $config[$status] ?? ['class' => 'badge-secondary', 'text' => ucfirst($status)];
         $methodText = match ($method) {
             'online_banking' => ' (SePay)',
             'cash_on_pickup' => ' (Tiền mặt)',
             default => '',
         };
 
-        return sprintf('<span class="badge %s">%s%s</span>', $data['class'], $data['text'], $methodText);
+        return sprintf('<span class="badge %s">%s%s</span>', $class, e($label), e($methodText));
+    }
+
+    /** Map Filament/enum color names to Tailwind badge CSS classes (single mapping point). */
+    private static function enumColorToBadgeClass(string $color): string
+    {
+        return match ($color) {
+            'success' => 'badge-success',
+            'danger' => 'badge-danger',
+            'warning' => 'badge-warning',
+            'info' => 'badge-info',
+            'primary' => 'badge-primary',
+            default => 'badge-secondary',
+        };
     }
 }

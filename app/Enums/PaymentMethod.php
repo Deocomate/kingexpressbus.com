@@ -4,6 +4,8 @@ namespace App\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 
+// Filament 5 resolves enum labels via the HasLabel interface.
+// This interface must remain until Phase 10 when Filament is removed.
 enum PaymentMethod: string implements HasLabel
 {
     case OnlineBanking = 'online_banking';

@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTreeOrder;
 use Database\Factories\MenuFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use SolutionForest\FilamentTree\Concern\ModelTree;
 
 class Menu extends Model
 {
     /** @use HasFactory<MenuFactory> */
-    use HasFactory, ModelTree;
+    use HasFactory, HasTreeOrder;
 
     public const ROOT_PARENT_ID = -1;
 
@@ -60,5 +61,15 @@ class Menu extends Model
     public static function defaultParentKey(): int
     {
         return self::ROOT_PARENT_ID;
+    }
+
+    /**
+     * Higher priority values should appear first across admin and client.
+     */
+    public function scopeOrdered(Builder $query, string $direction = 'desc'): Builder
+    {
+        return $query
+            ->orderBy($this->determineParentColumnName())
+            ->orderBy($this->determineOrderColumnName(), $direction);
     }
 }

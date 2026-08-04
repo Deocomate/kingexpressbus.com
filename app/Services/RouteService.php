@@ -94,7 +94,7 @@ class RouteService
                 'p.name as province_name',
                 DB::raw($this->locationSqlExpression().' as location'),
             ])
-            ->orderBy('rs.priority')
+            ->orderByDesc('rs.priority')
             ->get();
     }
 
@@ -174,13 +174,14 @@ class RouteService
 
         $now = Carbon::now();
         $stopsToInsert = [];
+        $stopCount = count($stopsData);
 
         foreach ($stopsData as $index => $stop) {
             $stopsToInsert[] = [
                 'route_id' => $routeId,
                 'stop_id' => $stop['stop_id'],
                 'stop_type' => $stop['stop_type'] ?? 'both',
-                'priority' => $index,
+                'priority' => $stopCount - $index,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -195,8 +196,10 @@ class RouteService
     public function updateOrder(array $order): void
     {
         DB::transaction(function () use ($order) {
+            $orderCount = count($order);
+
             foreach ($order as $index => $routeId) {
-                DB::table('routes')->where('id', $routeId)->update(['priority' => $index]);
+                DB::table('routes')->where('id', $routeId)->update(['priority' => $orderCount - $index]);
             }
         });
     }

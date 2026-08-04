@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\RouteStopFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -33,5 +34,13 @@ class RouteStop extends Model
     public function stop(): BelongsTo
     {
         return $this->belongsTo(Stop::class);
+    }
+
+    /**
+     * Scope to order by priority (higher values first).
+     */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderByDesc('priority');
     }
 }

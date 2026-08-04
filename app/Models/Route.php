@@ -63,7 +63,7 @@ class Route extends Model
 
     public function routeStops(): HasMany
     {
-        return $this->hasMany(RouteStop::class)->orderBy('priority');
+        return $this->hasMany(RouteStop::class)->orderByDesc('priority');
     }
 
     /**
@@ -73,7 +73,7 @@ class Route extends Model
     {
         return $this->belongsToMany(Stop::class, 'route_stops')
             ->withPivot(['stop_type', 'priority'])
-            ->orderBy('route_stops.priority');
+            ->orderByDesc('route_stops.priority');
     }
 
     /**
