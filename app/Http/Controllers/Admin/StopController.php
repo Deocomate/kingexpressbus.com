@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreStopRequest;
 use App\Http\Requests\Admin\UpdateStopRequest;
 use App\Models\Stop;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use Illuminate\Http\JsonResponse;
@@ -45,12 +46,12 @@ class StopController extends Controller
             ->with('success', 'Đã xóa điểm dừng.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Chưa chọn bản ghi nào.');
+            return AdminResponse::bulkResult($request, false, 'Chưa chọn bản ghi nào.');
         }
 
         try {
@@ -60,13 +61,12 @@ class StopController extends Controller
             ));
             DeleteGuard::assertNoBookings($total, count($ids) . ' điểm dừng đã chọn');
         } catch (DeleteBlockedException $e) {
-            return back()->with('error', $e->getMessage());
+            return AdminResponse::bulkResult($request, false, $e->getMessage());
         }
 
         Stop::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.locations.index', ['section' => 'stops'])
-            ->with('success', 'Đã xóa ' . count($ids) . ' điểm dừng.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' điểm dừng.');
     }
 
     public function reorder(Request $request): JsonResponse

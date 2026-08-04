@@ -1,11 +1,13 @@
 @props([
-    'url',         // POST endpoint to toggle
-    'value',       // current boolean value
-    'label' => '', // screen-reader label
+    'url',            // endpoint to toggle
+    'value',          // current boolean value
+    'label' => '',    // screen-reader label
+    'method' => 'PATCH', // HTTP verb of the toggle endpoint
 ])
 <div
     data-toggle-cell
     data-url="{{ $url }}"
+    data-method="{{ $method }}"
     class="flex justify-center"
 >
     <button

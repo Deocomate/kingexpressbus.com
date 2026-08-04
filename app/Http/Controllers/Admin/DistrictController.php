@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDistrictRequest;
 use App\Http\Requests\Admin\UpdateDistrictRequest;
 use App\Models\District;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\OptionSources\LocationOptionSource;
@@ -77,12 +78,12 @@ class DistrictController extends Controller
             ->with('success', 'Đã xóa địa điểm.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Chưa chọn bản ghi nào.');
+            return AdminResponse::bulkResult($request, false, 'Chưa chọn bản ghi nào.');
         }
 
         try {
@@ -92,13 +93,12 @@ class DistrictController extends Controller
             ));
             DeleteGuard::assertNoBookings($total, count($ids) . ' địa điểm đã chọn');
         } catch (DeleteBlockedException $e) {
-            return back()->with('error', $e->getMessage());
+            return AdminResponse::bulkResult($request, false, $e->getMessage());
         }
 
         District::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.locations.index', ['section' => 'districts'])
-            ->with('success', 'Đã xóa ' . count($ids) . ' địa điểm.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' địa điểm.');
     }
 
     public function reorder(Request $request): JsonResponse

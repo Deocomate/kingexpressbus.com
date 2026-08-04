@@ -56,5 +56,13 @@
 {{-- Bulk action bar + grouped table --}}
 <form id="bulk-form" method="POST" action="{{ route('admin.trips.bulk-destroy') }}">
     @csrf @method('DELETE')
-    @include('admin.trips._table-trips-rows', compact('paginator', 'grouped'))
+    <x-admin::table.bulk-bar
+        :actions="[['label' => 'Xóa đã chọn', 'value' => 'delete', 'class' => 'bg-red-50 border border-red-300 text-red-700 hover:bg-red-100']]"
+        formAction="{{ route('admin.trips.bulk-destroy') }}"
+    />
+
+    {{-- Grouped table --}}
+    <x-admin::table.table id="trips-table">
+        @include('admin.trips._table-trips-rows', compact('grouped', 'paginator'))
+    </x-admin::table.table>
 </form>

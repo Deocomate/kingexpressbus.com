@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDistrictTypeRequest;
 use App\Http\Requests\Admin\UpdateDistrictTypeRequest;
 use App\Models\DistrictType;
+use App\Support\Admin\AdminResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,18 +38,17 @@ class DistrictTypeController extends Controller
             ->with('success', 'Đã xóa loại địa điểm.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Chưa chọn bản ghi nào.');
+            return AdminResponse::bulkResult($request, false, 'Chưa chọn bản ghi nào.');
         }
 
         DistrictType::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.locations.index', ['section' => 'district-types'])
-            ->with('success', 'Đã xóa ' . count($ids) . ' loại địa điểm.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' loại địa điểm.');
     }
 
     public function reorder(Request $request): JsonResponse

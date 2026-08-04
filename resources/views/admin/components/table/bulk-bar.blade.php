@@ -3,13 +3,10 @@
     'formAction' => '',
 ])
 <div
-    x-data="{ selected: [] }"
-    x-show="selected.length > 0"
-    x-cloak
     data-bulk-bar
-    class="flex items-center gap-3 px-4 py-2 bg-brand-50 border-b border-brand-200"
+    class="hidden items-center gap-3 px-4 py-2 bg-brand-50 border-b border-brand-200"
 >
-    <span class="text-sm text-brand-700 font-medium" x-text="selected.length + ' đã chọn'"></span>
+    <span class="text-sm text-brand-700 font-medium" data-bulk-count>Đã chọn 0</span>
     <div class="flex gap-2 ml-auto">
         @foreach($actions as $action)
         <button

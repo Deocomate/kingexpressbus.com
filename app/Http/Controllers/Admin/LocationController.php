@@ -45,11 +45,14 @@ class LocationController extends Controller
 
     private function tablePartialView(string $section): string
     {
+        // Rows-only fragments (no [data-table] wrapper) — swapped via innerHTML
+        // by the admin table engine, so the wrapper element itself must not
+        // be re-rendered here.
         return match ($section) {
-            'provinces'      => 'admin.locations._table-provinces',
-            'district-types' => 'admin.locations._table-district-types',
-            'districts'      => 'admin.locations._table-districts',
-            'stops'          => 'admin.locations._table-stops',
+            'provinces'      => 'admin.locations._table-provinces-rows',
+            'district-types' => 'admin.locations._table-district-types-rows',
+            'districts'      => 'admin.locations._table-districts-rows',
+            'stops'          => 'admin.locations._table-stops-rows',
         };
     }
 
