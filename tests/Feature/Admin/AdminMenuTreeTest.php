@@ -7,7 +7,6 @@ use App\Support\ClientCache;
 use App\Support\PriorityOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -26,7 +25,7 @@ function rootMenu(array $attrs = []): Menu
 function validReorderPayload(array $tree): array
 {
     return [
-        'tree'    => $tree,
+        'tree' => $tree,
         'version' => MenuTreeBuilder::versionToken(),
     ];
 }
@@ -46,9 +45,9 @@ it('shows menu tree page', function () {
 it('creates a menu with type custom_link successfully', function () {
     $this->actingAs(adminForMenuTest())
         ->post(route('admin.website.menus.store'), [
-            'name'      => 'Custom Link Menu',
-            'type'      => 'custom_link',
-            'url'       => 'https://example.com',
+            'name' => 'Custom Link Menu',
+            'type' => 'custom_link',
+            'url' => 'https://example.com',
             'parent_id' => Menu::ROOT_PARENT_ID,
         ])
         ->assertRedirect();
@@ -59,9 +58,9 @@ it('creates a menu with type custom_link successfully', function () {
 it('rejects type=link with 422 (regression guard)', function () {
     $this->actingAs(adminForMenuTest())
         ->post(route('admin.website.menus.store'), [
-            'name'      => 'Should Fail',
-            'type'      => 'link',
-            'url'       => 'https://example.com',
+            'name' => 'Should Fail',
+            'type' => 'link',
+            'url' => 'https://example.com',
             'parent_id' => Menu::ROOT_PARENT_ID,
         ])
         ->assertSessionHasErrors('type');
@@ -73,9 +72,9 @@ it('accepts all four valid types', function () {
     foreach (['custom_link', 'page', 'system_page'] as $type) {
         $this->actingAs($admin)
             ->post(route('admin.website.menus.store'), [
-                'name'      => "Type {$type}",
-                'type'      => $type,
-                'url'       => '/some-path',
+                'name' => "Type {$type}",
+                'type' => $type,
+                'url' => '/some-path',
                 'parent_id' => Menu::ROOT_PARENT_ID,
             ])
             ->assertRedirect();
@@ -89,9 +88,9 @@ it('existing custom_link menu can be updated without 422', function () {
 
     $this->actingAs(adminForMenuTest())
         ->put(route('admin.website.menus.update', $menu), [
-            'name'      => 'Updated Name',
-            'type'      => 'custom_link',
-            'url'       => '/new',
+            'name' => 'Updated Name',
+            'type' => 'custom_link',
+            'url' => '/new',
             'parent_id' => Menu::ROOT_PARENT_ID,
         ])
         ->assertRedirect();
@@ -104,9 +103,9 @@ it('existing custom_link menu can be updated without 422', function () {
 it('creates a root menu with parent_id = ROOT_PARENT_ID (-1)', function () {
     $this->actingAs(adminForMenuTest())
         ->post(route('admin.website.menus.store'), [
-            'name'      => 'Root Item',
-            'type'      => 'custom_link',
-            'url'       => '/',
+            'name' => 'Root Item',
+            'type' => 'custom_link',
+            'url' => '/',
             'parent_id' => Menu::ROOT_PARENT_ID,
         ])
         ->assertRedirect();
@@ -115,12 +114,104 @@ it('creates a root menu with parent_id = ROOT_PARENT_ID (-1)', function () {
     expect($menu->parent_id)->toBe(Menu::ROOT_PARENT_ID);
 });
 
+it('requires url when type is custom_link', function () {
+    $this->actingAs(adminForMenuTest())
+        ->post(route('admin.website.menus.store'), [
+            'name' => 'No URL',
+            'type' => 'custom_link',
+            'url' => '',
+            'parent_id' => Menu::ROOT_PARENT_ID,
+        ])
+        ->assertSessionHasErrors('url');
+});
+
+it('requires related_id when type is route', function () {
+    $this->actingAs(adminForMenuTest())
+        ->post(route('admin.website.menus.store'), [
+            'name' => 'Route Menu',
+            'type' => 'route',
+            'related_id' => null,
+            'parent_id' => Menu::ROOT_PARENT_ID,
+        ])
+        ->assertSessionHasErrors('related_id');
+});
+
+it('assigns max sibling priority + 1 for new menu', function () {
+    rootMenu(['priority' => 7]);
+    rootMenu(['priority' => 12]);
+
+    $this->actingAs(adminForMenuTest())
+        ->post(route('admin.website.menus.store'), [
+            'name' => 'Next Priority',
+            'type' => 'custom_link',
+            'url' => '/',
+            'parent_id' => Menu::ROOT_PARENT_ID,
+        ])
+        ->assertRedirect();
+
+    expect(Menu::where('name', 'Next Priority')->value('priority'))->toBe(13);
+});
+
+it('rejects nonexistent parent_id', function () {
+    $this->actingAs(adminForMenuTest())
+        ->post(route('admin.website.menus.store'), [
+            'name' => 'Orphan',
+            'type' => 'custom_link',
+            'url' => '/',
+            'parent_id' => 99999,
+        ])
+        ->assertSessionHasErrors('parent_id');
+});
+
+it('rejects setting parent_id to self on update', function () {
+    $menu = rootMenu(['name' => 'Self']);
+
+    $this->actingAs(adminForMenuTest())
+        ->put(route('admin.website.menus.update', $menu), [
+            'name' => 'Self',
+            'type' => 'custom_link',
+            'url' => '/',
+            'parent_id' => $menu->id,
+        ])
+        ->assertSessionHasErrors('parent_id');
+});
+
+it('rejects setting parent_id to a descendant on update', function () {
+    $parent = rootMenu(['name' => 'Parent']);
+    $child = Menu::factory()->create(['parent_id' => $parent->id, 'name' => 'Child']);
+
+    $this->actingAs(adminForMenuTest())
+        ->put(route('admin.website.menus.update', $parent), [
+            'name' => 'Parent',
+            'type' => 'custom_link',
+            'url' => '/',
+            'parent_id' => $child->id,
+        ])
+        ->assertSessionHasErrors('parent_id');
+});
+
+it('rejects creating a menu that would exceed depth 4', function () {
+    $d1 = rootMenu(['name' => 'D1']);
+    $d2 = Menu::factory()->create(['parent_id' => $d1->id, 'name' => 'D2']);
+    $d3 = Menu::factory()->create(['parent_id' => $d2->id, 'name' => 'D3']);
+    $d4 = Menu::factory()->create(['parent_id' => $d3->id, 'name' => 'D4']);
+
+    $this->actingAs(adminForMenuTest())
+        ->post(route('admin.website.menus.store'), [
+            'name' => 'D5',
+            'type' => 'custom_link',
+            'url' => '/',
+            'parent_id' => $d4->id,
+        ])
+        ->assertSessionHasErrors('parent_id');
+});
+
 // ─── Cascade delete ──────────────────────────────────────────────────────────
 
 it('cascade-deletes children when parent menu is deleted via admin route', function () {
     $parent = rootMenu(['name' => 'Parent']);
-    $child  = Menu::factory()->create(['parent_id' => $parent->id, 'name' => 'Child']);
-    $grand  = Menu::factory()->create(['parent_id' => $child->id, 'name' => 'Grand']);
+    $child = Menu::factory()->create(['parent_id' => $parent->id, 'name' => 'Child']);
+    $grand = Menu::factory()->create(['parent_id' => $child->id, 'name' => 'Grand']);
 
     $this->actingAs(adminForMenuTest())
         ->delete(route('admin.website.menus.destroy', $parent))
@@ -150,13 +241,8 @@ it('reorders tree atomically and flushes cache exactly once', function () {
     $a = rootMenu(['priority' => 10]);
     $b = rootMenu(['priority' => 5]);
 
-    $cacheFlushCount = 0;
-    Cache::macro('forgetCounted', function ($key) use (&$cacheFlushCount) {
-        if ($key === ClientCache::MENUS) $cacheFlushCount++;
-        return Cache::forget($key);
-    });
-
     Cache::put(ClientCache::MENUS, 'fake', 3600);
+    Cache::spy();
 
     $this->actingAs(adminForMenuTest())
         ->postJson(route('admin.website.menus.reorder'), validReorderPayload([
@@ -164,15 +250,36 @@ it('reorders tree atomically and flushes cache exactly once', function () {
             ['id' => $a->id, 'children' => []],
         ]))
         ->assertOk()
-        ->assertJsonFragment(['reload' => true]);
+        ->assertJsonFragment(['reload' => true])
+        ->assertJsonStructure(['reload', 'version']);
 
-    // Cache must be cleared
-    expect(Cache::has(ClientCache::MENUS))->toBeFalse();
+    Cache::shouldHaveReceived('forget')->with(ClientCache::MENUS)->once();
+});
+
+it('reorder returns a fresh version token for subsequent drags', function () {
+    $a = rootMenu();
+
+    $first = $this->actingAs(adminForMenuTest())
+        ->postJson(route('admin.website.menus.reorder'), validReorderPayload([
+            ['id' => $a->id, 'children' => []],
+        ]))
+        ->assertOk()
+        ->json('version');
+
+    expect($first)->toBe(MenuTreeBuilder::versionToken());
+
+    // Second reorder with the returned token must succeed (not 409)
+    $this->actingAs(adminForMenuTest())
+        ->postJson(route('admin.website.menus.reorder'), [
+            'tree' => [['id' => $a->id, 'children' => []]],
+            'version' => $first,
+        ])
+        ->assertOk();
 });
 
 it('reorder sets correct parent_id and priority via PriorityOrder', function () {
     $parent = rootMenu(['name' => 'Parent', 'priority' => 1]);
-    $child  = rootMenu(['name' => 'Child',  'priority' => 1]);
+    $child = rootMenu(['name' => 'Child',  'priority' => 1]);
 
     // Move $child under $parent as first child
     $this->actingAs(adminForMenuTest())
@@ -270,7 +377,7 @@ it('reorder returns 409 for stale version token', function () {
 
     $this->actingAs(adminForMenuTest())
         ->postJson(route('admin.website.menus.reorder'), [
-            'tree'    => [['id' => $a->id, 'children' => []]],
+            'tree' => [['id' => $a->id, 'children' => []]],
             'version' => 'stale-token',
         ])
         ->assertStatus(409);
@@ -293,7 +400,10 @@ it('delete menu flushes cache', function () {
 
 function buildDeepChain(array $ids, int $depth = 0): array
 {
-    if (empty($ids)) return [];
+    if (empty($ids)) {
+        return [];
+    }
+
     return [
         ['id' => array_shift($ids), 'children' => buildDeepChain($ids, $depth + 1)],
     ];

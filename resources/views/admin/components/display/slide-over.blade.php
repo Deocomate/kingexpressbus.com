@@ -4,9 +4,22 @@
     'width' => 'max-w-lg',
 ])
 <div
-    x-data="{ open: false }"
-    x-on:open-slide-over.window="if ($event.detail.id === '{{ $id }}') open = true"
-    x-on:close-slide-over.window="if ($event.detail.id === '{{ $id }}') open = false"
+    x-data="{
+        open: false,
+        trigger: null,
+        close() {
+            this.open = false;
+            this.$nextTick(() => this.trigger?.focus?.());
+        },
+    }"
+    x-on:open-slide-over.window="
+        if ($event.detail.id === '{{ $id }}') {
+            trigger = document.activeElement;
+            open = true;
+            $nextTick(() => $refs.panel?.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex=\'-1\'])')?.focus());
+        }
+    "
+    x-on:close-slide-over.window="if ($event.detail.id === '{{ $id }}') close()"
     id="{{ $id }}"
     class="relative z-40"
     aria-labelledby="{{ $id }}-title"
@@ -22,7 +35,7 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        @click="open = false"
+        @click="close()"
         class="fixed inset-0 bg-black/30"
         x-cloak
     ></div>
@@ -32,7 +45,9 @@
         <div class="absolute inset-0 overflow-hidden">
             <div class="pointer-events-none fixed inset-y-0 right-0 flex {{ $width }}">
                 <div
+                    x-ref="panel"
                     x-show="open"
+                    x-trap.noscroll="open"
                     x-transition:enter="transform transition ease-in-out duration-300"
                     x-transition:enter-start="translate-x-full"
                     x-transition:enter-end="translate-x-0"
@@ -47,7 +62,7 @@
                         <h2 id="{{ $id }}-title" class="text-base font-semibold text-gray-900">{{ $title }}</h2>
                         <button
                             type="button"
-                            @click="open = false"
+                            @click="close()"
                             class="rounded p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                             aria-label="Đóng"
                         >

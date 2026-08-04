@@ -6,6 +6,7 @@ use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Support\Facades\Route;
 
@@ -53,6 +54,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => AdminAuthMiddleware::class,
             'admin.transaction' => AdminDatabaseTransaction::class,
         ]);
+        // Authz before route-model binding so non-admins get 403, not 404 leakage.
+        $middleware->prependToPriorityList(
+            before: SubstituteBindings::class,
+            prepend: AdminAuthMiddleware::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

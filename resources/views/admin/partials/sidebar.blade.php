@@ -60,6 +60,7 @@
             @click="$store.sidebar.toggle()"
             class="flex items-center justify-center w-full p-2 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
             :title="$store.sidebar.collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'"
+            :aria-label="$store.sidebar.collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar'"
         >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
                 <path x-show="!$store.sidebar.collapsed" stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />

@@ -2,9 +2,12 @@
 
 use App\Models\User;
 use App\Models\WebProfile;
+use App\Support\Admin\UploadStager;
 use App\Support\ClientCache;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -47,8 +50,8 @@ it('stores a new web profile and redirects', function () {
     $this->actingAs($admin)
         ->post(route('admin.website.profiles.store'), [
             'profile_name' => 'New Profile',
-            'is_default'   => false,
-            'email'        => 'hello@example.com',
+            'is_default' => false,
+            'email' => 'hello@example.com',
         ])
         ->assertRedirect(route('admin.website.index', ['section' => 'profile']));
 
@@ -78,7 +81,7 @@ it('updates a profile and redirects back to edit form', function () {
     $this->actingAs(adminUser())
         ->put(route('admin.website.profiles.update', $profile), [
             'profile_name' => 'New Name',
-            'is_default'   => false,
+            'is_default' => false,
         ])
         ->assertRedirect(route('admin.website.profiles.edit', $profile));
 
@@ -89,7 +92,7 @@ it('updates a profile and redirects back to edit form', function () {
 
 it('switching is_default demotes other profiles and flushes cache', function () {
     $default = WebProfile::factory()->default()->create();
-    $other   = WebProfile::factory()->create(['profile_name' => 'Other', 'is_default' => false]);
+    $other = WebProfile::factory()->create(['profile_name' => 'Other', 'is_default' => false]);
 
     // Seed the cache with a fake value to verify it gets cleared
     Cache::put(ClientCache::WEB_PROFILE, 'fake', 3600);
@@ -113,7 +116,7 @@ it('setting is_default via update also flushes cache', function () {
     $this->actingAs(adminUser())
         ->put(route('admin.website.profiles.update', $b), [
             'profile_name' => $b->profile_name,
-            'is_default'   => true,
+            'is_default' => true,
         ])
         ->assertRedirect();
 
@@ -165,11 +168,41 @@ it('stores map_embedded raw iframe without sanitising', function () {
     $response = $this->actingAs($admin)
         ->post(route('admin.website.profiles.store'), [
             'profile_name' => 'Map Test',
-            'is_default'   => false,
+            'is_default' => false,
             'map_embedded' => $iframe,
         ])
         ->assertRedirect();
 
     $profile = WebProfile::where('profile_name', 'Map Test')->first();
     expect($profile->map_embedded)->toBe($iframe);
+});
+
+// ─── Logo / favicon commit into website/ ─────────────────────────────────────
+
+it('commits staged logo_url into website/ on store', function () {
+    Storage::fake('local');
+    Storage::fake('public');
+
+    $admin = adminUser();
+    // Array session driver regenerates IDs per HTTP request in tests — stage+commit
+    // with one fixed session id, then submit the committed public path through the form.
+    $sessionId = 'webprofile-logo-test-session';
+    $token = UploadStager::stage(
+        UploadedFile::fake()->image('brand-logo.png', 80, 80),
+        $sessionId
+    );
+    $committed = UploadStager::commit($token, 'website', $sessionId);
+    expect($committed)->toStartWith('website/');
+
+    $this->actingAs($admin)
+        ->post(route('admin.website.profiles.store'), [
+            'profile_name' => 'With Logo',
+            'is_default' => false,
+            'logo_url' => $committed,
+        ])
+        ->assertRedirect();
+
+    $profile = WebProfile::where('profile_name', 'With Logo')->first();
+    expect($profile->logo_url)->toBe($committed)
+        ->and(Storage::disk('public')->exists($profile->logo_url))->toBeTrue();
 });

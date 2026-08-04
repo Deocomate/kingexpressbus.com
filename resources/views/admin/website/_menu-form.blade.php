@@ -13,7 +13,7 @@
         fill(data) {
             this.editing = true;
             this.menuId  = data.id;
-            this.action  = '/quan-tri/cau-hinh-website/menus/' + data.id;
+            this.action  = '{{ $updateUrlTpl }}/' + data.id;
             this.type    = data.type || 'custom_link';
             this.$nextTick(() => {
                 const form = this.$refs.form;

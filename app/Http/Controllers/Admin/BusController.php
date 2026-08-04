@@ -9,11 +9,11 @@ use App\Models\Bus;
 use App\Models\BusService;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
-use App\Support\Admin\HtmlSanitizer;
 use App\Support\Admin\TableQuery;
 use App\Support\Admin\Tables\BusServiceTableConfig;
 use App\Support\Admin\Tables\BusTableConfig;
 use App\Support\Admin\UploadStager;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,40 +30,40 @@ class BusController extends Controller
         }
 
         $config = BusTableConfig::make();
-        $base   = BusTableConfig::baseQuery();
+        $base = BusTableConfig::baseQuery();
 
         $tq = TableQuery::make($base, $config)->process($request);
 
         // Eager load services for all buses in current page
-        $busIds   = $tq->paginator()->pluck('id')->all();
+        $busIds = $tq->paginator()->pluck('id')->all();
         $services = Bus::whereIn('id', $busIds)->with('services')->get()->keyBy('id');
 
         $allServices = BusService::orderBy('name')->get(['id', 'name', 'icon']);
 
         return view('admin.buses.index', [
-            'section'     => 'buses',
-            'paginator'   => $tq->paginator(),
+            'section' => 'buses',
+            'paginator' => $tq->paginator(),
             'tableConfig' => $config,
-            'activeSearch'=> $tq->activeSearch(),
+            'activeSearch' => $tq->activeSearch(),
             'activeSortKey' => $tq->activeSortKey(),
             'activeSortDir' => $tq->activeSortDir(),
-            'busServices'   => $services,
-            'allServices'   => $allServices,
+            'busServices' => $services,
+            'allServices' => $allServices,
         ]);
     }
 
     private function indexServices(Request $request): View
     {
         $config = BusServiceTableConfig::make();
-        $base   = BusServiceTableConfig::baseQuery();
+        $base = BusServiceTableConfig::baseQuery();
 
         $tq = TableQuery::make($base, $config)->process($request);
 
         return view('admin.buses.index', [
-            'section'         => 'services',
+            'section' => 'services',
             'servicesPaginator' => $tq->paginator(),
-            'servicesConfig'    => $config,
-            'activeSearch'      => $tq->activeSearch(),
+            'servicesConfig' => $config,
+            'activeSearch' => $tq->activeSearch(),
         ]);
     }
 
@@ -72,15 +72,15 @@ class BusController extends Controller
         $allServices = BusService::orderBy('name')->get(['id', 'name']);
 
         return view('admin.buses.form', [
-            'bus'         => null,
-            'isEdit'      => false,
+            'bus' => null,
+            'isEdit' => false,
             'allServices' => $allServices,
         ]);
     }
 
     public function store(StoreBusRequest $request): RedirectResponse
     {
-        $data     = $this->prepareData($request);
+        $data = $this->prepareData($request);
         $services = $request->input('services', []);
 
         $bus = Bus::create($data);
@@ -92,12 +92,12 @@ class BusController extends Controller
 
     public function edit(int $bus): View
     {
-        $busModel    = Bus::with('services')->findOrFail($bus);
+        $busModel = Bus::with('services')->findOrFail($bus);
         $allServices = BusService::orderBy('name')->get(['id', 'name']);
 
         return view('admin.buses.form', [
-            'bus'         => $busModel,
-            'isEdit'      => true,
+            'bus' => $busModel,
+            'isEdit' => true,
             'allServices' => $allServices,
         ]);
     }
@@ -106,7 +106,7 @@ class BusController extends Controller
     {
         $busModel = Bus::findOrFail($bus);
 
-        $data     = $this->prepareData($request, $busModel);
+        $data = $this->prepareData($request, $busModel);
         $services = $request->input('services', []);
 
         $busModel->update($data);
@@ -144,7 +144,7 @@ class BusController extends Controller
             return back()->with('error', 'Không có bản ghi nào được chọn.');
         }
 
-        $buses   = Bus::whereIn('id', $ids)->get();
+        $buses = Bus::whereIn('id', $ids)->get();
         $blocked = [];
         $deleted = 0;
 
@@ -152,6 +152,7 @@ class BusController extends Controller
             $count = DeleteGuard::busBookingCount($busModel->id);
             if ($count > 0) {
                 $blocked[] = "\"{$busModel->name}\" ({$count} đơn)";
+
                 continue;
             }
             $this->deleteBusFiles($busModel);
@@ -160,15 +161,16 @@ class BusController extends Controller
         }
 
         $message = "Đã xóa {$deleted} xe.";
-        if (!empty($blocked)) {
-            $message .= ' Không thể xóa: ' . implode(', ', $blocked) . '.';
+        if (! empty($blocked)) {
+            $message .= ' Không thể xóa: '.implode(', ', $blocked).'.';
         }
 
         $flashKey = empty($blocked) ? 'success' : 'error';
+
         return back()->with($flashKey, $message);
     }
 
-    public function reorder(Request $request): \Illuminate\Http\JsonResponse
+    public function reorder(Request $request): JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
@@ -180,7 +182,7 @@ class BusController extends Controller
         $cases = [];
         foreach ($ids as $index => $id) {
             $priority = $total - $index;
-            $cases[]  = "WHEN {$id} THEN {$priority}";
+            $cases[] = "WHEN {$id} THEN {$priority}";
         }
         $casesSql = implode(' ', $cases);
 
@@ -196,11 +198,11 @@ class BusController extends Controller
     private function prepareData(Request $request, ?Bus $existing = null): array
     {
         $validated = $request->validated();
-        $session   = session()->getId();
+        $session = session()->getId();
 
         // Commit thumbnail
         $thumbnailUrl = $existing?->thumbnail_url;
-        if (!empty($validated['thumbnail_url'])) {
+        if (! empty($validated['thumbnail_url'])) {
             $token = $validated['thumbnail_url'];
             if (str_contains($token, '~')) {
                 if ($thumbnailUrl) {
@@ -218,9 +220,9 @@ class BusController extends Controller
         }
 
         // Commit album images (max 10 enforced by validation)
-        $existingAlbum  = $existing?->image_list_url ?? [];
+        $existingAlbum = $existing?->image_list_url ?? [];
         $incomingTokens = $validated['image_list_url'] ?? [];
-        $newAlbum       = [];
+        $newAlbum = [];
         foreach ($incomingTokens as $token) {
             if (str_contains($token, '~')) {
                 $newAlbum[] = UploadStager::commit($token, 'buses/albums', $session);
@@ -230,23 +232,22 @@ class BusController extends Controller
         }
 
         foreach ($existingAlbum as $oldPath) {
-            if (!in_array($oldPath, $newAlbum)) {
+            if (! in_array($oldPath, $newAlbum)) {
                 UploadStager::delete($oldPath);
             }
         }
 
-        $content = isset($validated['content'])
-            ? HtmlSanitizer::clean($validated['content'])
-            : ($existing?->content ?? '');
+        // Persist raw editor HTML; sanitize on public render only.
+        $content = $validated['content'] ?? ($existing?->content ?? '');
 
         return [
-            'name'           => $validated['name'],
-            'model_name'     => $validated['model_name'] ?? null,
-            'seat_count'     => (int) $validated['seat_count'],
-            'priority'       => $validated['priority'] ?? 0,
-            'thumbnail_url'  => $thumbnailUrl,
+            'name' => $validated['name'],
+            'model_name' => $validated['model_name'] ?? null,
+            'seat_count' => (int) $validated['seat_count'],
+            'priority' => $validated['priority'] ?? 0,
+            'thumbnail_url' => $thumbnailUrl,
             'image_list_url' => empty($newAlbum) ? null : $newAlbum,
-            'content'        => $content,
+            'content' => $content,
         ];
     }
 

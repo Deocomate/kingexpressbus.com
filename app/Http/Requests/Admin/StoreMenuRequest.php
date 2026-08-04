@@ -3,9 +3,10 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Menu;
-use App\Models\Route;
+use App\Support\Admin\MenuTreeBuilder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class StoreMenuRequest extends FormRequest
 {
@@ -17,9 +18,9 @@ class StoreMenuRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'       => ['required', 'string', 'max:1000'],
-            'type'       => ['required', 'string', Rule::in(['custom_link', 'route', 'page', 'system_page'])],
-            'url'        => [
+            'name' => ['required', 'string', 'max:1000'],
+            'type' => ['required', 'string', Rule::in(['custom_link', 'route', 'page', 'system_page'])],
+            'url' => [
                 Rule::requiredIf(fn () => in_array($this->input('type'), ['custom_link', 'page', 'system_page'])),
                 'nullable',
                 'string',
@@ -31,16 +32,27 @@ class StoreMenuRequest extends FormRequest
                 'integer',
                 Rule::exists('routes', 'id'),
             ],
-            'parent_id'  => ['required', 'integer'],
-            'priority'   => ['nullable', 'integer'],
+            'parent_id' => ['required', 'integer'],
+            'priority' => ['nullable', 'integer'],
         ];
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $parentId = (int) $this->input('parent_id', Menu::ROOT_PARENT_ID);
+            $error = MenuTreeBuilder::parentValidationError($parentId, null);
+            if ($error) {
+                $validator->errors()->add('parent_id', $error);
+            }
+        });
     }
 
     protected function prepareForValidation(): void
     {
         // Ensure root menus always use ROOT_PARENT_ID, not null or 0
         $parentId = $this->input('parent_id');
-        if (empty($parentId) || (int) $parentId === 0) {
+        if ($parentId === null || $parentId === '' || (int) $parentId === 0) {
             $this->merge(['parent_id' => Menu::ROOT_PARENT_ID]);
         }
     }
@@ -48,7 +60,7 @@ class StoreMenuRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.in'          => 'Loại menu không hợp lệ. Chỉ chấp nhận: custom_link, route, page, system_page.',
+            'type.in' => 'Loại menu không hợp lệ. Chỉ chấp nhận: custom_link, route, page, system_page.',
             'related_id.exists' => 'Tuyến đường được chọn không tồn tại.',
         ];
     }

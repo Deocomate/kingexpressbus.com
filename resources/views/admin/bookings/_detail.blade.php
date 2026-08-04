@@ -133,10 +133,17 @@
         open: false,
         loading: false,
         content: '',
+        trigger: null,
+        close() {
+            this.open = false;
+            this.$nextTick(() => this.trigger?.focus?.());
+        },
         init() {
             window.addEventListener('open-booking-detail', (e) => {
+                this.trigger = document.activeElement;
                 this.open = true;
                 this.loadDetail(e.detail.bookingId);
+                this.$nextTick(() => this.$refs.panel?.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex=\'-1\'])')?.focus());
             });
         },
         async loadDetail(id) {
@@ -153,10 +160,11 @@
             }
         }
     }"
-    x-on:close-slide-over.window="open = false"
+    x-on:close-slide-over.window="close()"
     class="relative z-40"
     role="dialog"
     aria-modal="true"
+    aria-labelledby="booking-detail-title"
 >
     <div
         x-show="open"
@@ -166,7 +174,7 @@
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
-        @click="open = false"
+        @click="close()"
         class="fixed inset-0 bg-black/30"
         x-cloak
     ></div>
@@ -175,7 +183,9 @@
         <div class="absolute inset-0 overflow-hidden">
             <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-2xl w-full">
                 <div
+                    x-ref="panel"
                     x-show="open"
+                    x-trap.noscroll="open"
                     x-transition:enter="transform transition ease-in-out duration-300"
                     x-transition:enter-start="translate-x-full"
                     x-transition:enter-end="translate-x-0"
@@ -186,8 +196,8 @@
                     x-cloak
                 >
                     <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-base font-semibold text-gray-900">Chi tiết đặt vé</h2>
-                        <button type="button" @click="open = false"
+                        <h2 id="booking-detail-title" class="text-base font-semibold text-gray-900">Chi tiết đặt vé</h2>
+                        <button type="button" @click="close()"
                             class="rounded p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                             aria-label="Đóng">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,4 +1,7 @@
 import Alpine from 'alpinejs';
+import focus from '@alpinejs/focus';
+
+Alpine.plugin(focus);
 
 // -----------------------------------------------------------------------
 // Alpine stores
@@ -65,6 +68,7 @@ import { initTree, destroyTree } from './admin/registry.js';
 import './admin/form-controls.js';
 import './admin/table.js';
 import './admin/sortable.js';
+import './admin/menu-tree.js';
 import './admin/confirm.js';
 
 // Heavy modules loaded lazily

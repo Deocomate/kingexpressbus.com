@@ -13,13 +13,13 @@
 
 Two admin UIs currently run in parallel (strangler):
 - Filament panel at `/admin` (legacy; removal is Phase 10 of the Blade migration plan)
-- Blade + Tailwind + Alpine admin at `/quan-tri` (auth, layout, bookings, dashboard, and other modules as migrated)
+- Blade + Tailwind + Alpine admin at `/quan-tri` — feature parity hardened (Phase 9); maintainer UI guide: `docs/admin-ui-guidelines.md`
 
 Main responsibilities:
-- Website configuration (`web_profiles`, `menus`)
+- Website configuration (`web_profiles`, `menus`) — Blade module at `/quan-tri/cau-hinh-website` (`?section=profile|menus`; nested SortableJS tree ≤4 levels)
 - Location data (`provinces`, `district_types`, `districts`, `stops`)
 - Route and fleet management (`routes`, `route_stops`, `buses`, `bus_services`)
-- Schedule management (`trips`)
+- Schedule / trip blocks (`trips`, trip blocks)
 - Booking operations (`bookings`) — Blade module at `/quan-tri/dat-ve` (5 status tabs, actions via `BookingService`)
 - Dashboard stats/charts at `/quan-tri` (cached 60s via `ClientCache::ADMIN_DASHBOARD_STATS`)
 - Holiday surcharge management (`holiday_surcharges`, `holiday_surcharge_routes`)
@@ -37,14 +37,14 @@ Client UI assets are built with Vite + Tailwind from `resources/css/app.css` and
 
 ### 2.3 Authentication & Middleware
 
-- Blade admin auth: `App\Http\Middleware\AdminAuthMiddleware` (prefix `/quan-tri`)
+- Blade admin auth: `App\Http\Middleware\AdminAuthMiddleware` (prefix `/quan-tri`; priority before route-model binding)
 - Filament admin panel auth remains separate until cutover
 - Customer auth middleware: under `App\Http\Middleware\Roles\` (client portal)
 
 ## 3. Important Directories
 
 - `app/Http/Controllers/Admin`: Blade admin feature controllers (`/quan-tri`)
-- `app/Support/Admin`: table engine, option sources, dashboard data, delete guard, upload staging
+- `app/Support/Admin`: table engine, option sources, dashboard data, delete guard, upload staging, menu tree builder
 - `resources/views/admin`: Blade admin views
 - `routes/admin/`: one route file per admin module
 - `app/Http/Controllers/Client`: client feature controllers
