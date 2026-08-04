@@ -11,12 +11,17 @@
 
 ### 2.1 Admin Area
 
+Two admin UIs currently run in parallel (strangler):
+- Filament panel at `/admin` (legacy; removal is Phase 10 of the Blade migration plan)
+- Blade + Tailwind + Alpine admin at `/quan-tri` — feature parity hardened (Phase 9); maintainer UI guide: `docs/admin-ui-guidelines.md`
+
 Main responsibilities:
-- Website configuration (`web_profiles`, `menus`)
+- Website configuration (`web_profiles`, `menus`) — Blade module at `/quan-tri/cau-hinh-website` (`?section=profile|menus`; nested SortableJS tree ≤4 levels)
 - Location data (`provinces`, `district_types`, `districts`, `stops`)
 - Route and fleet management (`routes`, `route_stops`, `buses`, `bus_services`)
-- Schedule management (`trips`)
-- Booking operations (`bookings`)
+- Schedule / trip blocks (`trips`, trip blocks)
+- Booking operations (`bookings`) — Blade module at `/quan-tri/dat-ve` (5 status tabs, actions via `BookingService`)
+- Dashboard stats/charts at `/quan-tri` (cached 60s via `ClientCache::ADMIN_DASHBOARD_STATS`)
 - Holiday surcharge management (`holiday_surcharges`, `holiday_surcharge_routes`)
 
 ### 2.2 Client Area
@@ -32,22 +37,26 @@ Client UI assets are built with Vite + Tailwind from `resources/css/app.css` and
 
 ### 2.3 Authentication & Middleware
 
-- Admin auth middleware: `App\Http\Middleware\Roles\AdminAuthMiddleware`
-- Customer auth middleware: `App\Http\Middleware\Roles\CustomerAuthMiddleware`
+- Blade admin auth: `App\Http\Middleware\AdminAuthMiddleware` (prefix `/quan-tri`; priority before route-model binding)
+- Filament admin panel auth remains separate until cutover
+- Customer auth middleware: under `App\Http\Middleware\Roles\` (client portal)
 
 ## 3. Important Directories
 
-- `app/Http/Controllers/Admin`: admin feature controllers
+- `app/Http/Controllers/Admin`: Blade admin feature controllers (`/quan-tri`)
+- `app/Support/Admin`: table engine, option sources, dashboard data, delete guard, upload staging, menu tree builder
+- `resources/views/admin`: Blade admin views
+- `routes/admin/`: one route file per admin module
 - `app/Http/Controllers/Client`: client feature controllers
 - `app/Http/Controllers/Auth`: authentication controllers
 - `app/Services`: business logic services for booking, bus, route, trip, and home
 - `app/Models`: Eloquent models (Booking, Bus, District, Province, Route, Stop, Trip, User, etc.)
 - `resources/views/client`: public client Blade views
-- `resources/css` and `resources/js`: Vite-built client frontend assets
+- `resources/css` and `resources/js`: Vite-built client + admin frontend assets
 - `assets/client`: committed client static images and icons (served via `public/assets/client`)
 - `assets/admin`: admin static assets; Filament vendor assets publish to `public/assets/admin/filament`
-- `storage/app/public`: user uploads from Filament (`buses/`, `routes/`, `media/`, etc.)
-- `routes/web.php`: primary route definitions
+- `storage/app/public`: user uploads (`buses/`, `routes/`, `media/`, etc.)
+- `routes/web.php`: primary client/public route definitions
 - `database/migrations`: schema source of truth
 
 ## 4. Current Database Coverage (All Active Tables)

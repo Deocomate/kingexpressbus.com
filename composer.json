@@ -14,7 +14,9 @@
         "laravel/tinker": "^2.10.1",
         "resend/resend-php": "^0.18.1",
         "sepay/sepay-pg": "^1.0",
-        "solution-forest/filament-tree": "^4.0"
+        "solution-forest/filament-tree": "^4.0",
+        "symfony/html-sanitizer": "^7.4",
+        "ueberdosis/tiptap-php": "2"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",

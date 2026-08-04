@@ -26,6 +26,7 @@ The current architecture is single-tenant (company-specific multi-tenant tables 
 - [System Architecture and Full Database Catalog](docs/system-architecture.md)
 - [Coding Standards](docs/code-standards.md)
 - [Client Frontend Design Guidelines](docs/design-guidelines.md)
+- [Admin UI Guidelines](docs/admin-ui-guidelines.md)
 
 ## 4. Quick Start
 

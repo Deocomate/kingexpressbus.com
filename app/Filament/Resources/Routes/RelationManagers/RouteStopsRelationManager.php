@@ -135,8 +135,8 @@ class RouteStopsRelationManager extends RelationManager
                 ])
                     ->label('Thao tác hàng loạt'),
             ])
-            ->reorderable('priority')
-            ->defaultSort('priority');
+            ->reorderable('priority', direction: 'desc')
+            ->defaultSort('priority', 'desc');
     }
 
     private static function stopTypeLabel(?string $state): string

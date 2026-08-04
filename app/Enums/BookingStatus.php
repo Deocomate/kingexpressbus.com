@@ -5,6 +5,8 @@ namespace App\Enums;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
+// Filament 5 resolves enum labels via the HasLabel/HasColor interfaces.
+// These interfaces must remain until Phase 10 when Filament is removed.
 enum BookingStatus: string implements HasColor, HasLabel
 {
     case Pending = 'pending';
@@ -22,7 +24,7 @@ enum BookingStatus: string implements HasColor, HasLabel
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): string|array|null
     {
         return match ($this) {
             self::Pending => 'warning',

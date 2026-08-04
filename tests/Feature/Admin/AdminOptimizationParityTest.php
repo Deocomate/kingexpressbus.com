@@ -1,0 +1,206 @@
+<?php
+
+/**
+ * Parallel of FilamentAdminOptimizationTest — same assertions against /quan-tri.
+ * Both suites must stay green while Filament remains alive.
+ */
+
+use App\Enums\BookingStatus;
+use App\Enums\PaymentStatus;
+use App\Models\Booking;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+
+uses(RefreshDatabase::class);
+
+function adminOptimizationBookingFixture(): array
+{
+    $now = now();
+
+    $provinceId = DB::table('provinces')->insertGetId([
+        'name' => 'Ha Noi',
+        'slug' => 'ha-noi-admin-opt',
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $districtTypeId = DB::table('district_types')->insertGetId([
+        'name' => 'Urban',
+        'priority' => 0,
+    ]);
+
+    $districtId = DB::table('districts')->insertGetId([
+        'province_id' => $provinceId,
+        'district_type_id' => $districtTypeId,
+        'name' => 'District',
+        'slug' => 'district-admin-opt',
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $pickupStopId = DB::table('stops')->insertGetId([
+        'district_id' => $districtId,
+        'name' => 'Pickup',
+        'address' => 'Address',
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $dropoffStopId = DB::table('stops')->insertGetId([
+        'district_id' => $districtId,
+        'name' => 'Dropoff',
+        'address' => 'Address',
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $routeId = DB::table('routes')->insertGetId([
+        'province_start_id' => $provinceId,
+        'province_end_id' => $provinceId,
+        'name' => 'Route',
+        'slug' => 'route-admin-opt',
+        'price_default' => 0,
+        'available_hotel_pickup' => false,
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $busId = DB::table('buses')->insertGetId([
+        'name' => 'Bus',
+        'model_name' => 'Limousine',
+        'seat_count' => 40,
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    return compact('pickupStopId', 'dropoffStopId', 'routeId', 'busId');
+}
+
+test('application timezone is configured for vietnam', function () {
+    expect(config('app.timezone'))->toBe('Asia/Ho_Chi_Minh')
+        ->and(now()->timezone->getName())->toBe('Asia/Ho_Chi_Minh');
+});
+
+test('bookings list defaults to upcoming tab and sorts newest bookings first', function () {
+    $this->actingAs(User::factory()->admin()->create());
+
+    $fixture = adminOptimizationBookingFixture();
+    $now = now();
+
+    $tripId = DB::table('trips')->insertGetId([
+        'bus_id' => $fixture['busId'],
+        'route_id' => $fixture['routeId'],
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+        'price' => 300000,
+        'is_active' => true,
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $olderBookingId = DB::table('bookings')->insertGetId([
+        'booking_code' => 'OLDER-BOOKING',
+        'trip_id' => $tripId,
+        'booking_date' => now()->addDay()->toDateString(),
+        'customer_name' => 'Older User',
+        'customer_phone' => '0900000001',
+        'pickup_stop_id' => $fixture['pickupStopId'],
+        'dropoff_stop_id' => $fixture['dropoffStopId'],
+        'quantity' => 1,
+        'total_price' => 300000,
+        'payment_method' => 'cash_on_pickup',
+        'payment_status' => 'unpaid',
+        'status' => 'confirmed',
+        'created_at' => $now->copy()->subHour(),
+        'updated_at' => $now,
+    ]);
+
+    $newerBookingId = DB::table('bookings')->insertGetId([
+        'booking_code' => 'NEWER-BOOKING',
+        'trip_id' => $tripId,
+        'booking_date' => now()->addDay()->toDateString(),
+        'customer_name' => 'Newer User',
+        'customer_phone' => '0900000002',
+        'pickup_stop_id' => $fixture['pickupStopId'],
+        'dropoff_stop_id' => $fixture['dropoffStopId'],
+        'quantity' => 1,
+        'total_price' => 300000,
+        'payment_method' => 'cash_on_pickup',
+        'payment_status' => 'unpaid',
+        'status' => 'pending',
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $response = $this->get(route('admin.bookings.index'))
+        ->assertSuccessful()
+        ->assertSee('Sắp đi')
+        ->assertSee('Chờ xác nhận');
+
+    expect($response->viewData('activeTab'))->toBe('upcoming');
+
+    $ids = $response->viewData('paginator')->pluck('id')->values()->all();
+    expect($ids)->toBe([$newerBookingId, $olderBookingId]);
+
+    $sorted = $this->get(route('admin.bookings.index', [
+        'sort' => 'created_at',
+        'direction' => 'asc',
+    ]))
+        ->assertSuccessful()
+        ->viewData('paginator')
+        ->pluck('id')
+        ->values()
+        ->all();
+
+    expect($sorted)->toBe([$olderBookingId, $newerBookingId]);
+});
+
+test('booking status enum provides vietnamese labels and colors', function () {
+    expect(BookingStatus::Pending->getLabel())->toBe('Chờ xác nhận')
+        ->and(BookingStatus::Confirmed->getColor())->toBe('success');
+});
+
+test('booking model casts status to enum', function () {
+    $fixture = adminOptimizationBookingFixture();
+    $now = now();
+
+    $tripId = DB::table('trips')->insertGetId([
+        'bus_id' => $fixture['busId'],
+        'route_id' => $fixture['routeId'],
+        'start_time' => '08:00:00',
+        'end_time' => '12:00:00',
+        'price' => 300000,
+        'is_active' => true,
+        'priority' => 0,
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $bookingId = DB::table('bookings')->insertGetId([
+        'booking_code' => 'ENUM-CAST-ADMIN',
+        'trip_id' => $tripId,
+        'booking_date' => now()->addDay()->toDateString(),
+        'customer_name' => 'Enum User',
+        'customer_phone' => '0900000003',
+        'pickup_stop_id' => $fixture['pickupStopId'],
+        'dropoff_stop_id' => $fixture['dropoffStopId'],
+        'quantity' => 1,
+        'total_price' => 300000,
+        'payment_method' => 'online_banking',
+        'payment_status' => 'unpaid',
+        'status' => 'pending',
+        'created_at' => $now,
+        'updated_at' => $now,
+    ]);
+
+    $booking = Booking::query()->findOrFail($bookingId);
+
+    expect($booking->status)->toBe(BookingStatus::Pending)
+        ->and($booking->payment_status)->toBe(PaymentStatus::Unpaid);
+});

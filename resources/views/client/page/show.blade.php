@@ -104,7 +104,7 @@
                 </div>
 
                 <div class="page-content-prose kx-prose max-w-none">
-                    {!! $page->content !!}
+                    {!! \App\Support\Admin\HtmlSanitizer::sanitize($page->content ?? '') !!}
                 </div>
             </article>
 

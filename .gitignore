@@ -173,3 +173,6 @@ _ide_helper_models.php
 .phpunit.result.cache
 .codex/
 vendor.zip
+public/build.zip
+*.rar
+**/*.rar

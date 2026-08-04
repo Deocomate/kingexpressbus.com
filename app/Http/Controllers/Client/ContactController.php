@@ -24,7 +24,7 @@ class ContactController extends Controller
                 'd.name as district_name',
             ])
             ->orderByDesc('s.priority')
-            ->orderBy('p.priority')
+            ->orderByDesc('p.priority')
             ->limit(10)
             ->get();
 
