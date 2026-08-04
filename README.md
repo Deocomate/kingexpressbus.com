@@ -16,8 +16,9 @@ The current architecture is single-tenant (company-specific multi-tenant tables 
 - Laravel 12
 - MySQL
 - Blade (SSR)
-- Vite + Tailwind CSS for the client portal
-- Laravel `public` disk for user uploads (Filament FileUpload)
+- Vite + Tailwind CSS (client portal + admin at `/quan-tri`)
+- Alpine 3 for admin interactivity
+- Laravel `public` disk for user uploads
 
 ## 3. Documentation Map
 
@@ -59,7 +60,6 @@ Build production client assets:
 ```bash
 npm run build
 php artisan storage:link
-php artisan filament:assets
 ```
 
 On Linux production, symlink committed static assets into `public/`:

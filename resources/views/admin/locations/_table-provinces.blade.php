@@ -1,4 +1,4 @@
-﻿<x-admin::table.table id="provinces-table">
+<x-admin::table.table id="provinces-table">
     {{-- Bulk action bar --}}
     <x-admin::table.bulk-bar
         :actions="[['label' => 'Xóa đã chọn', 'value' => 'delete', 'class' => 'bg-red-50 border border-red-300 text-red-700 hover:bg-red-100']]"
@@ -21,18 +21,18 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Thao tác</th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200" id="provinces-sortable">
+        <tbody class="bg-white divide-y divide-gray-200" id="provinces-sortable" data-sortable data-reorder-url="{{ route('admin.locations.provinces.reorder') }}">
             @forelse($paginator as $province)
-            <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $province->id }}">
+            <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $province->id }}" data-sortable-id="{{ $province->id }}">
                 <td class="px-4 py-3">
                     <input type="checkbox" data-row-checkbox value="{{ $province->id }}" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500">
                 </td>
-                <td class="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp">
+                <td class="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp" data-drag-handle>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8M8 15h8"/></svg>
                 </td>
                 <td class="px-4 py-3">
                     @if($province->thumbnail_url)
-                    <img src="{{ asset('storage/' . $province->thumbnail_url) }}"
+                    <img src="{{ \App\Helpers\SystemHelper::mediaUrl($province->thumbnail_url) }}"
                          alt="{{ $province->name }}"
                          class="w-10 h-10 object-cover rounded">
                     @else
@@ -45,7 +45,7 @@
                 <td class="px-4 py-3 text-sm text-gray-600 font-mono text-xs">{{ $province->slug }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 text-center hidden md:table-cell">{{ $province->districts_count }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">{{ $province->title ?? '—' }}</td>
-                <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $province->priority }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600 text-center" data-priority-value>{{ $province->priority }}</td>
                 <td class="px-4 py-3 text-right">
                     <div class="flex items-center justify-end gap-2">
                         <a href="{{ route('admin.locations.provinces.edit', $province) }}"
@@ -68,25 +68,3 @@
 
     <x-admin::table.pagination :paginator="$paginator" />
 </x-admin::table.table>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var el = document.getElementById('provinces-sortable');
-    if (!el || typeof Sortable === 'undefined') return;
-    Sortable.create(el, {
-        animation: 150,
-        handle: 'td:nth-child(2)',
-        onEnd: function () {
-            var ids = Array.from(el.querySelectorAll('tr[data-id]')).map(function (r) { return r.dataset.id; });
-            fetch('{{ route('admin.locations.provinces.reorder') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                },
-                body: JSON.stringify({ ids: ids }),
-            });
-        },
-    });
-});
-</script>

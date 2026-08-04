@@ -1,9 +1,9 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('title', $province ? 'Sửa tỉnh/thành phố' : 'Thêm tỉnh/thành phố')
 
 @section('content')
-<div class="max-w-3xl"
+<div
      x-data="{
          slugEdited: {{ $province ? 'true' : 'false' }},
          toSlug(str) {

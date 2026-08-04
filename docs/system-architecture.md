@@ -105,8 +105,8 @@ Application/business:
 - Admin area: full CRUD for business tables and operation management.
 - Client area: search/read for routes and trips, create bookings, update own profile.
 - Middleware gates:
-  - `AdminAuthMiddleware`
-  - `CustomerAuthMiddleware`
+  - `App\Http\Middleware\AdminAuthMiddleware` (admin `/quan-tri`)
+  - `App\Http\Middleware\Roles\CustomerAuthMiddleware` (client portal)
 
 ## 6. Source-Of-Truth Priority
 

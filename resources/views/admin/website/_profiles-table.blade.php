@@ -1,4 +1,4 @@
-﻿<x-admin::form.section title="Danh sách hồ sơ website">
+<x-admin::form.section title="Danh sách hồ sơ website">
     @if($profiles->isEmpty())
         <p class="text-sm text-gray-500">Chưa có hồ sơ nào. <a href="{{ route('admin.website.profiles.create') }}" class="text-brand-600 underline">Thêm mới</a>.</p>
     @else

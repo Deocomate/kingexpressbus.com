@@ -2,8 +2,8 @@
 export default {
     content: [
         './resources/views/admin/**/*.blade.php',
-        './resources/js/admin.js',
-        './resources/js/admin/**/*.js',
+        './public/js/admin.js',
+        './public/js/admin/**/*.js',
     ],
     theme: {
         extend: {

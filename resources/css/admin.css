@@ -6,3 +6,81 @@
 @layer base {
     @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
 }
+
+/*
+ * Dropzone overrides — unlayered + higher specificity than the CDN
+ * `.dropzone {…}` rules (loaded after this Vite bundle in _cdn-assets).
+ * Dropzone CDN CSS only activates when the element has class="dropzone".
+ */
+div.dropzone[data-dropzone] {
+    min-height: 140px;
+    border: 2px dashed #d1d5db; /* gray-300 */
+    border-radius: 4px;
+    background-color: #f9fafb; /* gray-50 */
+    padding: 1.25rem 1rem;
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+div.dropzone[data-dropzone]:hover,
+div.dropzone[data-dropzone].dz-drag-hover {
+    border-color: #FFC900; /* brand-500 */
+    background-color: #fff9e6; /* brand-50 */
+}
+
+div.dropzone[data-dropzone] .dz-message {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280; /* gray-500 */
+}
+
+div.dropzone[data-dropzone] .dz-button {
+    background: transparent;
+    border: 0;
+    padding: 0;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+div.dropzone[data-dropzone] .dz-button:hover {
+    color: #d97d00; /* brand-700 */
+    text-decoration: underline;
+}
+
+/* Tailwind preflight: img { max-width:100% } — pin the 120×120 thumb frame. */
+div.dropzone[data-dropzone] .dz-preview .dz-image {
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    width: 120px;
+    height: 120px;
+}
+
+div.dropzone[data-dropzone] .dz-preview .dz-image img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    max-width: none;
+}
+
+div.dropzone[data-dropzone] .dz-preview .dz-remove {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #dc2626;
+    text-decoration: none;
+}
+
+div.dropzone[data-dropzone] .dz-preview .dz-remove:hover {
+    color: #991b1b;
+}
+
+/* Soften Dropzone's huge default success/error badges. */
+div.dropzone[data-dropzone] .dz-preview .dz-success-mark,
+div.dropzone[data-dropzone] .dz-preview .dz-error-mark {
+    transform: scale(0.5);
+}
+
+div.dropzone[data-dropzone].dz-started .dz-message {
+    display: none;
+}
+

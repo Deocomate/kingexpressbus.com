@@ -1,4 +1,4 @@
-﻿{{-- Bus services table sub-view --}}
+{{-- Bus services table sub-view --}}
 <div
     class="space-y-4"
     x-data="busServicesSection({
@@ -41,10 +41,10 @@
                         <div class="flex items-center justify-end gap-2">
                             <button type="button"
                                 @click="openEdit({{ $svc->id }}, {{ Js::from($svc->name) }}, {{ Js::from($svc->icon) }})"
-                                class="text-xs text-gray-500 hover:text-amber-600 transition-colors">Sửa</button>
+                                class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">Sửa</button>
                             <button type="button"
                                 @click="deleteService({{ $svc->id }}, {{ Js::from($svc->name) }})"
-                                class="text-xs text-gray-400 hover:text-red-600 transition-colors">Xóa</button>
+                                class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors">Xóa</button>
                         </div>
                     </td>
                 </tr>

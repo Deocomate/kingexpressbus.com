@@ -1,4 +1,4 @@
-﻿<x-admin::table.table id="districts-table">
+<x-admin::table.table id="districts-table">
     <x-admin::table.bulk-bar
         :actions="[['label' => 'Xóa đã chọn', 'value' => 'delete', 'class' => 'bg-red-50 border border-red-300 text-red-700 hover:bg-red-100']]"
         :formAction="route('admin.locations.districts.bulk-destroy')"
@@ -20,18 +20,18 @@
                 <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Thao tác</th>
             </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200" id="districts-sortable">
+        <tbody class="bg-white divide-y divide-gray-200" id="districts-sortable" data-sortable data-reorder-url="{{ route('admin.locations.districts.reorder') }}">
             @forelse($paginator as $district)
-            <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $district->id }}">
+            <tr class="hover:bg-gray-50 transition-colors" data-id="{{ $district->id }}" data-sortable-id="{{ $district->id }}">
                 <td class="px-4 py-3">
                     <input type="checkbox" data-row-checkbox value="{{ $district->id }}" class="rounded border-gray-300 text-brand-500 focus:ring-brand-500">
                 </td>
-                <td class="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp">
+                <td class="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp" data-drag-handle>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8M8 15h8"/></svg>
                 </td>
                 <td class="px-4 py-3">
                     @if($district->thumbnail_url)
-                    <img src="{{ asset('storage/' . $district->thumbnail_url) }}"
+                    <img src="{{ \App\Helpers\SystemHelper::mediaUrl($district->thumbnail_url) }}"
                          alt="{{ $district->name }}"
                          class="w-10 h-10 object-cover rounded">
                     @else
@@ -44,7 +44,7 @@
                 <td class="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{{ $district->province?->name ?? '—' }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 hidden lg:table-cell">{{ $district->districtType?->name ?? '—' }}</td>
                 <td class="px-4 py-3 text-sm text-gray-600 font-mono text-xs hidden lg:table-cell">{{ $district->slug }}</td>
-                <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $district->priority }}</td>
+                <td class="px-4 py-3 text-sm text-gray-600 text-center" data-priority-value>{{ $district->priority }}</td>
                 <td class="px-4 py-3 text-right">
                     <div class="flex items-center justify-end gap-2">
                         <a href="{{ route('admin.locations.districts.edit', $district) }}"
@@ -67,25 +67,3 @@
 
     <x-admin::table.pagination :paginator="$paginator" />
 </x-admin::table.table>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var el = document.getElementById('districts-sortable');
-    if (!el || typeof Sortable === 'undefined') return;
-    Sortable.create(el, {
-        animation: 150,
-        handle: 'td:nth-child(2)',
-        onEnd: function () {
-            var ids = Array.from(el.querySelectorAll('tr[data-id]')).map(function (r) { return r.dataset.id; });
-            fetch('{{ route('admin.locations.districts.reorder') }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                },
-                body: JSON.stringify({ ids: ids }),
-            });
-        },
-    });
-});
-</script>

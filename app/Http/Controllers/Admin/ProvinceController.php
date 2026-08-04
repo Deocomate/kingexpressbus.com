@@ -9,6 +9,7 @@ use App\Models\Province;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\UploadStager;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -97,12 +98,12 @@ class ProvinceController extends Controller
             ->with('success', 'Đã xóa ' . count($ids) . ' tỉnh/thành phố.');
     }
 
-    public function reorder(Request $request): RedirectResponse
+    public function reorder(Request $request): JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có dữ liệu để sắp xếp.');
+            return response()->json(['ok' => false, 'message' => 'Không có dữ liệu để sắp xếp.'], 422);
         }
 
         $total = count($ids);
@@ -112,7 +113,7 @@ class ProvinceController extends Controller
             }
         });
 
-        return back()->with('success', 'Đã lưu thứ tự.');
+        return response()->json(['ok' => true]);
     }
 
     // ─── Upload helpers ───────────────────────────────────────────────────────

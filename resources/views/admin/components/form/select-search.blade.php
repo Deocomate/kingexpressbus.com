@@ -1,4 +1,4 @@
-﻿@props([
+@props([
     'name',
     'label'      => null,
     'options'    => [],   // static: ['value' => 'label']

@@ -33,7 +33,7 @@
 - Route names: dot notation with kebab-like resource segments
     - Example: `admin.trips.index`, `client.routes.search`
 - URI paths: lowercase/kebab style where applicable
-    - Example: `/tuyen-duong`, `/dat-ve`, `/admin/trips`
+    - Example: `/tuyen-duong`, `/dat-ve`, `/quan-tri/chuyen-xe`
 
 ## 3. Architecture Conventions
 

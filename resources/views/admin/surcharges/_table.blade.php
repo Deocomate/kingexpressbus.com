@@ -1,4 +1,4 @@
-﻿{{-- Search --}}
+{{-- Search --}}
 <form method="GET" action="{{ route('admin.surcharges.index') }}" class="flex gap-3 items-end px-1 py-3">
     <div class="flex-1 max-w-xs">
         <label class="block text-xs font-medium text-gray-600 mb-1">Tìm kiếm</label>

@@ -22,8 +22,8 @@ Core domain is route-trip-booking management with supporting location data and w
 - Separate admin and client authentication flows.
 - Public registration for clients.
 - Middleware-based role protection:
-    - `AdminAuthMiddleware`
-    - `CustomerAuthMiddleware`
+    - `App\Http\Middleware\AdminAuthMiddleware` (admin `/quan-tri`)
+    - `App\Http\Middleware\Roles\CustomerAuthMiddleware` (client portal)
 
 ### 3.2 Admin Capabilities
 

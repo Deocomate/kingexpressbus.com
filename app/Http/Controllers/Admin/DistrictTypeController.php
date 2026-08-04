@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreDistrictTypeRequest;
 use App\Http\Requests\Admin\UpdateDistrictTypeRequest;
 use App\Models\DistrictType;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,12 +51,12 @@ class DistrictTypeController extends Controller
             ->with('success', 'Đã xóa ' . count($ids) . ' loại địa điểm.');
     }
 
-    public function reorder(Request $request): RedirectResponse
+    public function reorder(Request $request): JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có dữ liệu để sắp xếp.');
+            return response()->json(['ok' => false, 'message' => 'Không có dữ liệu để sắp xếp.'], 422);
         }
 
         $total = count($ids);
@@ -65,6 +66,6 @@ class DistrictTypeController extends Controller
             }
         });
 
-        return back()->with('success', 'Đã lưu thứ tự.');
+        return response()->json(['ok' => true]);
     }
 }

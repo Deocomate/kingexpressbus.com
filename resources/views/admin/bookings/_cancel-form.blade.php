@@ -10,7 +10,7 @@
         bookingCode: '',
         reason: '',
         get actionUrl() {
-            return @json(route('admin.bookings.cancel', ['booking' => '__ID__'])).replace('__ID__', this.bookingId);
+            return @js(route('admin.bookings.cancel', ['booking' => '__ID__'])).replace('__ID__', this.bookingId);
         },
         init() {
             window.addEventListener('open-cancel-slide-over', (e) => {

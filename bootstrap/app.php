@@ -41,6 +41,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->prefix('quan-tri')
                 ->name('admin.')
                 ->group(base_path('routes/admin/ui.php'));
+
+            // Legacy Filament /admin bookmarks → /quan-tri (after panel removal)
+            Route::middleware('web')
+                ->group(base_path('routes/admin-legacy-redirect.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware) {

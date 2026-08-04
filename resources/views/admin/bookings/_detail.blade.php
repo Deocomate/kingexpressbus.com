@@ -1,4 +1,4 @@
-﻿{{--
+{{--
   Booking detail slide-over.
   Opened via Alpine event: $dispatch('open-booking-detail', { bookingId: N })
   The content is loaded via fetch and injected into the slide-over body.
@@ -150,7 +150,7 @@
             this.loading = true;
             this.content = '';
             try {
-                const url = @json(route('admin.bookings.show', ['booking' => '__ID__'])).replace('__ID__', id);
+                const url = @js(route('admin.bookings.show', ['booking' => '__ID__'])).replace('__ID__', id);
                 const r = await fetch(url, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' }
                 });

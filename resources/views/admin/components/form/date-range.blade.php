@@ -1,4 +1,4 @@
-﻿@props([
+@props([
     'nameFrom' => 'date_from',
     'nameTo'   => 'date_to',
     'label'    => null,

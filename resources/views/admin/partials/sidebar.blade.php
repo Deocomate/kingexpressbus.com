@@ -2,8 +2,7 @@
 <aside
     x-data
     :class="$store.sidebar.collapsed ? 'w-16' : 'w-64'"
-    class="flex-shrink-0 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 overflow-hidden"
-    style="min-height: 100vh;"
+    class="flex h-full flex-shrink-0 flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300"
 >
     {{-- Logo / Brand --}}
     <div class="flex items-center h-16 px-4 border-b border-gray-200 flex-shrink-0">
@@ -23,7 +22,7 @@
     </div>
 
     {{-- Navigation --}}
-    <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2">
+    <nav class="min-h-0 flex-1 overflow-y-auto space-y-1 px-2 py-4">
         @foreach(\App\Support\Admin\Navigation::items() as $item)
             <a
                 href="{{ route($item['route']) }}"

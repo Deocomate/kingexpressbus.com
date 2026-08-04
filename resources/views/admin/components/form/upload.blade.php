@@ -1,4 +1,4 @@
-﻿@props([
+@props([
     'name',
     'label'      => null,
     'value'      => null,   // existing file path(s)
@@ -15,6 +15,12 @@
     if ($multiple && !is_array($existing)) {
         $existing = $existing ? [$existing] : [];
     }
+    // Raw stored paths (not the resolved display URL) — this is what the backend
+    // (BusController/RouteController/etc. prepareData()) expects back for files
+    // that are kept unchanged: a value without '~' is stored as-is, so it must
+    // match the DB column exactly or the "unchanged" image gets treated as removed.
+    $existingPaths = $multiple ? array_values(array_filter($existing)) : ($existing ? [$existing] : []);
+    $existingUrls = array_map(fn ($path) => \App\Helpers\SystemHelper::mediaUrl($path), $existingPaths);
 @endphp
 <div>
     @if($label)
@@ -23,20 +29,21 @@
     </label>
     @endif
     <div
-        data-filepond
+        data-dropzone
+        class="dropzone"
         data-name="{{ $name }}"
         data-multiple="{{ $multiple ? 'true' : 'false' }}"
         data-accept="{{ $accept }}"
         data-max-size="{{ $maxSize }}"
         data-process-url="{{ route('admin.api.upload.process') }}"
         data-revert-url="{{ route('admin.api.upload.revert') }}"
-        @if($multiple && is_array($existing))
-            data-existing='@json(array_filter($existing))'
-        @elseif(!$multiple && $existing)
-            data-existing='@json([$existing])'
+        @if(!empty($existingUrls))
+            data-existing='@json($existingUrls)'
+            data-existing-paths='@json($existingPaths)'
         @endif
     >
-        {{-- FilePond mounts here --}}
+        {{-- Dropzone mounts here; class="dropzone" is required for CDN CSS
+             (.dropzone .dz-preview …) and for Dropzone to inject dz-message. --}}
     </div>
     @if($hint && !$hasError)
     <p class="mt-1 text-xs text-gray-500">{{ $hint }}</p>

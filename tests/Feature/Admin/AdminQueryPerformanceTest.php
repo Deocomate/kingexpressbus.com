@@ -1,20 +1,15 @@
 <?php
 
 /**
- * Query budgets for heavy admin index pages, measured against Filament siblings
- * on the same seeded dataset. Thresholds are measured numbers, not guesses.
+ * Absolute query budgets for heavy admin index pages (Filament siblings removed).
  */
 
-use App\Filament\Resources\Bookings\Pages\ListBookings;
-use App\Filament\Resources\Routes\Pages\ListRoutes;
-use App\Filament\Resources\Trips\Pages\ListTrips;
 use App\Models\Booking;
 use App\Models\Route;
 use App\Models\Trip;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
-use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -39,71 +34,40 @@ function countQueries(callable $callback): array
 
 function seedHeavyIndexes(int $n = 50): void
 {
-    // Keep seed size practical for CI; report documents scaling note for ~1000.
     Booking::factory()->count($n)->create();
     Trip::factory()->count(max(10, intdiv($n, 5)))->create();
     Route::factory()->count(max(10, intdiv($n, 5)))->create();
 }
 
-it('bookings index query count is at or below filament list on same data', function () {
+it('bookings index query count stays under budget', function () {
     $admin = User::factory()->admin()->create();
     seedHeavyIndexes(40);
-
-    $this->actingAs($admin);
-
-    $filament = countQueries(function () {
-        Livewire::test(ListBookings::class)->assertSuccessful();
-    });
 
     $adminCount = countQueries(function () use ($admin) {
         test()->actingAs($admin)->get(route('admin.bookings.index'))->assertSuccessful();
     });
 
-    expect($adminCount['count'])
-        ->toBeLessThanOrEqual($filament['count'] + 5) // small SSR overhead allowance
-        ->and($adminCount['count'])->toBeLessThan(80);
-
-    // Persist measured numbers for the parity report consumer.
-    expect([
-        'filament_bookings' => $filament['count'],
-        'admin_bookings' => $adminCount['count'],
-    ])->toBeArray();
+    expect($adminCount['count'])->toBeLessThan(80);
 });
 
-it('trips index query count is at or below filament list on same data', function () {
+it('trips index query count stays under budget', function () {
     $admin = User::factory()->admin()->create();
     seedHeavyIndexes(40);
-
-    $this->actingAs($admin);
-
-    $filament = countQueries(function () {
-        Livewire::test(ListTrips::class)->assertSuccessful();
-    });
 
     $adminCount = countQueries(function () use ($admin) {
         test()->actingAs($admin)->get(route('admin.trips.index'))->assertSuccessful();
     });
 
-    expect($adminCount['count'])
-        ->toBeLessThanOrEqual($filament['count'] + 5)
-        ->and($adminCount['count'])->toBeLessThan(80);
+    expect($adminCount['count'])->toBeLessThan(80);
 });
 
-it('routes index query count is at or below filament list on same data', function () {
+it('routes index query count stays under budget', function () {
     $admin = User::factory()->admin()->create();
     seedHeavyIndexes(40);
-
-    $this->actingAs($admin);
-
-    $filament = countQueries(function () {
-        Livewire::test(ListRoutes::class)->assertSuccessful();
-    });
 
     $adminCount = countQueries(function () use ($admin) {
         test()->actingAs($admin)->get(route('admin.routes.index'))->assertSuccessful();
     });
 
-    expect($adminCount['count'])
-        ->toBeLessThanOrEqual($filament['count'] + 5)
-        ->and($adminCount['count'])->toBeLessThan(80);
+    expect($adminCount['count'])->toBeLessThan(80);
 });

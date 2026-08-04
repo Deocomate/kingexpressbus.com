@@ -12,8 +12,8 @@
     data-chart
     data-chart-id="{{ $chartId }}"
     data-chart-type="{{ $type }}"
-    data-chart-data="{{ e(json_encode($data)) }}"
-    data-chart-options="{{ e(json_encode($options)) }}"
+    data-chart-data="{{ json_encode($data) }}"
+    data-chart-options="{{ json_encode($options) }}"
     style="height: {{ $height }}"
     class="relative"
 >

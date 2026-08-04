@@ -1,4 +1,4 @@
-﻿{{--
+{{--
   Polled partial: table rows + pagination.
   Alpine polls this via fetch() every 60s when the browser tab is visible.
   Receives: $paginator, $config, $activeTab, $activeSortKey, $activeSortDir, $badges

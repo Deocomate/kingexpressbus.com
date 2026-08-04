@@ -20,6 +20,19 @@ it('admin can access dashboard', function () {
     $this->actingAs($this->admin)->get(route('admin.dashboard'))->assertOk();
 });
 
+it('admin shell keeps a single main scrollbar', function () {
+    $html = $this->actingAs($this->admin)
+        ->get(route('admin.dashboard'))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('class="h-full overflow-hidden bg-gray-50"')
+        ->toContain('class="h-full overflow-hidden font-sans antialiased"')
+        ->toContain('flex-1 min-h-0 overflow-y-auto')
+        ->not->toContain('min-h-screen');
+});
+
 it('guest is redirected from dashboard', function () {
     $this->get(route('admin.dashboard'))->assertRedirect(route('admin.login'));
 });

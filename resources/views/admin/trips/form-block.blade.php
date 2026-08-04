@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('title', $block ? 'Sửa khóa chuyến' : 'Thêm khóa chuyến')
 
@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-<div class="max-w-2xl">
+<div>
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">{{ $block ? 'Sửa khóa chuyến' : 'Thêm khóa chuyến' }}</h1>
     </div>

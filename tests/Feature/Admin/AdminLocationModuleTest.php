@@ -453,10 +453,11 @@ it('reorder provinces assigns priority descending', function () {
 
     // Send order: p3 first (highest priority), p1 second, p2 last
     $this->actingAs($admin)
-        ->post(route('admin.locations.provinces.reorder'), [
+        ->postJson(route('admin.locations.provinces.reorder'), [
             'ids' => [$p3->id, $p1->id, $p2->id],
         ])
-        ->assertRedirect();
+        ->assertOk()
+        ->assertJsonPath('ok', true);
 
     expect($p3->fresh()->priority)->toBe(3);
     expect($p1->fresh()->priority)->toBe(2);
@@ -470,10 +471,11 @@ it('reorder stops assigns priority descending', function () {
     $admin    = loc_admin();
 
     $this->actingAs($admin)
-        ->post(route('admin.locations.stops.reorder'), [
+        ->postJson(route('admin.locations.stops.reorder'), [
             'ids' => [$s2->id, $s1->id],
         ])
-        ->assertRedirect();
+        ->assertOk()
+        ->assertJsonPath('ok', true);
 
     expect($s2->fresh()->priority)->toBe(2);
     expect($s1->fresh()->priority)->toBe(1);

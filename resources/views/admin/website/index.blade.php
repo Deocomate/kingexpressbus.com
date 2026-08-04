@@ -3,7 +3,7 @@
 @section('title', 'Cấu hình website')
 
 @section('content')
-<div class="max-w-screen-xl mx-auto">
+<div>
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-xl font-semibold text-gray-900">Cấu hình website</h1>

@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Parallel of FilamentAdminRefactorTest — same behaviors against /quan-tri.
- * Filament suite stays intact until Phase 10.
+ * Booking/admin refactor coverage against /quan-tri.
  */
 
 use App\Enums\BookingStatus;

@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Parallel of FilamentAdminOptimizationTest — same assertions against /quan-tri.
- * Both suites must stay green while Filament remains alive.
+ * Booking admin optimization coverage against /quan-tri.
  */
 
 use App\Enums\BookingStatus;

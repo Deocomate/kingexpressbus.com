@@ -11,9 +11,7 @@
 
 ### 2.1 Admin Area
 
-Two admin UIs currently run in parallel (strangler):
-- Filament panel at `/admin` (legacy; removal is Phase 10 of the Blade migration plan)
-- Blade + Tailwind + Alpine admin at `/quan-tri` — feature parity hardened (Phase 9); maintainer UI guide: `docs/admin-ui-guidelines.md`
+Blade + Tailwind + Alpine admin at `/quan-tri` (maintainer UI guide: `docs/admin-ui-guidelines.md`). Legacy `/admin/*` URLs permanently redirect (301) to `/quan-tri/*`.
 
 Main responsibilities:
 - Website configuration (`web_profiles`, `menus`) — Blade module at `/quan-tri/cau-hinh-website` (`?section=profile|menus`; nested SortableJS tree ≤4 levels)
@@ -37,8 +35,7 @@ Client UI assets are built with Vite + Tailwind from `resources/css/app.css` and
 
 ### 2.3 Authentication & Middleware
 
-- Blade admin auth: `App\Http\Middleware\AdminAuthMiddleware` (prefix `/quan-tri`; priority before route-model binding)
-- Filament admin panel auth remains separate until cutover
+- Admin auth: `App\Http\Middleware\AdminAuthMiddleware` (prefix `/quan-tri`; priority before route-model binding)
 - Customer auth middleware: under `App\Http\Middleware\Roles\` (client portal)
 
 ## 3. Important Directories
@@ -52,9 +49,9 @@ Client UI assets are built with Vite + Tailwind from `resources/css/app.css` and
 - `app/Services`: business logic services for booking, bus, route, trip, and home
 - `app/Models`: Eloquent models (Booking, Bus, District, Province, Route, Stop, Trip, User, etc.)
 - `resources/views/client`: public client Blade views
-- `resources/css` and `resources/js`: Vite-built client + admin frontend assets
+- `resources/css` and `resources/js`: Vite-built client assets (`app.js`/`app.css`) + admin Tailwind CSS (`admin.css`); admin JS source lives in `resources/js/admin/*.js` but ships as static files from `public/js/admin/**` via CDN import map, not through Vite
 - `assets/client`: committed client static images and icons (served via `public/assets/client`)
-- `assets/admin`: admin static assets; Filament vendor assets publish to `public/assets/admin/filament`
+- `assets/admin`: admin static assets (logos/icons served via `public/assets/admin`)
 - `storage/app/public`: user uploads (`buses/`, `routes/`, `media/`, etc.)
 - `routes/web.php`: primary client/public route definitions
 - `database/migrations`: schema source of truth

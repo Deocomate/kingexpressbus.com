@@ -1,6 +1,7 @@
 {{--
     Route stops block — independent fetch CRUD, no form submission with parent route form.
-    Only rendered on edit page. SortableJS reorder via priority DESC.
+    Only rendered on edit page. Drag&drop reorder (Shopify Draggable, via window.ShopifyDraggable
+    set by public/js/admin/sortable.js) posts new priority order to reorderUrl.
 --}}
 @php
     $stops = $route->routeStops->map(fn ($rs) => [
@@ -65,9 +66,9 @@
                     <tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 text-sm">Chưa có điểm dừng nào. Thêm điểm dừng để sắp xếp hành trình.</td></tr>
                 </template>
                 <template x-for="stop in stops" :key="stop.id">
-                    <tr class="hover:bg-gray-50 transition-colors cursor-grab" :data-id="stop.id">
-                        <td class="px-4 py-2.5 text-gray-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+                    <tr class="hover:bg-gray-50 transition-colors" :data-id="stop.id" :data-sortable-id="stop.id">
+                        <td class="px-4 py-2.5 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp" data-drag-handle>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
                         </td>
                         <td class="px-4 py-2.5 font-medium text-gray-900" x-text="stop.stop_name"></td>
                         <td class="px-4 py-2.5">
@@ -81,11 +82,11 @@
                                 x-text="stop.stop_type_label"
                             ></span>
                         </td>
-                        <td class="px-4 py-2.5 text-right text-gray-500 text-xs" x-text="stop.priority"></td>
+                        <td class="px-4 py-2.5 text-right text-gray-500 text-xs" data-priority-value x-text="stop.priority"></td>
                         <td class="px-4 py-2.5 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button type="button" @click="openEdit(stop)" class="text-xs text-gray-500 hover:text-amber-600 transition-colors">Sửa</button>
-                                <button type="button" @click="deleteStop(stop.id)" class="text-xs text-gray-400 hover:text-red-600 transition-colors">Xóa</button>
+                                <button type="button" @click="openEdit(stop)" class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">Sửa</button>
+                                <button type="button" @click="deleteStop(stop.id)" class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors">Xóa</button>
                             </div>
                         </td>
                     </tr>
@@ -171,22 +172,52 @@ function routeStopsBlock(config) {
 
         initSortable() {
             var el = document.getElementById('stops-sortable');
-            if (!el || typeof Sortable === 'undefined') return;
-            this.sortableInstance = Sortable.create(el, {
-                animation: 150,
-                onEnd: () => this.onReorder(el),
+            var SortableCtor = window.ShopifyDraggable && window.ShopifyDraggable.Sortable;
+            if (!el || !SortableCtor) return;
+            if (this.sortableInstance) this.sortableInstance.destroy();
+            this.sortableInstance = new SortableCtor([el], {
+                draggable: 'tr[data-id]',
+                handle: '[data-drag-handle]',
+                mirror: { appendTo: 'body', constrainDimensions: true },
             });
+            // Rows have @click actions (Alpine) — keep the <body>-appended mirror
+            // clone out of Alpine's mutation observer so it doesn't try to init
+            // those directives outside their x-data scope.
+            this.sortableInstance.on('mirror:created', ({ mirror }) => mirror.setAttribute('x-ignore', ''));
+            this.sortableInstance.on('sortable:stop', () => this.onReorder(el));
         },
 
         onReorder(el) {
             var ids = Array.from(el.querySelectorAll('tr[data-id]')).map(r => r.dataset.id);
+            var total = ids.length;
             fetch(config.reorderUrl, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': config.csrfToken},
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': config.csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
                 body: JSON.stringify({ ids }),
-            }).then(r => r.json()).then(data => {
-                if (!data.ok) this.errorMsg = data.message || 'Lỗi khi sắp xếp.';
-                else this.errorMsg = '';
+            }).then(r => {
+                if (!r.ok) throw new Error('reorder failed');
+                return r.json();
+            }).then(data => {
+                if (!data.ok) {
+                    this.errorMsg = data.message || 'Lỗi khi sắp xếp.';
+                    return;
+                }
+                this.errorMsg = '';
+                // Keep Alpine state in sync with DOM so a later re-render
+                // does not snap rows back to the pre-drag order.
+                var byId = Object.fromEntries(this.stops.map(s => [String(s.id), s]));
+                this.stops = ids.map((id, index) => {
+                    var stop = byId[String(id)];
+                    if (stop) stop.priority = total - index;
+                    return stop;
+                }).filter(Boolean);
+            }).catch(() => {
+                this.errorMsg = 'Không lưu được thứ tự. Tải lại trang và thử lại.';
             });
         },
 

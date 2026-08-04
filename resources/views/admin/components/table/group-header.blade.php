@@ -14,12 +14,12 @@
         toggle() {
             this.collapsed = !this.collapsed;
             localStorage.setItem('{{ $storageKey }}', this.collapsed);
-            document.querySelectorAll('[data-group-rows=\"{{ $key }}\"]').forEach(tr => {
+            document.querySelectorAll('[data-group-rows=\'{{ $key }}\']').forEach(tr => {
                 tr.style.display = this.collapsed ? 'none' : '';
             });
         }
     }"
-    x-init="if(collapsed) document.querySelectorAll('[data-group-rows=\"{{ $key }}\"]').forEach(tr => tr.style.display = 'none')"
+    x-init="if(collapsed) document.querySelectorAll('[data-group-rows=\'{{ $key }}\']').forEach(tr => tr.style.display = 'none')"
     class="bg-gray-50 cursor-pointer select-none hover:bg-gray-100 transition-colors"
     @click="toggle()"
 >

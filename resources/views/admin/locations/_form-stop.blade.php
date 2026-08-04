@@ -1,4 +1,4 @@
-﻿{{-- Create slide-over --}}
+{{-- Create slide-over --}}
 <x-admin::display.slide-over id="stop-create-over" title="Thêm điểm dừng">
     <form method="POST" action="{{ route('admin.locations.stops.store') }}" class="space-y-5">
         @csrf

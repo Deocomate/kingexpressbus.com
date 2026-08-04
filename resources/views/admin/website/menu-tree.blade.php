@@ -1,4 +1,4 @@
-﻿@php
+@php
 use App\Models\Menu;
 use App\Models\Route as RouteModel;
 use App\Support\Admin\MenuTreeBuilder;

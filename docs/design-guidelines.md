@@ -2,7 +2,7 @@
 
 ## Scope
 
-These guidelines apply to the public client portal only. Filament admin screens keep their own design system.
+These guidelines apply to the public client portal only. Admin UI guidance lives in `docs/admin-ui-guidelines.md`.
 
 ## Build
 

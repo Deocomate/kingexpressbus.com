@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 @section('title', 'UI Kit Demo')
 
 @section('content')
@@ -190,6 +190,7 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide w-8">
                             <input type="checkbox" class="rounded border-gray-300">
                         </th>
+                        <th class="px-4 py-3 w-10"></th>
                         @foreach($columns as $col)
                         @if(!$col->defaultHidden)
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide" data-col="{{ $col->key }}">
@@ -205,6 +206,9 @@
                     <tr class="hover:bg-gray-50" data-sortable-id="{{ $row['id'] }}">
                         <td class="px-4 py-3">
                             <input type="checkbox" value="{{ $row['id'] }}" class="rounded border-gray-300">
+                        </td>
+                        <td class="px-2 py-3 text-gray-400 cursor-grab active:cursor-grabbing" title="Kéo để sắp xếp" data-drag-handle>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h8M8 15h8"/></svg>
                         </td>
                         <td class="px-4 py-3 text-gray-900 font-medium">{{ $row['id'] }}</td>
                         <td class="px-4 py-3 text-gray-700">{{ $row['name'] }}</td>
@@ -222,8 +226,8 @@
                         <td class="px-4 py-3 text-right">
                             <div class="flex items-center justify-end gap-2">
                                 <x-admin::table.toggle-cell url="#" :value="$row['status'] === 'active'" label="Bật/tắt" />
-                                <a href="#" class="text-brand-600 hover:text-brand-800 text-xs font-medium">Sửa</a>
-                                <button type="button" data-confirm data-confirm-title="Xóa bản ghi?" data-confirm-text="Bạn có chắc muốn xóa {{ $row['name'] }}?" class="text-red-600 hover:text-red-800 text-xs font-medium">Xóa</button>
+                                <a href="#" class="text-xs px-2 py-1 rounded border border-gray-300 text-gray-600 hover:bg-gray-50 transition-colors">Sửa</a>
+                                <button type="button" data-confirm data-confirm-title="Xóa bản ghi?" data-confirm-text="Bạn có chắc muốn xóa {{ $row['name'] }}?" class="text-xs px-2 py-1 rounded border border-red-300 text-red-600 hover:bg-red-50 transition-colors">Xóa</button>
                             </div>
                         </td>
                     </tr>

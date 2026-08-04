@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTripRequest;
 use App\Http\Requests\Admin\UpdateTripRequest;
 use App\Models\Bus;
+use App\Models\Province;
 use App\Models\Route;
 use App\Models\Trip;
 use App\Models\TripBlock;
@@ -17,6 +18,7 @@ use App\Support\Admin\TableQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class TripController extends Controller
@@ -27,11 +29,21 @@ class TripController extends Controller
         $routes = Route::orderBy('name')->get();
         $buses  = Bus::orderBy('name')->get();
 
-        if ($section === 'blocks') {
-            return $this->indexBlocks($request, $routes, $buses);
+        $viewData = $section === 'blocks'
+            ? $this->blocksData($request, $routes, $buses)
+            : $this->tripsData($request, $routes, $buses);
+
+        // AJAX pagination/filter/per-page requests only need the table rows,
+        // not the full page (tabs, filter form, province sidebar) — returning
+        // the full page here would get injected inside itself by table.js's
+        // outerHTML swap, duplicating the whole layout on screen.
+        if ($request->header('X-Partial') === 'table') {
+            $partial = $section === 'blocks' ? 'admin.trips._table-blocks-rows' : 'admin.trips._table-trips-rows';
+
+            return view($partial, $viewData);
         }
 
-        return $this->indexTrips($request, $routes, $buses);
+        return view('admin.trips.index', array_merge($viewData, ['section' => $section]));
     }
 
     public function create(): View
@@ -154,8 +166,10 @@ class TripController extends Controller
 
     // -------------------------------------------------------------------------
 
-    private function indexTrips(Request $request, $routes, $buses): View
+    private function tripsData(Request $request, $routes, $buses): array
     {
+        $provinceId = (int) $request->input('filter.province_id', 0);
+
         $baseQuery = Trip::query()
             ->join('routes', 'trips.route_id', '=', 'routes.id')
             ->join('buses', 'trips.bus_id', '=', 'buses.id')
@@ -163,6 +177,9 @@ class TripController extends Controller
             ->orderByDesc('trips.priority');
 
         // Apply filters before TableQuery tab processing
+        if ($provinceId) {
+            $baseQuery->where('routes.province_start_id', $provinceId);
+        }
         if ($routeId = (int) $request->input('filter.route_id', 0)) {
             $baseQuery->where('trips.route_id', $routeId);
         }
@@ -177,22 +194,41 @@ class TripController extends Controller
         $grouped = collect($tq->paginator()->items())
             ->groupBy(fn ($t) => $t->route_name ?? '—');
 
-        return view('admin.trips.index', [
-            'section'       => 'trips',
-            'paginator'     => $tq->paginator(),
-            'grouped'       => $grouped,
-            'activeTab'     => $tq->activeTab(),
-            'tabBadges'     => $tq->tabBadges(),
-            'tabs'          => $config->getTabs(),
-            'routes'        => $routes,
-            'buses'         => $buses,
-            'filterRouteId' => $request->input('filter.route_id'),
-            'filterBusId'   => $request->input('filter.bus_id'),
-            'search'        => $tq->activeSearch(),
-        ]);
+        // Departure provinces with route/trip counts, for the sidebar navigation
+        $provinceStats = DB::table('provinces as p')
+            ->join('routes as r', 'r.province_start_id', '=', 'p.id')
+            ->leftJoin('trips as t', 't.route_id', '=', 'r.id')
+            ->selectRaw('p.id, p.name, COUNT(DISTINCT r.id) as route_count, COUNT(t.id) as trip_count')
+            ->groupBy('p.id', 'p.name')
+            ->orderBy('p.name')
+            ->get();
+
+        $selectedProvince = $provinceId ? Province::find($provinceId) : null;
+
+        // Cascade the route filter options to only routes departing from the selected province
+        $routesForFilter = $provinceId
+            ? $routes->where('province_start_id', $provinceId)->values()
+            : $routes;
+
+        return [
+            'paginator'        => $tq->paginator(),
+            'grouped'          => $grouped,
+            'activeTab'        => $tq->activeTab(),
+            'tabBadges'        => $tq->tabBadges(),
+            'tabs'             => $config->getTabs(),
+            'routes'           => $routesForFilter,
+            'buses'            => $buses,
+            'filterRouteId'    => $request->input('filter.route_id'),
+            'filterBusId'      => $request->input('filter.bus_id'),
+            'search'           => $tq->activeSearch(),
+            'perPage'          => $tq->perPage(),
+            'perPageOptions'   => $config->getPerPageOptions(),
+            'provinceStats'    => $provinceStats,
+            'selectedProvince' => $selectedProvince,
+        ];
     }
 
-    private function indexBlocks(Request $request, $routes, $buses): View
+    private function blocksData(Request $request, $routes, $buses): array
     {
         $baseQuery = TripBlock::query()
             ->join('trips', 'trip_blocks.trip_id', '=', 'trips.id')
@@ -230,18 +266,19 @@ class TripController extends Controller
         $config = TripBlockTableConfig::make();
         $tq     = TableQuery::make($baseQuery, $config)->process($request);
 
-        return view('admin.trips.index', [
-            'section'       => 'blocks',
-            'paginator'     => $tq->paginator(),
-            'grouped'       => null,
-            'activeTab'     => '',
-            'tabBadges'     => [],
-            'tabs'          => [],
-            'routes'        => $routes,
-            'buses'         => $buses,
-            'filterRouteId' => $request->input('filter.route_id'),
-            'filterBusId'   => null,
-            'search'        => $tq->activeSearch(),
-        ]);
+        return [
+            'paginator'      => $tq->paginator(),
+            'grouped'        => null,
+            'activeTab'      => '',
+            'tabBadges'      => [],
+            'tabs'           => [],
+            'routes'         => $routes,
+            'buses'          => $buses,
+            'filterRouteId'  => $request->input('filter.route_id'),
+            'filterBusId'    => null,
+            'search'         => $tq->activeSearch(),
+            'perPage'        => $tq->perPage(),
+            'perPageOptions' => $config->getPerPageOptions(),
+        ];
     }
 }

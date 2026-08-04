@@ -94,6 +94,25 @@ it('edit page shows route form', function () {
     $this->actingAs($admin)->get(route('admin.routes.edit', $route->id))->assertOk()->assertViewIs('admin.routes.form');
 });
 
+it('upload fields expose dropzone class required for CDN CSS', function () {
+    $admin = routeAdminUser();
+    $route = Route::factory()->create([
+        'thumbnail_url' => '/assets/client/images/city_imgs/sapa.jpg',
+    ]);
+
+    $html = $this->actingAs($admin)
+        ->get(route('admin.routes.edit', $route->id))
+        ->assertOk()
+        ->getContent();
+
+    expect($html)
+        ->toContain('data-dropzone')
+        ->toContain('class="dropzone"')
+        ->toContain('dropzone@5.9.3/dist/min/dropzone.min.css')
+        ->toContain('dropzone@5.9.3/dist/min/dropzone.min.js')
+        ->toContain('Dropzone.autoDiscover = false');
+});
+
 // ---------------------------------------------------------------------------
 // Delete guard — both paths
 // ---------------------------------------------------------------------------
@@ -185,6 +204,37 @@ it('deletes a route stop', function () {
     )->assertOk()->assertJsonPath('ok', true);
 
     expect(RouteStop::find($rs->id))->toBeNull();
+});
+
+// ---------------------------------------------------------------------------
+// Route reorder
+// ---------------------------------------------------------------------------
+
+it('reorders routes and writes priority desc', function () {
+    $admin = routeAdminUser();
+    $r1 = Route::factory()->create(['priority' => 1]);
+    $r2 = Route::factory()->create(['priority' => 2]);
+    $r3 = Route::factory()->create(['priority' => 3]);
+
+    $this->actingAs($admin)->postJson(
+        route('admin.routes.reorder'),
+        ['ids' => [$r1->id, $r3->id, $r2->id]]
+    )->assertOk()->assertJsonPath('ok', true);
+
+    expect($r1->fresh()->priority)->toBe(3);
+    expect($r3->fresh()->priority)->toBe(2);
+    expect($r2->fresh()->priority)->toBe(1);
+});
+
+it('routes index exposes drag handle so row actions stay clickable', function () {
+    $admin = routeAdminUser();
+    Route::factory()->create();
+
+    $this->actingAs($admin)
+        ->get(route('admin.routes.index'))
+        ->assertOk()
+        ->assertSee('data-drag-handle', false)
+        ->assertSee('data-sortable', false);
 });
 
 // ---------------------------------------------------------------------------

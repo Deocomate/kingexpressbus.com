@@ -1,4 +1,4 @@
-﻿@extends('admin.layouts.app')
+@extends('admin.layouts.app')
 
 @section('title', $surcharge ? 'Sửa phụ thu' : 'Thêm phụ thu')
 
@@ -9,7 +9,7 @@
 @endsection
 
 @section('content')
-<div class="max-w-3xl">
+<div>
     <div class="mb-6">
         <h1 class="text-2xl font-semibold text-gray-900">{{ $surcharge ? 'Sửa phụ thu' : 'Thêm phụ thu' }}</h1>
     </div>

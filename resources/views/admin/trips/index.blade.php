@@ -34,9 +34,24 @@
     @include('admin.trips._section-tabs', ['activeSection' => $section])
 
     @if($section === 'trips')
-        @include('admin.trips._table', compact('paginator','grouped','activeTab','tabBadges','tabs','routes','buses','filterRouteId','filterBusId','search'))
+        <div class="flex flex-col lg:flex-row gap-4 items-start">
+            @include('admin.trips._province-sidebar', compact('provinceStats','selectedProvince'))
+
+            <div class="flex-1 min-w-0 w-full">
+                @if($selectedProvince)
+                <div class="mb-3 flex items-center gap-2 text-sm text-gray-600">
+                    <span>Tuyến đi từ</span>
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 font-medium">
+                        {{ $selectedProvince->name }}
+                        <a href="{{ route('admin.trips.index', ['section' => 'trips']) }}" class="ml-1 text-brand-400 hover:text-brand-700" title="Bỏ lọc">&times;</a>
+                    </span>
+                </div>
+                @endif
+                @include('admin.trips._table', compact('paginator','grouped','activeTab','tabBadges','tabs','routes','buses','filterRouteId','filterBusId','search','selectedProvince','perPage','perPageOptions'))
+            </div>
+        </div>
     @else
-        @include('admin.trips._table-blocks', compact('paginator','routes','filterRouteId','search'))
+        @include('admin.trips._table-blocks', compact('paginator','routes','filterRouteId','search','perPage','perPageOptions'))
     @endif
 </div>
 @endsection

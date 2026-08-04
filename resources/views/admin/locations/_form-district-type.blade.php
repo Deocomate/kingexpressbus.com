@@ -1,4 +1,4 @@
-﻿{{-- Create slide-over --}}
+{{-- Create slide-over --}}
 <x-admin::display.slide-over id="dt-create-over" title="Thêm loại địa điểm">
     <form method="POST" action="{{ route('admin.locations.district-types.store') }}" class="space-y-5">
         @csrf
