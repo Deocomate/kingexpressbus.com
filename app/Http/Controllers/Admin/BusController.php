@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreBusRequest;
 use App\Http\Requests\Admin\UpdateBusRequest;
 use App\Models\Bus;
 use App\Models\BusService;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\TableQuery;
@@ -40,6 +41,13 @@ class BusController extends Controller
 
         $allServices = BusService::orderBy('name')->get(['id', 'name', 'icon']);
 
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.buses._table-buses-rows', [
+                'paginator' => $tq->paginator(),
+                'busServices' => $services,
+            ]);
+        }
+
         return view('admin.buses.index', [
             'section' => 'buses',
             'paginator' => $tq->paginator(),
@@ -58,6 +66,12 @@ class BusController extends Controller
         $base = BusServiceTableConfig::baseQuery();
 
         $tq = TableQuery::make($base, $config)->process($request);
+
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.buses._table-services-rows', [
+                'servicesPaginator' => $tq->paginator(),
+            ]);
+        }
 
         return view('admin.buses.index', [
             'section' => 'services',
@@ -136,12 +150,12 @@ class BusController extends Controller
             ->with('success', 'Đã xóa xe.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có bản ghi nào được chọn.');
+            return AdminResponse::bulkResult($request, false, 'Không có bản ghi nào được chọn.');
         }
 
         $buses = Bus::whereIn('id', $ids)->get();
@@ -165,9 +179,7 @@ class BusController extends Controller
             $message .= ' Không thể xóa: '.implode(', ', $blocked).'.';
         }
 
-        $flashKey = empty($blocked) ? 'success' : 'error';
-
-        return back()->with($flashKey, $message);
+        return AdminResponse::bulkResult($request, empty($blocked), $message);
     }
 
     public function reorder(Request $request): JsonResponse

@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProvinceRequest;
 use App\Http\Requests\Admin\UpdateProvinceRequest;
 use App\Models\Province;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\UploadStager;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,12 +75,12 @@ class ProvinceController extends Controller
             ->with('success', 'Đã xóa tỉnh/thành phố.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Chưa chọn bản ghi nào.');
+            return AdminResponse::bulkResult($request, false, 'Chưa chọn bản ghi nào.');
         }
 
         try {
@@ -88,13 +90,12 @@ class ProvinceController extends Controller
             ));
             DeleteGuard::assertNoBookings($total, count($ids) . ' tỉnh/thành đã chọn');
         } catch (DeleteBlockedException $e) {
-            return back()->with('error', $e->getMessage());
+            return AdminResponse::bulkResult($request, false, $e->getMessage());
         }
 
         Province::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.locations.index', ['section' => 'provinces'])
-            ->with('success', 'Đã xóa ' . count($ids) . ' tỉnh/thành phố.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' tỉnh/thành phố.');
     }
 
     public function reorder(Request $request): RedirectResponse

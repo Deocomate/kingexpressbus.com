@@ -27,6 +27,19 @@ class BookingController extends Controller
         [$tableQuery, $config] = $this->buildTableQuery($request);
         $tq = TableQuery::make($tableQuery, $config)->process($request);
 
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.bookings._table', [
+                'paginator'      => $tq->paginator(),
+                'config'         => $config,
+                'activeTab'      => $tq->activeTab(),
+                'activeSortKey'  => $tq->activeSortKey(),
+                'activeSortDir'  => $tq->activeSortDir(),
+                'activeSearch'   => $tq->activeSearch(),
+                'activeFilters'  => $request->input('filter', []),
+                'badges'         => $tq->tabBadges(),
+            ]);
+        }
+
         return view('admin.bookings.index', [
             'paginator'   => $tq->paginator(),
             'config'      => $config,

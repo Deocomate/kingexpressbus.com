@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreRouteRequest;
 use App\Http\Requests\Admin\UpdateRouteRequest;
 use App\Models\Route;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\TableQuery;
@@ -35,6 +36,14 @@ class RouteController extends Controller
         $tq = TableQuery::make($base, $config)->process($request);
 
         $provinces = DB::table('provinces')->orderBy('name')->get(['id', 'name']);
+
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.routes._table-rows', [
+                'paginator' => $tq->paginator(),
+                'activeSortKey' => $tq->activeSortKey(),
+                'activeSortDir' => $tq->activeSortDir(),
+            ]);
+        }
 
         return view('admin.routes.index', [
             'paginator' => $tq->paginator(),
@@ -108,12 +117,12 @@ class RouteController extends Controller
             ->with('success', 'Đã xóa tuyến đường.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có bản ghi nào được chọn.');
+            return AdminResponse::bulkResult($request, false, 'Không có bản ghi nào được chọn.');
         }
 
         $routes = Route::whereIn('id', $ids)->get();
@@ -138,9 +147,7 @@ class RouteController extends Controller
             $message .= ' Không thể xóa: '.implode(', ', $blocked).'.';
         }
 
-        $flashKey = empty($blocked) ? 'success' : 'error';
-
-        return back()->with($flashKey, $message);
+        return AdminResponse::bulkResult($request, empty($blocked), $message);
     }
 
     public function reorder(Request $request): JsonResponse

@@ -8,9 +8,11 @@ use App\Http\Requests\Admin\UpdateHolidaySurchargeRequest;
 use App\Models\HolidaySurcharge;
 use App\Models\Route;
 use App\Services\HolidaySurchargeService;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\Tables\HolidaySurchargeTableConfig;
 use App\Support\Admin\TableQuery;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,6 +27,12 @@ class HolidaySurchargeController extends Controller
 
         $config = HolidaySurchargeTableConfig::make();
         $tq     = TableQuery::make($baseQuery, $config)->process($request);
+
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.surcharges._table-rows', [
+                'paginator' => $tq->paginator(),
+            ]);
+        }
 
         return view('admin.surcharges.index', [
             'paginator' => $tq->paginator(),
@@ -78,20 +86,19 @@ class HolidaySurchargeController extends Controller
             ->with('success', 'Đã xóa phụ thu.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có mục nào được chọn.');
+            return AdminResponse::bulkResult($request, false, 'Không có mục nào được chọn.');
         }
 
         foreach ($ids as $id) {
             $this->service->deleteForAdmin($id);
         }
 
-        return redirect()->route('admin.surcharges.index')
-            ->with('success', 'Đã xóa ' . count($ids) . ' phụ thu.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' phụ thu.');
     }
 
     // -------------------------------------------------------------------------

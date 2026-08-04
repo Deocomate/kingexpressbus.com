@@ -133,7 +133,7 @@
 
     {{-- Main card — tabs live inside poll wrapper so badge counts refresh --}}
     <div class="bg-white rounded border border-gray-200 shadow-sm overflow-hidden">
-        <div id="booking-table-wrapper">
+        <div id="booking-table-wrapper" data-table>
             @include('admin.bookings._table', [
                 'paginator'      => $paginator,
                 'config'         => $config,

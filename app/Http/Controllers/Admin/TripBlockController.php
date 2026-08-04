@@ -8,7 +8,9 @@ use App\Http\Requests\Admin\UpdateTripBlockRequest;
 use App\Models\Route;
 use App\Models\Trip;
 use App\Models\TripBlock;
+use App\Support\Admin\AdminResponse;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -80,17 +82,16 @@ class TripBlockController extends Controller
             ->with('success', 'Đã xóa khóa chuyến.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có khóa chuyến nào được chọn.');
+            return AdminResponse::bulkResult($request, false, 'Không có khóa chuyến nào được chọn.');
         }
 
         TripBlock::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.trips.index', ['section' => 'blocks'])
-            ->with('success', 'Đã xóa ' . count($ids) . ' khóa chuyến.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' khóa chuyến.');
     }
 }

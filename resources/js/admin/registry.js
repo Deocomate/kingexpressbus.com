@@ -22,7 +22,7 @@ export function register(selector, controller) {
  */
 export function initTree(root = document.body) {
     controllers.forEach(({ init }, selector) => {
-        root.querySelectorAll(selector).forEach((el) => {
+        matchesInTree(root, selector).forEach((el) => {
             try {
                 init(el);
             } catch (err) {
@@ -42,7 +42,7 @@ export function initTree(root = document.body) {
  */
 export function destroyTree(root = document.body) {
     controllers.forEach(({ destroy }, selector) => {
-        root.querySelectorAll(selector).forEach((el) => {
+        matchesInTree(root, selector).forEach((el) => {
             try {
                 if (destroy) destroy(el);
             } catch (err) {
@@ -54,4 +54,22 @@ export function destroyTree(root = document.body) {
     if (window.Alpine?.destroyTree) {
         window.Alpine.destroyTree(root);
     }
+}
+
+/**
+ * Elements matching `selector` within root, INCLUDING root itself.
+ * `querySelectorAll` alone only searches descendants, so a root element
+ * that itself carries the matched attribute (e.g. the `[data-table]` div
+ * passed straight into initTree/destroyTree after a partial HTML swap)
+ * would otherwise never get its controller re-attached.
+ * @param {Element} root
+ * @param {string} selector
+ * @returns {Element[]}
+ */
+function matchesInTree(root, selector) {
+    const els = Array.from(root.querySelectorAll(selector));
+    if (root.matches?.(selector)) {
+        els.unshift(root);
+    }
+    return els;
 }

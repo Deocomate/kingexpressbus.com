@@ -9,6 +9,7 @@ use App\Models\Bus;
 use App\Models\Route;
 use App\Models\Trip;
 use App\Models\TripBlock;
+use App\Support\Admin\AdminResponse;
 use App\Support\Admin\DeleteBlockedException;
 use App\Support\Admin\DeleteGuard;
 use App\Support\Admin\Tables\TripBlockTableConfig;
@@ -99,25 +100,24 @@ class TripController extends Controller
             ->with('success', 'Đã xóa chuyến xe.');
     }
 
-    public function bulkDestroy(Request $request): RedirectResponse
+    public function bulkDestroy(Request $request): RedirectResponse|JsonResponse
     {
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
 
         if (empty($ids)) {
-            return back()->with('error', 'Không có chuyến xe nào được chọn.');
+            return AdminResponse::bulkResult($request, false, 'Không có chuyến xe nào được chọn.');
         }
 
         try {
             $total = collect($ids)->sum(fn ($id) => DeleteGuard::tripBookingCount($id));
             DeleteGuard::assertNoBookings($total);
         } catch (DeleteBlockedException $e) {
-            return back()->with('error', $e->getMessage());
+            return AdminResponse::bulkResult($request, false, $e->getMessage());
         }
 
         Trip::whereIn('id', $ids)->delete();
 
-        return redirect()->route('admin.trips.index')
-            ->with('success', 'Đã xóa ' . count($ids) . ' chuyến xe.');
+        return AdminResponse::bulkResult($request, true, 'Đã xóa ' . count($ids) . ' chuyến xe.');
     }
 
     public function toggleActive(Request $request, Trip $trip): JsonResponse
@@ -177,6 +177,13 @@ class TripController extends Controller
         $grouped = collect($tq->paginator()->items())
             ->groupBy(fn ($t) => $t->route_name ?? '—');
 
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.trips._table-rows', [
+                'grouped'   => $grouped,
+                'paginator' => $tq->paginator(),
+            ]);
+        }
+
         return view('admin.trips.index', [
             'section'       => 'trips',
             'paginator'     => $tq->paginator(),
@@ -229,6 +236,12 @@ class TripController extends Controller
 
         $config = TripBlockTableConfig::make();
         $tq     = TableQuery::make($baseQuery, $config)->process($request);
+
+        if ($request->header('X-Partial') === 'table') {
+            return view('admin.trips._table-blocks-rows', [
+                'paginator' => $tq->paginator(),
+            ]);
+        }
 
         return view('admin.trips.index', [
             'section'       => 'blocks',
